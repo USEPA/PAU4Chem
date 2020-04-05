@@ -1,0 +1,6 @@
+web_sites:
+  TRI:
+    url: https://www.epa.gov/toxics-release-inventory-tri-program/tri-basic-plus-data-files-calendar-years-1987-2017
+    queries:
+      TRI_year_reported: 'option'
+      TRI_zip: 'value'

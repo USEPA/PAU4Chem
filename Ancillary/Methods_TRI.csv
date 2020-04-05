@@ -1,0 +1,86 @@
+Code 2004 and prior,Method 2004 and prior,Category 2004 and prior,Code 2005 and after,Method 2005 and after,Category 2005 and after
+A01,Flare,Air Emissions Treatment,A01,Flare,Air Emissions Treatment
+A02,Condenser,Air Emissions Treatment,A02,Condenser,Air Emissions Treatment
+A03,Scrubber,Air Emissions Treatment,A03,Scrubber,Air Emissions Treatment
+A04,Absorber,Air Emissions Treatment,A04,Absorber,Air Emissions Treatment
+A05,Electrostatic Precipitator,Air Emissions Treatment,A05,Electrostatic Precipitator,Air Emissions Treatment
+A06,Mechanical Separation,Air Emissions Treatment,A06,Mechanical Separation,Air Emissions Treatment
+A07,Other Air Emission Treatment,Air Emissions Treatment,A07,Other Air Emission Treatment,Air Emissions Treatment
+B11,Aerobic,Biological Treatment,H081,Biological treatment with or without precipitation,Biological Treatment
+B21,Anaerobic,Biological Treatment,H081,Biological treatment with or without precipitation,Biological Treatment
+B31,Facultative,Biological Treatment,H081,Biological treatment with or without precipitation,Biological Treatment
+B99,Other Biological Treatment,Biological Treatment,H081,Biological treatment with or without precipitation,Biological Treatment
+C01,Chemical Precipitation - Lime or Sodium Hydroxide,Chemical Treatment,H071,Chemical reduction with or without precipitation,Chemical Treatment
+C02,Chemical Precipitation - Sulfide,Chemical Treatment,H071,Chemical reduction with or without precipitation,Chemical Treatment
+C09,Chemical Precipitation - Other,Chemical Treatment,H077,Other chemical precipitation with or without pretreatment,Chemical Treatment
+C11,Neutralization,Chemical Treatment,H121,Neutralization,Chemical Treatment
+C21,Chromium Reduction,Chemical Treatment,H071,Chemical reduction with or without precipitation,Chemical Treatment
+C31,Complexed Metals Treatment (other than pH adjustment),Chemical Treatment,H129,Other treatment,Chemical Treatment
+C41,Cyanide Oxidation - Alkaline Chlorination,Chemical Treatment,H073,Cyanide destruction with or without precipitation,Chemical Treatment
+C42,Cyanide Oxidation - Electrochemical,Chemical Treatment,H073,Cyanide destruction with or without precipitation,Chemical Treatment
+C43,Cyanide Oxidation - Other,Chemical Treatment,H073,Cyanide destruction with or without precipitation,Chemical Treatment
+C44,General Oxidation (including Disinfection) - Chlorination,Chemical Treatment,H075,Chemical oxidation,Chemical Treatment
+C45,General Oxidation (including Disinfection) - Ozonation,Chemical Treatment,H075,Chemical oxidation,Chemical Treatment
+C46,General Oxidation (including Disinfection) - Other,Chemical Treatment,H075,Chemical oxidation,Chemical Treatment
+C99,Other Chemical Treatment,Chemical Treatment,H129,Other treatment,Chemical Treatment
+F01,Liquid Injection,Incineration/Thermal Treatment,H040,Incineration - thermal destruction other than use as a fuel,Chemical Treatment
+F11,Rotary Kiln with Liquid Injection Unit,Incineration/Thermal Treatment,H040,Incineration - thermal destruction other than use as a fuel,Chemical Treatment
+F19,Other Rotary Kiln,Incineration/Thermal Treatment,H040,Incineration - thermal destruction other than use as a fuel,Chemical Treatment
+F31,Two Stage,Incineration/Thermal Treatment,H040,Incineration - thermal destruction other than use as a fuel,Chemical Treatment
+F41,Fixed Hearth,Incineration/Thermal Treatment,H040,Incineration - thermal destruction other than use as a fuel,Chemical Treatment
+F42,Multiple Hearth,Incineration/Thermal Treatment,H040,Incineration - thermal destruction other than use as a fuel,Chemical Treatment
+F51,Fluidized Bed,Incineration/Thermal Treatment,H040,Incineration - thermal destruction other than use as a fuel,Chemical Treatment
+F61,Infra-Red,Incineration/Thermal Treatment,H040,Incineration - thermal destruction other than use as a fuel,Chemical Treatment
+F71,Fume/Vapor,Incineration/Thermal Treatment,H040,Incineration - thermal destruction other than use as a fuel,Chemical Treatment
+F81,Pyrolytic Destructor,Incineration/Thermal Treatment,H040,Incineration - thermal destruction other than use as a fuel,Chemical Treatment
+F82,Wet Air Oxidation,Incineration/Thermal Treatment,H076,Wet air oxidation,Chemical Treatment
+F83,Thermal Drying/Dewatering,Incineration/Thermal Treatment,H122,Evaporation,Physical Treatment
+F99,Other Incineration/Thermal Treatment,Incineration/Thermal Treatment,H040,Incineration - thermal destruction other than use as a fuel,Chemical Treatment
+P01,Equalization,Physical Treatment,H129,Other treatment,Physical Treatment
+P09,Other Blending,Physical Treatment,H129,Other treatment,Physical Treatment
+P11,Settling/Clarification,Physical Treatment,H123,Settling or clarification,Physical Treatment
+P12,Filtration,Physical Treatment,H123,Settling or clarification,Physical Treatment
+P13,Sludge Dewatering (non-thermal),Physical Treatment,H101,Sludge treatment and/or dewatering,Physical Treatment
+P14,Air Flotation,Physical Treatment,H124,Phase separation,Physical Treatment
+P15,Oil Skimming,Physical Treatment,H124,Phase separation,Physical Treatment
+P16,Emulsion Breaking - Thermal,Physical Treatment,H124,Phase separation,Physical Treatment
+P17,Emulsion Breaking - Chemical,Physical Treatment,H124,Phase separation,Physical Treatment
+P18,Emulsion Breaking - Other,Physical Treatment,H124,Phase separation,Physical Treatment
+P19,Other Liquid Phase Separation,Physical Treatment,H124,Phase separation,Physical Treatment
+P21,Adsorption - Carbon,Physical Treatment,H082,Adsorption,Physical Treatment
+P22,Adsorption - Ion Exchange (other than for recovery/reuse),Physical Treatment,H082,Adsorption,Physical Treatment
+P23,Adsorption - Resin,Physical Treatment,H082,Adsorption,Physical Treatment
+P29,Adsorption - Other,Physical Treatment,H082,Adsorption,Physical Treatment
+P31,Reverse Osmosis (other than for recovery/reuse),Physical Treatment,H129,Other treatment,Physical Treatment
+P41,Stripping - Air,Physical Treatment,H083,Air or steam stripping,Physical Treatment
+P42,Stripping - Steam,Physical Treatment,H083,Air or steam stripping,Physical Treatment
+P49,Stripping - Other,Physical Treatment,H083,Air or steam stripping,Physical Treatment
+P51,Acid Leaching (other than for recovery/reuse),Physical Treatment,H129,Other treatment,Physical Treatment
+P61,Solvent Extraction (other than recovery/reuse),Physical Treatment,H129,Other treatment,Physical Treatment
+P99,Other Physical Treatment,Physical Treatment,H129,Other treatment,Physical Treatment
+U01,Industrial Kiln,Incineration/Thermal Treatment,U01,Industrial Kiln,Physical Treatment
+U02,Industrial Furnace,Incineration/Thermal Treatment,U02,Industrial Furnace,Physical Treatment
+U03,Industrial Boiler,Incineration/Thermal Treatment,U03,Industrial Boiler,Physical Treatment
+U09,Other Energy Recovery Methods,Incineration/Thermal Treatment,U09,Other Energy Recovery Methods,Physical Treatment
+R11,Solvents/Organics Recovery - Batch Still Distillation,,H20,"Solvent recovery (including distillation, evaporation, fractionation or extraction)",
+R12,Solvents/Organics Recovery - Thin-Film Evaporation,,H20,"Solvent recovery (including distillation, evaporation, fractionation or extraction)",
+R13,Solvents/Organics Recovery - Fractionation,,H20,"Solvent recovery (including distillation, evaporation, fractionation or extraction)",
+R14,Solvents/Organics Recovery - Solvent Extraction,,H20,"Solvent recovery (including distillation, evaporation, fractionation or extraction)",
+R19,Solvents/Organics Recovery - Other,,H20,"Solvent recovery (including distillation, evaporation, fractionation or extraction)",
+R21,Metals Recovery - Electrolytic,,H10,"Metal recovery (by retorting, smelting, or chemical or physical extraction)",
+R22,Metals Recovery - Ion Exchange,,H10,"Metal recovery (by retorting, smelting, or chemical or physical extraction)",
+R23,Metals Recovery - Acid Leaching,,H10,"Metal recovery (by retorting, smelting, or chemical or physical extraction)",
+R24,Metals Recovery - Reverse Osmosis,,H10,"Metal recovery (by retorting, smelting, or chemical or physical extraction)",
+R26,Metals Recovery - Solvent Extraction,,H10,"Metal recovery (by retorting, smelting, or chemical or physical extraction)",
+R27,Metals Recovery - High Temperature,,H10,"Metal recovery (by retorting, smelting, or chemical or physical extraction)",
+R28,Metals Recovery - Retorting,,H10,"Metal recovery (by retorting, smelting, or chemical or physical extraction)",
+R29,Metals Recovery - Second Smelting,,H10,"Metal recovery (by retorting, smelting, or chemical or physical extraction)",
+R30,Metals Recovery - Other,,H10,"Metal recovery (by retorting, smelting, or chemical or physical extraction)",
+R40,Acid Regeneration,,H39,Other recovery or reclamation for reuse (including acid regeneration or other chemical reaction process),
+R99,Other Reuse or Recovery,,H39,Other recovery or reclamation for reuse (including acid regeneration or other chemical reaction process),
+H20,"Solvent recovery (including distillation, evaporation, fractionation or extraction)",,H20,"Solvent recovery (including distillation, evaporation, fractionation or extraction)",
+H10,"Metal recovery (by retorting, smelting, or chemical or physical extraction)",,H10,"Metal recovery (by retorting, smelting, or chemical or physical extraction)",
+H39,Other recovery or reclamation for reuse (including acid regeneration or other chemical reaction process),,H39,Other recovery or reclamation for reuse (including acid regeneration or other chemical reaction process),
+,,,H103,Absorption,Physical Treatment
+,,,H111,Stabilization or chemical fixation prior to disposal,Physical Treatment
+,,,H112,Macro-encapsulation prior to disposal,Physical Treatment
