@@ -595,7 +595,12 @@ class PCU_DB:
 
 
     def _phase_estimation_recycling(self, df_s, row):
-        phases = ['W', 'L']
+        if row['METHOD CODE - 2005 AND AFTER'] == 'H20': # Solvent recovery
+            phases = ['W', 'L', 'A']
+        elif row['METHOD CODE - 2005 AND AFTER'] == 'H39': # Acid regeneration and other reactions
+            phases = ['W', 'L']
+        elif row['METHOD CODE - 2005 AND AFTER'] == 'H10': # Metal recovery
+            phases = ['W', 'L', 'S']
         naics_structure = ['National Industry', 'NAICS Industry', 'Industry Group',
                     'Subsector', 'Sector', 'Nothing']
         df_cas = df_s.loc[df_s['CAS'] == row['CAS NUMBER'], ['NAICS', 'WASTE', 'VALUE']]
