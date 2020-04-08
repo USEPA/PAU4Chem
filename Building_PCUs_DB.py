@@ -5,6 +5,8 @@
 # 1. Range of Influent Concentration was reported from 1987 through 2004
 # 2. Treatment Efficiency Estimation was reported from 1987 through 2004
 
+import warnings
+warnings.simplefilter(action = 'ignore', category = FutureWarning)
 import pandas as pd
 pd.options.mode.chained_assignment = None
 import os
@@ -54,7 +56,7 @@ class PCU_DB:
 
     def _efficiency_estimation_empties_based_on_EPA_regulation(self, classification, HAP, RCRA):
         if RCRA == 'YES':
-            if row['CLASSIFICATION'] == 'DIOXIN':
+            if classification == 'DIOXIN':
                 result = np.random.uniform(99.9999, 100)
                 if self.Year >= 2005:
                     result = self._efficiency_estimation_to_range(result)
@@ -471,6 +473,22 @@ class PCU_DB:
         # Changing units
         df_PCUs = df_PCUs.loc[(df_PCUs.iloc[:,0:] != 'INV').all(axis = 1)]
         df_PCUs.dropna(how = 'all', axis = 0, inplace = True)
+        if self.Year >= 2005:
+            Change = pd.read_csv(self._dir_path + '/Ancillary/Methods_TRI.csv',
+                            usecols = ['Code 2004 and prior', 'Code 2005 and after'],
+                            low_memory = False)
+            Codes_2004 = Change.loc[(pd.notnull(Change['Code 2004 and prior'])) \
+                        & (Change['Code 2005 and after'] != Change['Code 2004 and prior']),\
+                        'Code 2004 and prior'].unique().tolist()
+            idx = df_PCUs.loc[df_PCUs['METHOD CODE - 2005 AND AFTER'].isin(Codes_2004)].index.tolist()
+            del Change, Codes_2004
+            if len(idx) != 0:
+                df_PCUs.loc[idx, 'METHOD CODE - 2005 AND AFTER'] = \
+                df_PCUs.loc[idx]\
+                            .apply(lambda row: self._changin_management_code_for_2004_and_prior(\
+                            pd.Series(row['METHOD CODE - 2005 AND AFTER']),\
+                            1),
+                            axis = 1)
         # Adding methods name
         Methods = pd.read_csv(self._dir_path + '/Ancillary/Methods_TRI.csv',
                             usecols = ['Code 2004 and prior',
@@ -598,9 +616,15 @@ class PCU_DB:
         if row['METHOD CODE - 2005 AND AFTER'] == 'H20': # Solvent recovery
             phases = ['W', 'L', 'A']
         elif row['METHOD CODE - 2005 AND AFTER'] == 'H39': # Acid regeneration and other reactions
-            phases = ['W', 'L']
+            phases = ['W']
         elif row['METHOD CODE - 2005 AND AFTER'] == 'H10': # Metal recovery
-            phases = ['W', 'L', 'S']
+            phases = ['W', 'S']
+            if self.Year <= 2004:
+                Pyrometallurgy = ['R27', 'R28', 'R29'] # They work with scrap
+                if row['METHOD CODE - 2004 AND PRIOR'] in Pyrometallurgy:
+                    Phases = ['S']
+                else:
+                    Phases = ['W', 'S']
         naics_structure = ['National Industry', 'NAICS Industry', 'Industry Group',
                     'Subsector', 'Sector', 'Nothing']
         df_cas = df_s.loc[df_s['CAS'] == row['CAS NUMBER'], ['NAICS', 'WASTE', 'VALUE']]
@@ -648,6 +672,18 @@ class PCU_DB:
                         axis = 1)
         df = df_s.loc[(df_s['NAICS STRUCTURE'] == structure)]
         return df.loc[df['VALUE'].idxmax(), 'CONCENTRATION']
+
+
+    def _recycling_efficiency(self, row):
+        if row['METHOD CODE - 2005 AND AFTER'] == 'H20': # Solvent recovery
+            return np.random.uniform(40, 99)
+        elif row['METHOD CODE - 2005 AND AFTER'] == 'H39': # Acid regeneration and other reactions
+            if row['METAL INDICATOR'] == 'NO':
+                return np.random.uniform(80, 99.9) # For no-metals
+            else:
+                return np.random.uniform(70, 80) # For metals
+        elif row['METHOD CODE - 2005 AND AFTER'] == 'H10': # Metal recovery
+            return np.random.uniform(70, 99)
 
 
     def _phase_estimation_energy(self, df_s, row):
@@ -806,15 +842,16 @@ class PCU_DB:
         PCU_energy =  PCU_recycling.loc[~ ((PCU_recycling['METHOD CODE - 2005 AND AFTER'] == 'H20') & (PCU_recycling['CAS NUMBER'].isin(Solvent_recovery)))]
         PCU_recycling.reset_index(inplace = True, drop = True)
         PCU_recycling['BASED ON OPERATING DATA?'] = 'NO'
-        efficiency_estimation = [p[0] for p in np.random.uniform(75, 99.5, size=(PCU_recycling.shape[0],1))]
-        efficiency_range = [self._efficiency_estimation_to_range(x) for x in efficiency_estimation]
-        PCU_recycling['EFFICIENCY RANGE CODE'] = pd.Series(efficiency_range)
+        efficiency_estimation = \
+                PCU_recycling.apply(lambda x: self._recycling_efficiency(x), axis = 1).round(4)
+        PCU_recycling['EFFICIENCY RANGE CODE'] = \
+                        efficiency_estimation.apply(lambda x: self._efficiency_estimation_to_range(x))
         PCU_recycling = \
                  PCU_recycling.apply(lambda x: \
                  self._phase_estimation_recycling(Statistics, x), axis = 1)
         PCU_recycling = PCU_recycling.loc[pd.notnull(PCU_recycling['WASTE STREAM CODE'])]
         if self.Year <= 2004:
-            PCU_recycling['EFFICIENCY ESTIMATION'] = pd.Series(efficiency_estimation)
+            PCU_recycling['EFFICIENCY ESTIMATION'] = efficiency_estimation
             PCU_recycling['RANGE INFLUENT CONCENTRATION'] = \
                       PCU_recycling.apply(lambda x: \
                      self._concentration_estimation_recycling(Statistics, \
@@ -850,7 +887,7 @@ class PCU_DB:
             PCU_energy.drop(columns = ['BY MEANS OF INCINERATION'], inplace = True)
             PCU_energy['EFFICIENCY ESTIMATION'] = \
                     PCU_energy.apply(lambda x: \
-                    self._energy_efficiency(Statistics, x), axis = 1)
+                    self._energy_efficiency(Statistics, x), axis = 1).round(4)
             PCU_energy = pd.merge(PCU_energy, SRS, on = 'CAS NUMBER', how = 'left')
             PCU_energy['EFFICIENCY ESTIMATION'] = PCU_energy.apply(lambda x: \
                                 self._efficiency_estimation_empties_based_on_EPA_regulation(\
@@ -878,7 +915,6 @@ class PCU_DB:
         PCU_energy.loc[(PCU_energy['WASTE STREAM CODE'] == 'W') & \
                        (PCU_energy['TYPE OF MANAGEMENT'] == 'Energy recovery'),\
                         'WASTE STREAM CODE'] = 'L'
-        print(PCU_energy.info())
         df_N_PCU = pd.concat([df_N_PCU, PCU_energy],
                                  ignore_index = True,
                                  sort = True, axis = 0)
@@ -928,24 +964,21 @@ if __name__ == '__main__':
                         [C]: Further cleaning of database.', \
                         type = str)
 
-    parser.add_argument('-Y', '--Year',
+    parser.add_argument('-Y', '--Year', nargs = '+',
                         help = 'Records with up to how many PCUs you want to include?.',
-                        type = str,
-                        required = False,
-                        default = 2004)
+                        type = str)
 
 
     args = parser.parse_args()
-    Year = args.Year
-
     start_time =  time.time()
-    Building = PCU_DB(int(Year))
 
-    if args.Option == 'A':
-        Building.organizing()
-    elif args.Option == 'B':
-        Building.Building_database_for_statistics()
-    elif args.Option == 'C':
-        Building.cleaning_database()
+    for Year in args.Year:
+        Building = PCU_DB(int(Year))
+        if args.Option == 'A':
+            Building.organizing()
+        elif args.Option == 'B':
+            Building.Building_database_for_statistics()
+        elif args.Option == 'C':
+            Building.cleaning_database()
 
     print('Execution time: %s sec' % (time.time() - start_time))

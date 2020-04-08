@@ -78,7 +78,7 @@ if __name__ == '__main__':
 
     parser = argparse.ArgumentParser(argument_default = argparse.SUPPRESS)
 
-    parser.add_argument('Year',
+    parser.add_argument('-Y', '--Year', nargs = '+',
                         help = 'What TRI year do you want to retrieve?.',
                         type = str)
 
@@ -88,5 +88,6 @@ if __name__ == '__main__':
 
     args = parser.parse_args()
 
-    TRI_Scrapper = TRI_Scrapper(args.Year, args.Files)
-    TRI_Scrapper.extacting_TRI_data_files()
+    for Y in args.Year:
+        Scrapper = TRI_Scrapper(Y, args.Files)
+        Scrapper.extacting_TRI_data_files()
