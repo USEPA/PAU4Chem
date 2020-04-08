@@ -58,29 +58,29 @@ P49,Stripping - Other,Physical Treatment,H083,Air or steam stripping,Physical Tr
 P51,Acid Leaching (other than for recovery/reuse),Physical Treatment,H129,Other treatment,Physical Treatment
 P61,Solvent Extraction (other than recovery/reuse),Physical Treatment,H129,Other treatment,Physical Treatment
 P99,Other Physical Treatment,Physical Treatment,H129,Other treatment,Physical Treatment
-U01,Industrial Kiln,Incineration/Thermal Treatment,U01,Industrial Kiln,Physical Treatment
-U02,Industrial Furnace,Incineration/Thermal Treatment,U02,Industrial Furnace,Physical Treatment
-U03,Industrial Boiler,Incineration/Thermal Treatment,U03,Industrial Boiler,Physical Treatment
-U09,Other Energy Recovery Methods,Incineration/Thermal Treatment,U09,Other Energy Recovery Methods,Physical Treatment
-R11,Solvents/Organics Recovery - Batch Still Distillation,,H20,"Solvent recovery (including distillation, evaporation, fractionation or extraction)",
-R12,Solvents/Organics Recovery - Thin-Film Evaporation,,H20,"Solvent recovery (including distillation, evaporation, fractionation or extraction)",
-R13,Solvents/Organics Recovery - Fractionation,,H20,"Solvent recovery (including distillation, evaporation, fractionation or extraction)",
-R14,Solvents/Organics Recovery - Solvent Extraction,,H20,"Solvent recovery (including distillation, evaporation, fractionation or extraction)",
-R19,Solvents/Organics Recovery - Other,,H20,"Solvent recovery (including distillation, evaporation, fractionation or extraction)",
-R21,Metals Recovery - Electrolytic,,H10,"Metal recovery (by retorting, smelting, or chemical or physical extraction)",
-R22,Metals Recovery - Ion Exchange,,H10,"Metal recovery (by retorting, smelting, or chemical or physical extraction)",
-R23,Metals Recovery - Acid Leaching,,H10,"Metal recovery (by retorting, smelting, or chemical or physical extraction)",
-R24,Metals Recovery - Reverse Osmosis,,H10,"Metal recovery (by retorting, smelting, or chemical or physical extraction)",
-R26,Metals Recovery - Solvent Extraction,,H10,"Metal recovery (by retorting, smelting, or chemical or physical extraction)",
-R27,Metals Recovery - High Temperature,,H10,"Metal recovery (by retorting, smelting, or chemical or physical extraction)",
-R28,Metals Recovery - Retorting,,H10,"Metal recovery (by retorting, smelting, or chemical or physical extraction)",
-R29,Metals Recovery - Second Smelting,,H10,"Metal recovery (by retorting, smelting, or chemical or physical extraction)",
-R30,Metals Recovery - Other,,H10,"Metal recovery (by retorting, smelting, or chemical or physical extraction)",
-R40,Acid Regeneration,,H39,Other recovery or reclamation for reuse (including acid regeneration or other chemical reaction process),
-R99,Other Reuse or Recovery,,H39,Other recovery or reclamation for reuse (including acid regeneration or other chemical reaction process),
-H20,"Solvent recovery (including distillation, evaporation, fractionation or extraction)",,H20,"Solvent recovery (including distillation, evaporation, fractionation or extraction)",
-H10,"Metal recovery (by retorting, smelting, or chemical or physical extraction)",,H10,"Metal recovery (by retorting, smelting, or chemical or physical extraction)",
-H39,Other recovery or reclamation for reuse (including acid regeneration or other chemical reaction process),,H39,Other recovery or reclamation for reuse (including acid regeneration or other chemical reaction process),
+U01,Industrial Kiln,Energy recovery,U01,Industrial Kiln,Energy recovery
+U02,Industrial Furnace,Energy recovery,U02,Industrial Furnace,Energy recovery
+U03,Industrial Boiler,Energy recovery,U03,Industrial Boiler,Energy recovery
+U09,Other Energy Recovery Methods,Energy recovery,U09,Other Energy Recovery Methods,Energy recovery
+R11,Solvents/Organics Recovery - Batch Still Distillation,Recycling,H20,"Solvent recovery (including distillation, evaporation, fractionation or extraction)",Recycling
+R12,Solvents/Organics Recovery - Thin-Film Evaporation,Recycling,H20,"Solvent recovery (including distillation, evaporation, fractionation or extraction)",Recycling
+R13,Solvents/Organics Recovery - Fractionation,Recycling,H20,"Solvent recovery (including distillation, evaporation, fractionation or extraction)",Recycling
+R14,Solvents/Organics Recovery - Solvent Extraction,Recycling,H20,"Solvent recovery (including distillation, evaporation, fractionation or extraction)",Recycling
+R19,Solvents/Organics Recovery - Other,Recycling,H20,"Solvent recovery (including distillation, evaporation, fractionation or extraction)",Recycling
+R21,Metals Recovery - Electrolytic,Recycling,H10,"Metal recovery (by retorting, smelting, or chemical or physical extraction)",Recycling
+R22,Metals Recovery - Ion Exchange,Recycling,H10,"Metal recovery (by retorting, smelting, or chemical or physical extraction)",Recycling
+R23,Metals Recovery - Acid Leaching,Recycling,H10,"Metal recovery (by retorting, smelting, or chemical or physical extraction)",Recycling
+R24,Metals Recovery - Reverse Osmosis,Recycling,H10,"Metal recovery (by retorting, smelting, or chemical or physical extraction)",Recycling
+R26,Metals Recovery - Solvent Extraction,Recycling,H10,"Metal recovery (by retorting, smelting, or chemical or physical extraction)",Recycling
+R27,Metals Recovery - High Temperature,Recycling,H10,"Metal recovery (by retorting, smelting, or chemical or physical extraction)",Recycling
+R28,Metals Recovery - Retorting,Recycling,H10,"Metal recovery (by retorting, smelting, or chemical or physical extraction)",Recycling
+R29,Metals Recovery - Second Smelting,Recycling,H10,"Metal recovery (by retorting, smelting, or chemical or physical extraction)",Recycling
+R30,Metals Recovery - Other,Recycling,H10,"Metal recovery (by retorting, smelting, or chemical or physical extraction)",Recycling
+R40,Acid Regeneration,Recycling,H39,Other recovery or reclamation for reuse (including acid regeneration or other chemical reaction process),Recycling
+R99,Other Reuse or Recovery,Recycling,H39,Other recovery or reclamation for reuse (including acid regeneration or other chemical reaction process),Recycling
+H20,"Solvent recovery (including distillation, evaporation, fractionation or extraction)",Recycling,H20,"Solvent recovery (including distillation, evaporation, fractionation or extraction)",Recycling
+H10,"Metal recovery (by retorting, smelting, or chemical or physical extraction)",Recycling,H10,"Metal recovery (by retorting, smelting, or chemical or physical extraction)",Recycling
+H39,Other recovery or reclamation for reuse (including acid regeneration or other chemical reaction process),Recycling,H39,Other recovery or reclamation for reuse (including acid regeneration or other chemical reaction process),Recycling
 ,,,H103,Absorption,Physical Treatment
 ,,,H111,Stabilization or chemical fixation prior to disposal,Physical Treatment
 ,,,H112,Macro-encapsulation prior to disposal,Physical Treatment
