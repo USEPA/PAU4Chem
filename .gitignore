@@ -6,6 +6,7 @@ Ancillary/*
 !Ancillary/TRI_File_1a_columns.txt
 !Ancillary/Methods_TRI.csv
 !Ancillary/Metals_divided_into_4_groups_can_be_reported.csv
+!Ancillary/PCU_Allocation.csv
 Statistics/*.csv
 Datasets/PCUs_DB_2001.csv
 Datasets/PCUs_DB_2002.csv
