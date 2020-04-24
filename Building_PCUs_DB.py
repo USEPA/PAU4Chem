@@ -160,66 +160,72 @@ class PCU_DB:
         df_PCUs.drop(columns = cols, inplace = True)
         df_PCUs.reset_index(inplace =  True, drop =  True)
         df_PCUs.loc[pd.isnull(df_PCUs['BASED ON OPERATING DATA?']), 'BASED ON OPERATING DATA?'] = 'NO'
-        # On-site energy recovery
-        df = dfs['1a'].iloc[:, list(range(11))]
-        cols = [c for c in df.columns if 'METHOD' in c]
-        df.dropna(subset = cols, how = 'all', axis = 0, inplace = True)
-        Columns_0 = list(df.iloc[:, 0:7].columns)
-        Columns_1 = list(df.iloc[:, 7:].columns)
-        dfs_energy = pd.DataFrame()
-        for col in Columns_1:
-            Columns = Columns_0 + [col]
-            df_aux = df[Columns]
-            df_aux.rename(columns = {col: re.sub(r' [1-4]', '', col)},
-                            inplace =  True)
-            dfs_energy = pd.concat([dfs_energy, df_aux], ignore_index = True,
-                                       sort = True, axis = 0)
-            del Columns
-        del df, df_aux
-        dfs_energy = dfs_energy.loc[pd.notnull(dfs_energy['ON-SITE ENERGY RECOVERY METHOD'])]
-        dfs_energy['TYPE OF MANAGEMENT'] = 'Energy recovery'
-        if self.Year <= 2004:
-            dfs_energy['METHOD CODE - 2004 AND PRIOR'] = dfs_energy['ON-SITE ENERGY RECOVERY METHOD']
-            dfs_energy['ON-SITE ENERGY RECOVERY METHOD'] = dfs_energy.apply(lambda row: \
-                        pd.Series(self._changin_management_code_for_2004_and_prior(pd.Series(row['ON-SITE ENERGY RECOVERY METHOD']), 1)),
-                                        axis =  1)
+        try:
+            # On-site energy recovery
+            df = dfs['1a'].iloc[:, list(range(11))]
+            cols = [c for c in df.columns if 'METHOD' in c]
+            df.dropna(subset = cols, how = 'all', axis = 0, inplace = True)
+            Columns_0 = list(df.iloc[:, 0:7].columns)
+            Columns_1 = list(df.iloc[:, 7:].columns)
+            dfs_energy = pd.DataFrame()
+            for col in Columns_1:
+                Columns = Columns_0 + [col]
+                df_aux = df[Columns]
+                df_aux.rename(columns = {col: re.sub(r' [1-4]', '', col)},
+                                inplace =  True)
+                dfs_energy = pd.concat([dfs_energy, df_aux], ignore_index = True,
+                                           sort = True, axis = 0)
+                del Columns
+            del df, df_aux
             dfs_energy = dfs_energy.loc[pd.notnull(dfs_energy['ON-SITE ENERGY RECOVERY METHOD'])]
-        dfs_energy.rename(columns = {'ON-SITE ENERGY RECOVERY METHOD': 'METHOD CODE - 2005 AND AFTER'},
-                        inplace =  True)
-        dfs_energy = dfs_energy.loc[pd.notnull(dfs_energy['METHOD CODE - 2005 AND AFTER'])]
-        df_PCUs = pd.concat([df_PCUs, dfs_energy], ignore_index = True,
-                               sort = True, axis = 0)
-        del dfs_energy
-        # On-site recycling
-        df = dfs['1a'].iloc[:, list(range(7)) + list(range(11,18))]
-        cols = [c for c in df.columns if 'METHOD' in c]
-        df.dropna(subset = cols, how = 'all', axis = 0, inplace = True)
-        Columns_0 = list(df.iloc[:, 0:7].columns)
-        Columns_1 = list(df.iloc[:, 7:].columns)
-        dfs_recycling = pd.DataFrame()
-        for col in Columns_1:
-            Columns = Columns_0 + [col]
-            df_aux = df[Columns]
-            df_aux.rename(columns = {col: re.sub(r' [1-7]', '', col)},
+            dfs_energy['TYPE OF MANAGEMENT'] = 'Energy recovery'
+            if self.Year <= 2004:
+                dfs_energy['METHOD CODE - 2004 AND PRIOR'] = dfs_energy['ON-SITE ENERGY RECOVERY METHOD']
+                dfs_energy['ON-SITE ENERGY RECOVERY METHOD'] = dfs_energy.apply(lambda row: \
+                            pd.Series(self._changin_management_code_for_2004_and_prior(pd.Series(row['ON-SITE ENERGY RECOVERY METHOD']), 1)),
+                                            axis =  1)
+                dfs_energy = dfs_energy.loc[pd.notnull(dfs_energy['ON-SITE ENERGY RECOVERY METHOD'])]
+            dfs_energy.rename(columns = {'ON-SITE ENERGY RECOVERY METHOD': 'METHOD CODE - 2005 AND AFTER'},
                             inplace =  True)
-            dfs_recycling = pd.concat([dfs_recycling, df_aux], ignore_index = True,
-                                       sort = True, axis = 0)
-            del Columns
-        del df, df_aux
-        dfs_recycling = dfs_recycling.loc[pd.notnull(dfs_recycling['ON-SITE RECYCLING PROCESSES METHOD'])]
-        dfs_recycling['TYPE OF MANAGEMENT'] = 'Recycling'
-        if self.Year <= 2004:
-            dfs_recycling['METHOD CODE - 2004 AND PRIOR'] = dfs_recycling['ON-SITE RECYCLING PROCESSES METHOD']
-            dfs_recycling['ON-SITE RECYCLING PROCESSES METHOD'] = dfs_recycling.apply(lambda row: \
-                        pd.Series(self._changin_management_code_for_2004_and_prior(pd.Series(row['ON-SITE RECYCLING PROCESSES METHOD']), 1)),
-                                        axis =  1)
+            dfs_energy = dfs_energy.loc[pd.notnull(dfs_energy['METHOD CODE - 2005 AND AFTER'])]
+            df_PCUs = pd.concat([df_PCUs, dfs_energy], ignore_index = True,
+                                   sort = True, axis = 0)
+            del dfs_energy
+        except ValueError as e:
+            print('{}:\nThere is not information about energy recovery activities'.format(e))
+        try:
+            # On-site recycling
+            df = dfs['1a'].iloc[:, list(range(7)) + list(range(11,18))]
+            cols = [c for c in df.columns if 'METHOD' in c]
+            df.dropna(subset = cols, how = 'all', axis = 0, inplace = True)
+            Columns_0 = list(df.iloc[:, 0:7].columns)
+            Columns_1 = list(df.iloc[:, 7:].columns)
+            dfs_recycling = pd.DataFrame()
+            for col in Columns_1:
+                Columns = Columns_0 + [col]
+                df_aux = df[Columns]
+                df_aux.rename(columns = {col: re.sub(r' [1-7]', '', col)},
+                                inplace =  True)
+                dfs_recycling = pd.concat([dfs_recycling, df_aux], ignore_index = True,
+                                           sort = True, axis = 0)
+                del Columns
+            del df, df_aux
             dfs_recycling = dfs_recycling.loc[pd.notnull(dfs_recycling['ON-SITE RECYCLING PROCESSES METHOD'])]
-        dfs_recycling.rename(columns = {'ON-SITE RECYCLING PROCESSES METHOD': 'METHOD CODE - 2005 AND AFTER'},
-                        inplace =  True)
-        dfs_recycling = dfs_recycling.loc[pd.notnull(dfs_recycling['METHOD CODE - 2005 AND AFTER'])]
-        df_PCUs = pd.concat([df_PCUs, dfs_recycling], ignore_index = True,
-                               sort = True, axis = 0)
-        del dfs_recycling
+            dfs_recycling['TYPE OF MANAGEMENT'] = 'Recycling'
+            if self.Year <= 2004:
+                dfs_recycling['METHOD CODE - 2004 AND PRIOR'] = dfs_recycling['ON-SITE RECYCLING PROCESSES METHOD']
+                dfs_recycling['ON-SITE RECYCLING PROCESSES METHOD'] = dfs_recycling.apply(lambda row: \
+                            pd.Series(self._changin_management_code_for_2004_and_prior(pd.Series(row['ON-SITE RECYCLING PROCESSES METHOD']), 1)),
+                                            axis =  1)
+                dfs_recycling = dfs_recycling.loc[pd.notnull(dfs_recycling['ON-SITE RECYCLING PROCESSES METHOD'])]
+            dfs_recycling.rename(columns = {'ON-SITE RECYCLING PROCESSES METHOD': 'METHOD CODE - 2005 AND AFTER'},
+                            inplace =  True)
+            dfs_recycling = dfs_recycling.loc[pd.notnull(dfs_recycling['METHOD CODE - 2005 AND AFTER'])]
+            df_PCUs = pd.concat([df_PCUs, dfs_recycling], ignore_index = True,
+                                   sort = True, axis = 0)
+            del dfs_recycling
+        except ValueError as e:
+            print('{}:\nThere is not information about recycling activities'.format(e))
         # Changing units
         df_PCUs = df_PCUs.loc[(df_PCUs.iloc[:,0:] != 'INV').all(axis = 1)]
         df_PCUs.dropna(how = 'all', axis = 0, inplace = True)
@@ -589,85 +595,91 @@ class PCU_DB:
         df_N_PCU = df_N_PCU.loc[df_N_PCU['EFFICIENCY RANGE CODE'].isin(Efficiency_codes)]
         # Recycling
         PCU_recycling = PCU.loc[PCU['TYPE OF MANAGEMENT'] == 'Recycling']
-        PCU_energy =  PCU_recycling.loc[~ ((PCU_recycling['METHOD CODE - 2005 AND AFTER'] == 'H20') & (PCU_recycling['CAS NUMBER'].isin(Solvent_recovery)))]
-        PCU_recycling.reset_index(inplace = True, drop = True)
-        PCU_recycling['BASED ON OPERATING DATA?'] = 'NO'
-        efficiency_estimation = \
-                PCU_recycling.apply(lambda x: self._recycling_efficiency(x), axis = 1).round(4)
-        PCU_recycling['EFFICIENCY RANGE CODE'] = \
-                        efficiency_estimation.apply(lambda x: self._efficiency_estimation_to_range(x))
-        PCU_recycling = \
-                 PCU_recycling.apply(lambda x: \
-                 self._phase_estimation_recycling(Statistics, x), axis = 1)
-        PCU_recycling = PCU_recycling.loc[pd.notnull(PCU_recycling['WASTE STREAM CODE'])]
-        if self.Year <= 2004:
-            PCU_recycling['EFFICIENCY ESTIMATION'] = efficiency_estimation
-            PCU_recycling['RANGE INFLUENT CONCENTRATION'] = \
-                      PCU_recycling.apply(lambda x: \
-                     self._concentration_estimation_recycling(Statistics, \
-                                     x['CAS NUMBER'], \
-                                     x['PRIMARY NAICS CODE'],\
-                                     x['WASTE STREAM CODE'], \
-                                     x['NAICS STRUCTURE']), \
-                                     axis = 1)
-        PCU_recycling.drop(columns = ['NAICS STRUCTURE'], inplace = True)
-        df_N_PCU = pd.concat([df_N_PCU, PCU_recycling],
-                                 ignore_index = True,
-                                 sort = True, axis = 0)
+        if not PCU_recycling.empty:
+            PCU_energy =  PCU_recycling.loc[~ ((PCU_recycling['METHOD CODE - 2005 AND AFTER'] == 'H20') & (PCU_recycling['CAS NUMBER'].isin(Solvent_recovery)))]
+            PCU_recycling.reset_index(inplace = True, drop = True)
+            PCU_recycling['BASED ON OPERATING DATA?'] = 'NO'
+            efficiency_estimation = \
+                    PCU_recycling.apply(lambda x: self._recycling_efficiency(x), axis = 1).round(4)
+            PCU_recycling['EFFICIENCY RANGE CODE'] = \
+                            efficiency_estimation.apply(lambda x: self._efficiency_estimation_to_range(x))
+            PCU_recycling = \
+                     PCU_recycling.apply(lambda x: \
+                     self._phase_estimation_recycling(Statistics, x), axis = 1)
+            PCU_recycling = PCU_recycling.loc[pd.notnull(PCU_recycling['WASTE STREAM CODE'])]
+            if self.Year <= 2004:
+                PCU_recycling['EFFICIENCY ESTIMATION'] = efficiency_estimation
+                PCU_recycling['RANGE INFLUENT CONCENTRATION'] = \
+                          PCU_recycling.apply(lambda x: \
+                         self._concentration_estimation_recycling(Statistics, \
+                                         x['CAS NUMBER'], \
+                                         x['PRIMARY NAICS CODE'],\
+                                         x['WASTE STREAM CODE'], \
+                                         x['NAICS STRUCTURE']), \
+                                         axis = 1)
+            PCU_recycling.drop(columns = ['NAICS STRUCTURE'], inplace = True)
+            df_N_PCU = pd.concat([df_N_PCU, PCU_recycling],
+                                     ignore_index = True,
+                                     sort = True, axis = 0)
+        else:
+            pass
         # Energy recovery
         PCU_energy = PCU.loc[PCU['TYPE OF MANAGEMENT'] == 'Energy recovery']
-        PCU_energy =  PCU_energy.loc[~ ((PCU_energy['METHOD CODE - 2005 AND AFTER'].isin(['U01', 'U02', 'U03'])) & (PCU_energy['CAS NUMBER'].isin(Energy_recovery)))]
-        PCU_energy.reset_index(inplace = True, drop = True)
-        PCU_energy['BASED ON OPERATING DATA?'] = 'NO'
-        PCU_energy = \
-                 PCU_energy.apply(lambda x: \
-                 self._phase_estimation_energy(Statistics, x), axis = 1)
-        PCU_energy = PCU_energy.loc[pd.notnull(PCU_energy['WASTE STREAM CODE'])]
-        SRS = self._calling_SRS()
-        if self.Year <= 2004:
-            PCU_energy['RANGE INFLUENT CONCENTRATION'] = \
+        if not PCU_energy.empty:
+            PCU_energy =  PCU_energy.loc[~ ((PCU_energy['METHOD CODE - 2005 AND AFTER'].isin(['U01', 'U02', 'U03'])) & (PCU_energy['CAS NUMBER'].isin(Energy_recovery)))]
+            PCU_energy.reset_index(inplace = True, drop = True)
+            PCU_energy['BASED ON OPERATING DATA?'] = 'NO'
+            PCU_energy = \
                      PCU_energy.apply(lambda x: \
-                     self._concentration_estimation_energy(Statistics, \
-                                     x['CAS NUMBER'], \
-                                     x['PRIMARY NAICS CODE'],\
-                                     x['WASTE STREAM CODE'], \
-                                     x['NAICS STRUCTURE'], \
-                                     x['BY MEANS OF INCINERATION']), \
-                     axis = 1)
-            PCU_energy.drop(columns = ['BY MEANS OF INCINERATION'], inplace = True)
-            PCU_energy['EFFICIENCY ESTIMATION'] = \
-                    PCU_energy.apply(lambda x: \
-                    self._energy_efficiency(Statistics, x), axis = 1).round(4)
-            PCU_energy = pd.merge(PCU_energy, SRS, on = 'CAS NUMBER', how = 'left')
-            PCU_energy['EFFICIENCY ESTIMATION'] = PCU_energy.apply(lambda x: \
-                                self._efficiency_estimation_empties_based_on_EPA_regulation(\
-                                x['CLASSIFICATION'], x['HAP'], x['RCRA']) \
-                                if not x['EFFICIENCY ESTIMATION'] else
-                                x['EFFICIENCY ESTIMATION'],
-                                axis =  1)
-            PCU_energy = PCU_energy.loc[pd.notnull(PCU_energy['EFFICIENCY ESTIMATION'])]
-            PCU_energy['EFFICIENCY RANGE CODE'] = PCU_energy['EFFICIENCY ESTIMATION']\
-                                      .apply(lambda x: self._efficiency_estimation_to_range(float(x)))
+                     self._phase_estimation_energy(Statistics, x), axis = 1)
+            PCU_energy = PCU_energy.loc[pd.notnull(PCU_energy['WASTE STREAM CODE'])]
+            SRS = self._calling_SRS()
+            if self.Year <= 2004:
+                PCU_energy['RANGE INFLUENT CONCENTRATION'] = \
+                         PCU_energy.apply(lambda x: \
+                         self._concentration_estimation_energy(Statistics, \
+                                         x['CAS NUMBER'], \
+                                         x['PRIMARY NAICS CODE'],\
+                                         x['WASTE STREAM CODE'], \
+                                         x['NAICS STRUCTURE'], \
+                                         x['BY MEANS OF INCINERATION']), \
+                         axis = 1)
+                PCU_energy.drop(columns = ['BY MEANS OF INCINERATION'], inplace = True)
+                PCU_energy['EFFICIENCY ESTIMATION'] = \
+                        PCU_energy.apply(lambda x: \
+                        self._energy_efficiency(Statistics, x), axis = 1).round(4)
+                PCU_energy = pd.merge(PCU_energy, SRS, on = 'CAS NUMBER', how = 'left')
+                PCU_energy['EFFICIENCY ESTIMATION'] = PCU_energy.apply(lambda x: \
+                                    self._efficiency_estimation_empties_based_on_EPA_regulation(\
+                                    x['CLASSIFICATION'], x['HAP'], x['RCRA']) \
+                                    if not x['EFFICIENCY ESTIMATION'] else
+                                    x['EFFICIENCY ESTIMATION'],
+                                    axis =  1)
+                PCU_energy = PCU_energy.loc[pd.notnull(PCU_energy['EFFICIENCY ESTIMATION'])]
+                PCU_energy['EFFICIENCY RANGE CODE'] = PCU_energy['EFFICIENCY ESTIMATION']\
+                                          .apply(lambda x: self._efficiency_estimation_to_range(float(x)))
+            else:
+                PCU_energy.drop(columns = ['BY MEANS OF INCINERATION'], inplace = True)
+                PCU_energy['EFFICIENCY RANGE CODE'] = \
+                        PCU_energy.apply(lambda x: \
+                        self._energy_efficiency(Statistics, x), axis = 1)
+                PCU_energy = pd.merge(PCU_energy, SRS, on = 'CAS NUMBER', how = 'left')
+                PCU_energy['EFFICIENCY RANGE CODE'] = PCU_energy.apply(lambda x: \
+                                    self._efficiency_estimation_empties_based_on_EPA_regulation(\
+                                    x['CLASSIFICATION'], x['HAP'], x['RCRA']) \
+                                    if not x['EFFICIENCY RANGE CODE'] else
+                                    x['EFFICIENCY RANGE CODE'],
+                                    axis =  1)
+                PCU_energy = PCU_energy.loc[pd.notnull(PCU_energy['EFFICIENCY RANGE CODE'])]
+            PCU_energy.drop(columns = ['NAICS STRUCTURE', 'HAP', 'RCRA'], inplace = True)
+            PCU_energy.loc[(PCU_energy['WASTE STREAM CODE'] == 'W') & \
+                           (PCU_energy['TYPE OF MANAGEMENT'] == 'Energy recovery'),\
+                            'WASTE STREAM CODE'] = 'L'
+            df_N_PCU = pd.concat([df_N_PCU, PCU_energy],
+                                     ignore_index = True,
+                                     sort = True, axis = 0)
         else:
-            PCU_energy.drop(columns = ['BY MEANS OF INCINERATION'], inplace = True)
-            PCU_energy['EFFICIENCY RANGE CODE'] = \
-                    PCU_energy.apply(lambda x: \
-                    self._energy_efficiency(Statistics, x), axis = 1)
-            PCU_energy = pd.merge(PCU_energy, SRS, on = 'CAS NUMBER', how = 'left')
-            PCU_energy['EFFICIENCY RANGE CODE'] = PCU_energy.apply(lambda x: \
-                                self._efficiency_estimation_empties_based_on_EPA_regulation(\
-                                x['CLASSIFICATION'], x['HAP'], x['RCRA']) \
-                                if not x['EFFICIENCY RANGE CODE'] else
-                                x['EFFICIENCY RANGE CODE'],
-                                axis =  1)
-            PCU_energy = PCU_energy.loc[pd.notnull(PCU_energy['EFFICIENCY RANGE CODE'])]
-        PCU_energy.drop(columns = ['NAICS STRUCTURE', 'HAP', 'RCRA'], inplace = True)
-        PCU_energy.loc[(PCU_energy['WASTE STREAM CODE'] == 'W') & \
-                       (PCU_energy['TYPE OF MANAGEMENT'] == 'Energy recovery'),\
-                        'WASTE STREAM CODE'] = 'L'
-        df_N_PCU = pd.concat([df_N_PCU, PCU_energy],
-                                 ignore_index = True,
-                                 sort = True, axis = 0)
+            pass
         Chemicals_to_remove = ['MIXTURE', 'TRD SECRT']
         df_N_PCU = df_N_PCU.loc[~df_N_PCU['CAS NUMBER'].isin(Chemicals_to_remove)]
         df_N_PCU['CAS NUMBER'] = df_N_PCU['CAS NUMBER'].apply(lambda x: str(int(x)) if not 'N' in x else x)
