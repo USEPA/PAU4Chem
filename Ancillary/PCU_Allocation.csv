@@ -68,7 +68,7 @@ R13,Solvents/Organics Recovery - Fractionation,H20,"Solvent recovery (including 
 R14,Solvents/Organics Recovery - Solvent Extraction,H20,"Solvent recovery (including distillation, evaporation, fractionation or extraction)",Recycling,,Reclamation,P,,,
 R19,Solvents/Organics Recovery - Other,H20,"Solvent recovery (including distillation, evaporation, fractionation or extraction)",Recycling,,Reclamation,P,,,
 R21,Metals Recovery - Electrolytic,H10,"Metal recovery (by retorting, smelting, or chemical or physical extraction)",Recycling,,Reclamation,P,,,
-R22,Metals Recovery - Ion Exchange,H10,"Metal recovery (by retorting, smelting, or chemical or physical extraction)",Recycling,,Reclamation,P,,,
+R22,Metals Recovery - Ion Exchange,H10,"Metal recovery (by retorting, smelting, or chemical or physical extraction)",Recycling,,Reclamation,P,S,,
 R23,Metals Recovery - Acid Leaching,H10,"Metal recovery (by retorting, smelting, or chemical or physical extraction)",Recycling,,Reclamation,P,,,
 R24,Metals Recovery - Reverse Osmosis,H10,"Metal recovery (by retorting, smelting, or chemical or physical extraction)",Recycling,,Reclamation,P,,,
 R26,Metals Recovery - Solvent Extraction,H10,"Metal recovery (by retorting, smelting, or chemical or physical extraction)",Recycling,,Reclamation,P,,,

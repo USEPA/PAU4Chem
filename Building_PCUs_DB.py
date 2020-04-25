@@ -294,10 +294,10 @@ class PCU_DB:
         df_statistics = pd.DataFrame()
         if self.Year >= 2005:
             df.drop(columns = df.iloc[:, list(range(12, 61, 12))].columns.tolist(), inplace = True)
-            codes_incineration = ['H040', 'H076', 'H122']
+            codes_incineration = ['A01', 'H040', 'H076', 'H122']
         else:
             df.drop(columns = df.iloc[:, list(range(13, 62, 12))].columns.tolist(), inplace = True)
-            codes_incineration = ['F01', 'F11', 'F19', 'F31',
+            codes_incineration = ['A01', 'F01', 'F11', 'F19', 'F31',
                                 'F41', 'F42', 'F51', 'F61',
                                 'F71', 'F81', 'F82', 'F83',
                                 'F99']
@@ -370,7 +370,7 @@ class PCU_DB:
 
     def _phase_estimation_recycling(self, df_s, row):
         if row['METHOD CODE - 2005 AND AFTER'] == 'H20': # Solvent recovery
-            phases = ['W', 'L', 'A']
+            phases = ['L']
         elif row['METHOD CODE - 2005 AND AFTER'] == 'H39': # Acid regeneration and other reactions
             phases = ['W']
         elif row['METHOD CODE - 2005 AND AFTER'] == 'H10': # Metal recovery
