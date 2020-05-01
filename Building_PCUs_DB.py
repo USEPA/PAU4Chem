@@ -14,6 +14,7 @@ import argparse
 import numpy as np
 import re
 import time
+import unicodedata
 
 class PCU_DB:
 
@@ -24,7 +25,7 @@ class PCU_DB:
 
     def calling_TRI_Files(self):
         TRI_Files = dict()
-        for file in ['1a', '2b']:
+        for file in ['1a', '1b', '2b']:
             columns = pd.read_csv(self._dir_path + '/Ancillary/TRI_File_' + file + '_needed_columns.txt',
                                 header = None)
             columns =  list(columns.iloc[:,0])
@@ -36,8 +37,23 @@ class PCU_DB:
         return TRI_Files
 
 
+    def is_number(self, s):
+        try:
+            float(s)
+            return True
+        except (TypeError, ValueError):
+            pass
+        try:
+            unicodedata.numeric(s)
+            return True
+        except (TypeError, ValueError):
+            pass
+        return False
+
+
     def _efficiency_estimation_to_range(self, x):
         if x != np.nan:
+            x = np.abs(x)
             if (x >= 0.0) & (x <= 50.0):
                 return 'E6'
             elif (x > 50.0) & (x <= 95.0):
@@ -117,13 +133,13 @@ class PCU_DB:
         dfs = self.calling_TRI_Files()
         df = dfs['2b'].where(pd.notnull(dfs['2b']), None)
         if self.Year >= 2005:
-            df.drop(columns = df.iloc[:, list(range(17, 70, 13))].columns.tolist(), inplace = True)
+            df.drop(columns = df.iloc[:, list(range(18, 71, 13))].columns.tolist(), inplace = True)
         else:
-            df.drop(columns = df.iloc[:, list(range(19, 72, 13))].columns.tolist(), inplace = True)
+            df.drop(columns = df.iloc[:, list(range(20, 73, 13))].columns.tolist(), inplace = True)
         df_PCUs = pd.DataFrame()
-        Columns_0 = list(df.iloc[:, 0:7].columns)
+        Columns_0 = list(df.iloc[:, 0:8].columns)
         for i in range(5):
-            Starting = 7 + 12*i
+            Starting = 8 + 12*i
             Ending = Starting + 11
             Columns_1 = list(df.iloc[:, Starting:Ending + 1].columns)
             Columns = Columns_0 + Columns_1
@@ -134,7 +150,7 @@ class PCU_DB:
                                        sort = True, axis = 0)
             del Columns
         del df, df_aux
-        cols =  list(df_PCUs.iloc[:, 8:16].columns)
+        cols =  list(df_PCUs.iloc[:, 9:17].columns)
         df_PCUs.dropna(subset = cols, how = 'all', axis = 0, inplace = True)
         if self.Year <= 2004:
             df_PCUs.dropna(subset = ['WASTE STREAM CODE', 'RANGE INFLUENT CONCENTRATION', \
@@ -162,11 +178,11 @@ class PCU_DB:
         df_PCUs.loc[pd.isnull(df_PCUs['BASED ON OPERATING DATA?']), 'BASED ON OPERATING DATA?'] = 'NO'
         try:
             # On-site energy recovery
-            df = dfs['1a'].iloc[:, list(range(11))]
+            df = dfs['1a'].iloc[:, list(range(12))]
             cols = [c for c in df.columns if 'METHOD' in c]
             df.dropna(subset = cols, how = 'all', axis = 0, inplace = True)
-            Columns_0 = list(df.iloc[:, 0:7].columns)
-            Columns_1 = list(df.iloc[:, 7:].columns)
+            Columns_0 = list(df.iloc[:, 0:8].columns)
+            Columns_1 = list(df.iloc[:, 8:].columns)
             dfs_energy = pd.DataFrame()
             for col in Columns_1:
                 Columns = Columns_0 + [col]
@@ -195,11 +211,11 @@ class PCU_DB:
             print('{}:\nThere is not information about energy recovery activities'.format(e))
         try:
             # On-site recycling
-            df = dfs['1a'].iloc[:, list(range(7)) + list(range(11,18))]
+            df = dfs['1a'].iloc[:, list(range(8)) + list(range(12,19))]
             cols = [c for c in df.columns if 'METHOD' in c]
             df.dropna(subset = cols, how = 'all', axis = 0, inplace = True)
-            Columns_0 = list(df.iloc[:, 0:7].columns)
-            Columns_1 = list(df.iloc[:, 7:].columns)
+            Columns_0 = list(df.iloc[:, 0:8].columns)
+            Columns_1 = list(df.iloc[:, 8:].columns)
             dfs_recycling = pd.DataFrame()
             for col in Columns_1:
                 Columns = Columns_0 + [col]
@@ -252,8 +268,21 @@ class PCU_DB:
                                     'Code 2005 and after',
                                     'Method 2005 and after'])
         Methods.drop_duplicates(keep =  'first', inplace = True)
+        # Adding chemical activities and uses
+        df_PCUs['DOCUMENT CONTROL NUMBER'] = df_PCUs['DOCUMENT CONTROL NUMBER'].apply(lambda x: str(int(float(x))) if self.is_number(x) else x)
+        dfs['1b'].drop_duplicates(keep = 'first', inplace = True)
+        dfs['1b']['DOCUMENT CONTROL NUMBER'] = dfs['1b']['DOCUMENT CONTROL NUMBER'].apply(lambda x: str(int(float(x))) if self.is_number(x) else x)
+        df_PCUs = pd.merge(df_PCUs, dfs['1b'], on = ['TRIFID', 'DOCUMENT CONTROL NUMBER', 'CAS NUMBER'],
+                                               how = 'inner')
         columns_DB_F = ['REPORTING YEAR', 'TRIFID', 'PRIMARY NAICS CODE', 'CAS NUMBER',
                          'CHEMICAL NAME', 'METAL INDICATOR', 'CLASSIFICATION',
+                         'PRODUCE THE CHEMICAL', 'IMPORT THE CHEMICAL',
+                         'ON-SITE USE OF THE CHEMICAL','SALE OR DISTRIBUTION OF THE CHEMICAL',
+                         'AS A BYPRODUCT', 'AS A MANUFACTURED IMPURITY', 'USED AS A REACTANT',
+                         'ADDED AS A FORMULATION COMPONENT', 'USED AS AN ARTICLE COMPONENT',
+                         'REPACKAGING', 'AS A PROCESS IMPURITY', 'RECYCLING',
+                         'USED AS A CHEMICAL PROCESSING AID', 'USED AS A MANUFACTURING AID',
+                         'ANCILLARY OR OTHER USE',
                          'WASTE STREAM CODE', 'METHOD CODE - 2005 AND AFTER',
                          'METHOD NAME - 2005 AND AFTER', 'TYPE OF MANAGEMENT',
                          'EFFICIENCY RANGE CODE', 'BASED ON OPERATING DATA?']
@@ -269,6 +298,13 @@ class PCU_DB:
             df_PCUs = df_PCUs.loc[(df_PCUs['METHOD CODE - 2004 AND PRIOR'] != '') | (pd.notnull(df_PCUs['METHOD CODE - 2004 AND PRIOR']))]
             columns_DB_F = ['REPORTING YEAR', 'TRIFID', 'PRIMARY NAICS CODE', 'CAS NUMBER',
                              'CHEMICAL NAME', 'METAL INDICATOR', 'CLASSIFICATION',
+                             'PRODUCE THE CHEMICAL', 'IMPORT THE CHEMICAL', 'ON-SITE USE OF THE CHEMICAL',
+                             'SALE OR DISTRIBUTION OF THE CHEMICAL', 'AS A BYPRODUCT',
+                             'AS A MANUFACTURED IMPURITY', 'USED AS A REACTANT',
+                             'ADDED AS A FORMULATION COMPONENT', 'USED AS AN ARTICLE COMPONENT',
+                             'REPACKAGING', 'AS A PROCESS IMPURITY', 'RECYCLING',
+                             'USED AS A CHEMICAL PROCESSING AID', 'USED AS A MANUFACTURING AID',
+                             'ANCILLARY OR OTHER USE',
                              'WASTE STREAM CODE', 'RANGE INFLUENT CONCENTRATION',
                              'METHOD CODE - 2004 AND PRIOR', 'METHOD NAME - 2004 AND PRIOR',
                              'METHOD CODE - 2005 AND AFTER', 'METHOD NAME - 2005 AND AFTER',
