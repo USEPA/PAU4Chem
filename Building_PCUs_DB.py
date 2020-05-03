@@ -15,6 +15,7 @@ import numpy as np
 import re
 import time
 import unicodedata
+from itertools import combinations
 
 class PCU_DB:
 
@@ -381,6 +382,69 @@ class PCU_DB:
                      sep = ',', index = False)
 
 
+    def Building_database_for_recycling_efficiency(self):
+        def _division(row, elements_total):
+            if row['ON-SITE - RECYCLED'] == 0.0:
+                if row['CLASSIFICATION'] == 'TRI':
+                    row['ON-SITE - RECYCLED'] = 0.5
+                elif row['CLASSIFICATION'] == 'PBT':
+                    row['ON-SITE - RECYCLED'] = 0.1
+                else:
+                    row['ON-SITE - RECYCLED'] = 0.0001
+            values = [v for v in row[elements_total] if v != 0.0]
+            cases = list()
+            for n_elements_sum in range(1, len(values) + 1):
+                comb = combinations(values, n_elements_sum)
+                for comb_values in comb:
+                    sumatory = sum(comb_values)
+                    cases.append(row['ON-SITE - RECYCLED']/(row['ON-SITE - RECYCLED'] + sumatory)*100)
+            try:
+                if len(list(set(cases))) == 1 and cases[0] == 100:
+                    return [100]*6 + [row['ON-SITE - RECYCLED']]
+                else:
+                    return [np.min(cases)] + np.quantile(cases, [0.25, 0.5, 0.75]).tolist() + [np.max(cases), np.mean(cases), row['ON-SITE - RECYCLED']]
+            except ValueError:
+                a = np.empty((7))
+                a[:] = np.nan
+                return a.tolist()
+        columns = pd.read_csv(self._dir_path + '/Ancillary/TRI_File_1a_needed_columns_for_statistics.txt',
+                             header = None)
+        columns =  list(columns.iloc[:,0])
+        df = pd.read_csv(self._dir_path + '/Ancillary/US_1a_' + str(self.Year) + '.csv',
+                        usecols = columns,
+                        low_memory = False)
+        elements_total = list(set(df.iloc[:, 5:64].columns.tolist()) - set(['ON-SITE - RECYCLED']))
+        df.iloc[:, 5:64] = df.iloc[:, 5:64].where(pd.notnull(df.iloc[:, 5:64]), 0.0)
+        df.iloc[:, 5:64] = df.iloc[:, 5:64].apply(pd.to_numeric, errors='coerce')
+        cols = [c for c in df.columns if 'METHOD' in c]
+        df['IDEAL'] = df[cols].apply(lambda x: 'YES' if  \
+                                         len(list(np.where(pd.notnull(x))[0])) == 1  \
+                                         else 'NO',
+                                         axis = 1)
+        df = df.loc[df['IDEAL'] == 'YES']
+        df['METHOD'] = df[cols].apply(lambda x: x.values[np.where(pd.notnull(x))[0]][0], axis = 1)
+        df.drop(columns = ['IDEAL'] + cols, inplace = True)
+        df[['LOWER EFFICIENCY', '1ST QUARTILE OF EFFICIENCY', '2ND QUARTILE OF EFFICIENCY', \
+            '3RD QUARTILE OF EFFICIENCY', 'UPPER EFFICIENCY', 'MEAN OF EFFICIENCY', 'ON-SITE - RECYCLED']]\
+             = df.apply(lambda x: pd.Series(_division(x, elements_total)), axis = 1)
+        df = df.loc[pd.notnull(df['UPPER EFFICIENCY'])]
+        df['INTERQUARTILE RANGE'] = df.apply(lambda x: x['3RD QUARTILE OF EFFICIENCY'] \
+                                 - x['1ST QUARTILE OF EFFICIENCY'], axis = 1)
+        df['UPPER EFFICIENCY OUTLIER?'] = df.apply(lambda x: 'YES' if x['UPPER EFFICIENCY'] > \
+                                1.5*x['INTERQUARTILE RANGE'] + x['3RD QUARTILE OF EFFICIENCY'] else 'NO',
+                                axis = 1)
+        df['LOWER EFFICIENCY OUTLIER?'] = df.apply(lambda x: 'YES' if x['LOWER EFFICIENCY'] < \
+                                x['1ST QUARTILE OF EFFICIENCY'] - 1.5*x['INTERQUARTILE RANGE'] else 'NO',
+                                axis = 1)
+        df = df[['TRIFID', 'PRIMARY NAICS CODE', 'CAS NUMBER', 'ON-SITE - RECYCLED', 'UNIT OF MEASURE', \
+                'LOWER EFFICIENCY', 'LOWER EFFICIENCY OUTLIER?', '1ST QUARTILE OF EFFICIENCY', \
+                '2ND QUARTILE OF EFFICIENCY', '3RD QUARTILE OF EFFICIENCY', 'UPPER EFFICIENCY', \
+                'UPPER EFFICIENCY OUTLIER?', 'MEAN OF EFFICIENCY', 'METHOD']]
+        print(df.info())
+        df.to_csv(self._dir_path + '/Statistics/DB_for_Solvents_' + str(self.Year) + '.csv',
+                      sep = ',', index = False)
+
+
     def _searching_naics(self, x, naics):
         # https://www.census.gov/programs-surveys/economic-census/guidance/understanding-naics.html
         values = {0:'Nothing',
@@ -595,18 +659,11 @@ class PCU_DB:
 
 
     def cleaning_database(self):
-        # Calling TRI restriction for metals
-        Restrictions = pd.read_csv(self._dir_path + '/Ancillary/Metals_divided_into_4_groups_can_be_reported.csv',
-                                    low_memory = False,
-                                    usecols = ['ID',
-                                               "U01, U02, U03 (Energy recovery)",
-                                               'H20 (Solvent recovey)'])
-        Energy_recovery = Restrictions.loc[Restrictions["U01, U02, U03 (Energy recovery)"] == 'NO', 'ID'].tolist()
-        Solvent_recovery = Restrictions.loc[Restrictions['H20 (Solvent recovey)'] == 'NO', 'ID'].tolist()
         # Calling PCU
         PCU = pd.read_csv(self._dir_path + '/Datasets/PCUs_DB_' + str(self.Year) + '.csv',
                             low_memory = False,
                             converters = {'CAS NUMBER': lambda x: x if re.search(r'^[A-Z]', x) else str(int(x))})
+        columns_DB_F = PCU.columns.tolist()
         PCU['PRIMARY NAICS CODE'] = PCU['PRIMARY NAICS CODE'].astype('int')
         if self.Year <= 2004:
             grouping = ['TRIFID', 'METHOD CODE - 2004 AND PRIOR']
@@ -719,20 +776,6 @@ class PCU_DB:
         Chemicals_to_remove = ['MIXTURE', 'TRD SECRT']
         df_N_PCU = df_N_PCU.loc[~df_N_PCU['CAS NUMBER'].isin(Chemicals_to_remove)]
         df_N_PCU['CAS NUMBER'] = df_N_PCU['CAS NUMBER'].apply(lambda x: str(int(x)) if not 'N' in x else x)
-        if self.Year <= 2004:
-            columns_DB_F = ['REPORTING YEAR', 'TRIFID', 'PRIMARY NAICS CODE', 'CAS NUMBER',
-                             'CHEMICAL NAME', 'METAL INDICATOR', 'CLASSIFICATION',
-                             'WASTE STREAM CODE', 'RANGE INFLUENT CONCENTRATION',
-                             'METHOD CODE - 2004 AND PRIOR', 'METHOD NAME - 2004 AND PRIOR',
-                             'METHOD CODE - 2005 AND AFTER', 'METHOD NAME - 2005 AND AFTER',
-                             'TYPE OF MANAGEMENT', 'EFFICIENCY RANGE CODE',
-                             'EFFICIENCY ESTIMATION', 'BASED ON OPERATING DATA?']
-        else:
-            columns_DB_F = ['REPORTING YEAR', 'TRIFID', 'PRIMARY NAICS CODE', 'CAS NUMBER',
-                            'CHEMICAL NAME', 'METAL INDICATOR', 'CLASSIFICATION',
-                            'WASTE STREAM CODE', 'METHOD CODE - 2005 AND AFTER',
-                            'METHOD NAME - 2005 AND AFTER', 'TYPE OF MANAGEMENT',
-                            'EFFICIENCY RANGE CODE', 'BASED ON OPERATING DATA?']
         df_N_PCU = df_N_PCU[columns_DB_F]
         df_N_PCU.to_csv(self._dir_path + '/Datasets/PCUs_DB_filled_' + str(self.Year) + '.csv',
                      sep = ',', index = False)
@@ -760,7 +803,8 @@ if __name__ == '__main__':
                         help = 'What do you want to do:\
                         [A]: Recover information from TRI.\
                         [B]: File for statistics. \
-                        [C]: Further cleaning of database.', \
+                        [C]: File for recycling. \
+                        [D]: Further cleaning of database.', \
                         type = str)
 
     parser.add_argument('-Y', '--Year', nargs = '+',
@@ -778,6 +822,8 @@ if __name__ == '__main__':
         elif args.Option == 'B':
             Building.Building_database_for_statistics()
         elif args.Option == 'C':
+            Building.Building_database_for_recycling_efficiency()
+        elif args.Option == 'D':
             Building.cleaning_database()
 
     print('Execution time: %s sec' % (time.time() - start_time))
