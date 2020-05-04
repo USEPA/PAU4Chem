@@ -424,6 +424,7 @@ class PCU_DB:
         df = df.loc[df['IDEAL'] == 'YES']
         df['METHOD'] = df[cols].apply(lambda x: x.values[np.where(pd.notnull(x))[0]][0], axis = 1)
         df.drop(columns = ['IDEAL'] + cols, inplace = True)
+        df = df.loc[df['METHOD'] != 'INV']
         df[['LOWER EFFICIENCY', '1ST QUARTILE OF EFFICIENCY', '2ND QUARTILE OF EFFICIENCY', \
             '3RD QUARTILE OF EFFICIENCY', 'UPPER EFFICIENCY', 'MEAN OF EFFICIENCY', 'ON-SITE - RECYCLED']]\
              = df.apply(lambda x: pd.Series(_division(x, elements_total)), axis = 1)
@@ -440,7 +441,6 @@ class PCU_DB:
                 'LOWER EFFICIENCY', 'LOWER EFFICIENCY OUTLIER?', '1ST QUARTILE OF EFFICIENCY', \
                 '2ND QUARTILE OF EFFICIENCY', '3RD QUARTILE OF EFFICIENCY', 'UPPER EFFICIENCY', \
                 'UPPER EFFICIENCY OUTLIER?', 'MEAN OF EFFICIENCY', 'METHOD']]
-        print(df.info())
         df.to_csv(self._dir_path + '/Statistics/DB_for_Solvents_' + str(self.Year) + '.csv',
                       sep = ',', index = False)
 
@@ -530,16 +530,45 @@ class PCU_DB:
         return df.loc[df['VALUE'].idxmax(), 'CONCENTRATION']
 
 
-    def _recycling_efficiency(self, row):
-        if row['METHOD CODE - 2005 AND AFTER'] == 'H20': # Solvent recovery
-            return np.random.uniform(40, 99)
-        elif row['METHOD CODE - 2005 AND AFTER'] == 'H39': # Acid regeneration and other reactions
-            if row['METAL INDICATOR'] == 'NO':
-                return np.random.uniform(80, 99.9) # For no-metals
+    def _recycling_efficiency(self, row, df_s):
+        naics_structure = ['National Industry', 'NAICS Industry', 'Industry Group',
+                    'Subsector', 'Sector', 'Nothing']
+        if self.Year <= 2004:
+            code = row['METHOD CODE - 2004 AND PRIOR']
+        else:
+            code = row['METHOD CODE - 2005 AND AFTER']
+        df_cas = df_s.loc[(df_s['CAS NUMBER'] == row['CAS NUMBER']) & (df_s['METHOD'] == code)]
+        if (not df_cas.empty):
+            df_fid = df_cas.loc[df_cas['TRIFID'] == row['TRIFID']]
+            if (not df_fid.empty):
+                return df_fid['UPPER EFFICIENCY'].iloc[0]
             else:
-                return np.random.uniform(70, 80) # For metals
-        elif row['METHOD CODE - 2005 AND AFTER'] == 'H10': # Metal recovery
-            return np.random.uniform(70, 99)
+                df_cas['NAICS STRUCTURE'] = df_cas.apply(lambda x: \
+                                self._searching_naics(x['PRIMARY NAICS CODE'], \
+                                                    row['PRIMARY NAICS CODE']), \
+                                axis = 1)
+                i = 0
+                efficiency = None
+                while (i <= 5) and (not efficiency):
+                    structure = naics_structure[i]
+                    i = i + 1
+                    df_naics = df_cas.loc[df_cas['NAICS STRUCTURE'] == structure]
+                    if df_naics.empty:
+                        efficiency = None
+                    else:
+                        efficiency =  df_naics['UPPER EFFICIENCY'].median()
+                return efficiency
+        else:
+            return None
+        # if row['METHOD CODE - 2005 AND AFTER'] == 'H20': # Solvent recovery
+        #     return np.random.uniform(40, 99)
+        # elif row['METHOD CODE - 2005 AND AFTER'] == 'H39': # Acid regeneration and other reactions
+        #     if row['METAL INDICATOR'] == 'NO':
+        #         return np.random.uniform(80, 99.9) # For no-metals
+        #     else:
+        #         return np.random.uniform(70, 80) # For metals
+        # elif row['METHOD CODE - 2005 AND AFTER'] == 'H10': # Metal recovery
+        #     return np.random.uniform(70, 99)
 
 
     def _phase_estimation_energy(self, df_s, row):
@@ -565,7 +594,6 @@ class PCU_DB:
                 df_naics = df_cas.loc[df_cas['NAICS STRUCTURE'] == structure]
                 if df_naics.empty:
                     phase = None
-                    #continue
                 else:
                     df_incineration = df_naics.loc[df_cas['INCINERATION'] == 'YES']
                     if df_incineration.empty:
@@ -659,6 +687,14 @@ class PCU_DB:
 
 
     def cleaning_database(self):
+        # Calling TRI restriction for metals
+        Restrictions = pd.read_csv(self._dir_path + '/Ancillary/Metals_divided_into_4_groups_can_be_reported.csv',
+                                    low_memory = False,
+                                    usecols = ['ID',
+                                               "U01, U02, U03 (Energy recovery)",
+                                               'H20 (Solvent recovey)'])
+        Energy_recovery = Restrictions.loc[Restrictions["U01, U02, U03 (Energy recovery)"] == 'NO', 'ID'].tolist()
+        Solvent_recovery = Restrictions.loc[Restrictions['H20 (Solvent recovey)'] == 'NO', 'ID'].tolist()
         # Calling PCU
         PCU = pd.read_csv(self._dir_path + '/Datasets/PCUs_DB_' + str(self.Year) + '.csv',
                             low_memory = False,
@@ -689,13 +725,23 @@ class PCU_DB:
         # Recycling
         PCU_recycling = PCU.loc[PCU['TYPE OF MANAGEMENT'] == 'Recycling']
         if not PCU_recycling.empty:
-            PCU_energy =  PCU_recycling.loc[~ ((PCU_recycling['METHOD CODE - 2005 AND AFTER'] == 'H20') & (PCU_recycling['CAS NUMBER'].isin(Solvent_recovery)))]
+            PCU_recycling =  PCU_recycling.loc[~ ((PCU_recycling['METHOD CODE - 2005 AND AFTER'] == 'H20') & (PCU_recycling['CAS NUMBER'].isin(Solvent_recovery)))]
             PCU_recycling.reset_index(inplace = True, drop = True)
             PCU_recycling['BASED ON OPERATING DATA?'] = 'NO'
+            # Calling database for recycling efficiency
+            Recycling_statistics = pd.read_csv(self._dir_path + '/Statistics/DB_for_Solvents_' + str(self.Year) +  '.csv',
+                                    low_memory = False,
+                                    usecols = ['TRIFID', 'PRIMARY NAICS CODE', 'CAS NUMBER', \
+                                               'UPPER EFFICIENCY', 'UPPER EFFICIENCY OUTLIER?', 'METHOD'],
+                                    converters = {'CAS NUMBER': lambda x: x if re.search(r'^[A-Z]', x) else str(int(x))})
+            Recycling_statistics['PRIMARY NAICS CODE'] = Recycling_statistics['PRIMARY NAICS CODE'].astype('int')
+            Recycling_statistics = Recycling_statistics.loc[Recycling_statistics['UPPER EFFICIENCY OUTLIER?'] == 'NO']
+            Recycling_statistics.drop(columns = ['UPPER EFFICIENCY OUTLIER?'], axis = 1)
             efficiency_estimation = \
-                    PCU_recycling.apply(lambda x: self._recycling_efficiency(x), axis = 1).round(4)
+                    PCU_recycling.apply(lambda x: self._recycling_efficiency(x, Recycling_statistics), axis = 1).round(4)
             PCU_recycling['EFFICIENCY RANGE CODE'] = \
                             efficiency_estimation.apply(lambda x: self._efficiency_estimation_to_range(x))
+            PCU_recycling = PCU_recycling.loc[pd.notnull(PCU_recycling['EFFICIENCY RANGE CODE'])]
             PCU_recycling = \
                      PCU_recycling.apply(lambda x: \
                      self._phase_estimation_recycling(Statistics, x), axis = 1)
@@ -777,6 +823,7 @@ class PCU_DB:
         df_N_PCU = df_N_PCU.loc[~df_N_PCU['CAS NUMBER'].isin(Chemicals_to_remove)]
         df_N_PCU['CAS NUMBER'] = df_N_PCU['CAS NUMBER'].apply(lambda x: str(int(x)) if not 'N' in x else x)
         df_N_PCU = df_N_PCU[columns_DB_F]
+        print(df_N_PCU.info())
         df_N_PCU.to_csv(self._dir_path + '/Datasets/PCUs_DB_filled_' + str(self.Year) + '.csv',
                      sep = ',', index = False)
         # Chemicals and groups
