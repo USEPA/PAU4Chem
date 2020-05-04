@@ -560,15 +560,6 @@ class PCU_DB:
                 return efficiency
         else:
             return None
-        # if row['METHOD CODE - 2005 AND AFTER'] == 'H20': # Solvent recovery
-        #     return np.random.uniform(40, 99)
-        # elif row['METHOD CODE - 2005 AND AFTER'] == 'H39': # Acid regeneration and other reactions
-        #     if row['METAL INDICATOR'] == 'NO':
-        #         return np.random.uniform(80, 99.9) # For no-metals
-        #     else:
-        #         return np.random.uniform(70, 80) # For metals
-        # elif row['METHOD CODE - 2005 AND AFTER'] == 'H10': # Metal recovery
-        #     return np.random.uniform(70, 99)
 
 
     def _phase_estimation_energy(self, df_s, row):
@@ -687,14 +678,6 @@ class PCU_DB:
 
 
     def cleaning_database(self):
-        # Calling TRI restriction for metals
-        Restrictions = pd.read_csv(self._dir_path + '/Ancillary/Metals_divided_into_4_groups_can_be_reported.csv',
-                                    low_memory = False,
-                                    usecols = ['ID',
-                                               "U01, U02, U03 (Energy recovery)",
-                                               'H20 (Solvent recovey)'])
-        Energy_recovery = Restrictions.loc[Restrictions["U01, U02, U03 (Energy recovery)"] == 'NO', 'ID'].tolist()
-        Solvent_recovery = Restrictions.loc[Restrictions['H20 (Solvent recovey)'] == 'NO', 'ID'].tolist()
         # Calling PCU
         PCU = pd.read_csv(self._dir_path + '/Datasets/PCUs_DB_' + str(self.Year) + '.csv',
                             low_memory = False,
