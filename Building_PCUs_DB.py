@@ -400,11 +400,13 @@ class PCU_DB:
                     cases.append(row['ON-SITE - RECYCLED']/(row['ON-SITE - RECYCLED'] + sumatory)*100)
             try:
                 if len(list(set(cases))) == 1 and cases[0] == 100:
-                    return [100]*6 + [row['ON-SITE - RECYCLED']]
+                    return [100]*6 + [0] + [row['ON-SITE - RECYCLED']]
                 else:
-                    return [np.min(cases)] + np.quantile(cases, [0.25, 0.5, 0.75]).tolist() + [np.max(cases), np.mean(cases), row['ON-SITE - RECYCLED']]
+                    return [np.min(cases)] + np.quantile(cases, [0.25, 0.5, 0.75]).tolist() + \
+                           [np.max(cases), np.mean(cases), np.std(cases)/np.mean(cases),\
+                            row['ON-SITE - RECYCLED']]
             except ValueError:
-                a = np.empty((7))
+                a = np.empty((8))
                 a[:] = np.nan
                 return a.tolist()
         columns = pd.read_csv(self._dir_path + '/Ancillary/TRI_File_1a_needed_columns_for_statistics.txt',
@@ -425,22 +427,26 @@ class PCU_DB:
         df['METHOD'] = df[cols].apply(lambda x: x.values[np.where(pd.notnull(x))[0]][0], axis = 1)
         df.drop(columns = ['IDEAL'] + cols, inplace = True)
         df = df.loc[df['METHOD'] != 'INV']
-        df[['LOWER EFFICIENCY', '1ST QUARTILE OF EFFICIENCY', '2ND QUARTILE OF EFFICIENCY', \
-            '3RD QUARTILE OF EFFICIENCY', 'UPPER EFFICIENCY', 'MEAN OF EFFICIENCY', 'ON-SITE - RECYCLED']]\
+        df[['LOWER EFFICIENCY', 'Q1', 'Q2','Q3', 'UPPER EFFICIENCY',
+            'MEAN OF EFFICIENCY', 'CV', 'ON-SITE - RECYCLED']]\
              = df.apply(lambda x: pd.Series(_division(x, elements_total)), axis = 1)
         df = df.loc[pd.notnull(df['UPPER EFFICIENCY'])]
-        df['INTERQUARTILE RANGE'] = df.apply(lambda x: x['3RD QUARTILE OF EFFICIENCY'] \
-                                 - x['1ST QUARTILE OF EFFICIENCY'], axis = 1)
+        df['IQR'] = df.apply(lambda x: x['Q3'] - x['Q1'], axis = 1)
+        df['Q1 - 1.5xIQR'] = df.apply(lambda x: 0 if x['Q1'] - 1.5*x['IQR'] < 0 \
+                                    else x['Q1'] - 1.5*x['IQR'], axis = 1)
+        df['Q3 + 1.5xIQR'] = df.apply(lambda x: 100 if x['Q3'] + 1.5*x['IQR'] > 100 \
+                                    else x['Q3'] + 1.5*x['IQR'], axis = 1)
         df['UPPER EFFICIENCY OUTLIER?'] = df.apply(lambda x: 'YES' if x['UPPER EFFICIENCY'] > \
-                                1.5*x['INTERQUARTILE RANGE'] + x['3RD QUARTILE OF EFFICIENCY'] else 'NO',
-                                axis = 1)
+                                x['Q3 + 1.5xIQR'] else 'NO', axis = 1)
         df['LOWER EFFICIENCY OUTLIER?'] = df.apply(lambda x: 'YES' if x['LOWER EFFICIENCY'] < \
-                                x['1ST QUARTILE OF EFFICIENCY'] - 1.5*x['INTERQUARTILE RANGE'] else 'NO',
-                                axis = 1)
+                                x['Q1 - 1.5xIQR'] else 'NO', axis = 1)
+        df['HIGH VARIANCE?'] = df.apply(lambda x: 'YES' if x['CV'] > 1 else 'NO', axis = 1)
         df = df[['TRIFID', 'PRIMARY NAICS CODE', 'CAS NUMBER', 'ON-SITE - RECYCLED', 'UNIT OF MEASURE', \
-                'LOWER EFFICIENCY', 'LOWER EFFICIENCY OUTLIER?', '1ST QUARTILE OF EFFICIENCY', \
-                '2ND QUARTILE OF EFFICIENCY', '3RD QUARTILE OF EFFICIENCY', 'UPPER EFFICIENCY', \
-                'UPPER EFFICIENCY OUTLIER?', 'MEAN OF EFFICIENCY', 'METHOD']]
+                'LOWER EFFICIENCY', 'LOWER EFFICIENCY OUTLIER?', 'Q1 - 1.5xIQR', 'Q1', \
+                'Q2', 'Q3', 'Q3 + 1.5xIQR', 'UPPER EFFICIENCY', 'UPPER EFFICIENCY OUTLIER?', \
+                'IQR', 'MEAN OF EFFICIENCY', 'CV', 'HIGH VARIANCE?', 'METHOD']]
+        df.iloc[:, [5, 7, 8, 9, 10, 11, 12, 14, 15, 16]] = \
+                df.iloc[:, [5, 7, 8, 9, 10, 11, 12, 14, 15, 16]].round(4)
         df.to_csv(self._dir_path + '/Statistics/DB_for_Solvents_' + str(self.Year) + '.csv',
                       sep = ',', index = False)
 
@@ -678,6 +684,14 @@ class PCU_DB:
 
 
     def cleaning_database(self):
+        # Calling TRI restriction for metals
+        Restrictions = pd.read_csv(self._dir_path + '/Ancillary/Metals_divided_into_4_groups_can_be_reported.csv',
+                                    low_memory = False,
+                                    usecols = ['ID',
+                                               "U01, U02, U03 (Energy recovery)",
+                                               'H20 (Solvent recovey)'])
+        Energy_recovery = Restrictions.loc[Restrictions["U01, U02, U03 (Energy recovery)"] == 'NO', 'ID'].tolist()
+        Solvent_recovery = Restrictions.loc[Restrictions['H20 (Solvent recovey)'] == 'NO', 'ID'].tolist()
         # Calling PCU
         PCU = pd.read_csv(self._dir_path + '/Datasets/PCUs_DB_' + str(self.Year) + '.csv',
                             low_memory = False,
@@ -715,11 +729,14 @@ class PCU_DB:
             Recycling_statistics = pd.read_csv(self._dir_path + '/Statistics/DB_for_Solvents_' + str(self.Year) +  '.csv',
                                     low_memory = False,
                                     usecols = ['TRIFID', 'PRIMARY NAICS CODE', 'CAS NUMBER', \
-                                               'UPPER EFFICIENCY', 'UPPER EFFICIENCY OUTLIER?', 'METHOD'],
+                                               'UPPER EFFICIENCY', 'UPPER EFFICIENCY OUTLIER?',
+                                               'METHOD', 'HIGH VARIANCE?'],
                                     converters = {'CAS NUMBER': lambda x: x if re.search(r'^[A-Z]', x) else str(int(x))})
             Recycling_statistics['PRIMARY NAICS CODE'] = Recycling_statistics['PRIMARY NAICS CODE'].astype('int')
-            Recycling_statistics = Recycling_statistics.loc[Recycling_statistics['UPPER EFFICIENCY OUTLIER?'] == 'NO']
-            Recycling_statistics.drop(columns = ['UPPER EFFICIENCY OUTLIER?'], axis = 1)
+            Recycling_statistics = Recycling_statistics\
+                                    .loc[(Recycling_statistics['UPPER EFFICIENCY OUTLIER?'] == 'NO') &
+                                         (Recycling_statistics['HIGH VARIANCE?'] == 'NO')]
+            Recycling_statistics.drop(columns = ['UPPER EFFICIENCY OUTLIER?', 'HIGH VARIANCE?'], axis = 1)
             efficiency_estimation = \
                     PCU_recycling.apply(lambda x: self._recycling_efficiency(x, Recycling_statistics), axis = 1).round(4)
             PCU_recycling['EFFICIENCY RANGE CODE'] = \
@@ -806,7 +823,6 @@ class PCU_DB:
         df_N_PCU = df_N_PCU.loc[~df_N_PCU['CAS NUMBER'].isin(Chemicals_to_remove)]
         df_N_PCU['CAS NUMBER'] = df_N_PCU['CAS NUMBER'].apply(lambda x: str(int(x)) if not 'N' in x else x)
         df_N_PCU = df_N_PCU[columns_DB_F]
-        print(df_N_PCU.info())
         df_N_PCU.to_csv(self._dir_path + '/Datasets/PCUs_DB_filled_' + str(self.Year) + '.csv',
                      sep = ',', index = False)
         # Chemicals and groups
