@@ -11,7 +11,7 @@ import pandas as pd
 import argparse
 from common import config
 
-class TRI_Scrapper:
+class TRI_Scraper:
 
     def __init__(self, year, Files):
         self.year = year
@@ -89,5 +89,5 @@ if __name__ == '__main__':
     args = parser.parse_args()
 
     for Y in args.Year:
-        Scrapper = TRI_Scrapper(Y, args.Files)
-        Scrapper.extacting_TRI_data_files()
+        Scraper = TRI_Scraper(Y, args.Files)
+        Scraper.extacting_TRI_data_files()

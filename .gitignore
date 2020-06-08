@@ -10,6 +10,7 @@ Ancillary/*
 !Ancillary/Methods_TRI.csv
 !Ancillary/Metals_divided_into_4_groups_can_be_reported.csv
 !Ancillary/PCU_Allocation.csv
+!Ancillary/Flow_columns.yaml
 !Statistics
 Statistics/*.csv
 Datasets/PCUs_DB_1987.csv

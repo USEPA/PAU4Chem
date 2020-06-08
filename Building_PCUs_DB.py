@@ -16,6 +16,8 @@ import re
 import time
 import unicodedata
 from itertools import combinations
+import yaml
+import math
 
 class PCU_DB:
 
@@ -391,7 +393,7 @@ class PCU_DB:
                     row['ON-SITE - RECYCLED'] = 0.1
                 else:
                     row['ON-SITE - RECYCLED'] = 0.0001
-            values = [v for v in row[elements_total] if v != 0.0]
+            values = [abs(v) for v in row[elements_total] if v != 0.0]
             cases = list()
             for n_elements_sum in range(1, len(values) + 1):
                 comb = combinations(values, n_elements_sum)
@@ -449,6 +451,7 @@ class PCU_DB:
                 df.iloc[:, [5, 7, 8, 9, 10, 11, 12, 14, 15, 16]].round(4)
         df.to_csv(self._dir_path + '/Statistics/DB_for_Solvents_' + str(self.Year) + '.csv',
                       sep = ',', index = False)
+
 
 
     def _searching_naics(self, x, naics):
@@ -840,6 +843,125 @@ class PCU_DB:
             Chemicals.to_csv(Path_c, sep = ',', index = False)
 
 
+    def _Calculating_possible_waste_feed_supply(self, Flow, Concentration, Efficiency):
+        if Concentration == '1':
+            percentanges_c = [1, 100]
+        elif Concentration == '2':
+            percentanges_c = [0.01, 1]
+        elif Concentration == '3':
+            percentanges_c = [0.0001, 0.01]
+        elif Concentration == '4':
+            percentanges_c = [0.0000001, 0.0001]
+        elif Concentration == '5':
+            percentanges_c = [0.000000001, 0.0000001]
+        if Efficiency != 0.0:
+            Chemical_feed_flow = 100*Flow/Efficiency
+        else:
+            Chemical_feed_flow = 100*Flow/10**-4
+        Waste_flows = [100*Chemical_feed_flow/c for c in percentanges_c]
+        Interval = tuple([min(Waste_flows), max(Waste_flows)])
+        Middle = 0.5*(Waste_flows[0] + Waste_flows[-1])
+        return Interval, Middle
+
+
+    def Building_database_for_flows(self, nbins):
+        def func(x):
+            if x.first_valid_index() is None:
+                return None
+            else:
+                return x[x.first_valid_index()]
+        with open(self._dir_path + '/Ancillary/Flow_columns.yaml', mode = 'r') as f:
+            dictionary_of_columns = yaml.load(f, Loader=yaml.FullLoader)
+        dictionary_of_columns = {key: [el.strip() for el in val['columns'].split(',')] for key, val in dictionary_of_columns['TRI_Files'].items()}
+        dfs = dict()
+        for file, columns in dictionary_of_columns.items():
+            df = pd.read_csv(self._dir_path + '/Ancillary/US_{}_{}.csv'.format(file, self.Year),
+                            usecols = columns,
+                            low_memory = False)
+            dfs.update({file: df})
+        # Energy recovery:
+        cols_energy_methods = [col for col in dfs['1a'].columns if 'METHOD' in col and 'ENERGY' in col]
+        df_energy = dfs['1a'][['TRIFID', 'CAS NUMBER', 'UNIT OF MEASURE', 'ON-SITE - ENERGY RECOVERY'] \
+                + cols_energy_methods]
+        df_energy = df_energy.loc[pd.notnull(df_energy[cols_energy_methods]).sum(axis = 1) == 1]
+        df_energy['METHOD CODE'] = df_energy[cols_energy_methods].apply(func, axis = 1)
+        df_energy.rename(columns = {'ON-SITE - ENERGY RECOVERY': 'FLOW'}, inplace = True)
+        df_energy.drop(columns = cols_energy_methods, inplace = True)
+        del cols_energy_methods
+        # Recycling:
+        cols_recycling_methods = [col for col in dfs['1a'].columns if 'METHOD' in col and 'RECYCLING' in col]
+        df_recycling = dfs['1a'][['TRIFID', 'CAS NUMBER', 'UNIT OF MEASURE', 'ON-SITE - RECYCLED'] \
+                + cols_recycling_methods]
+        df_recycling = df_recycling.loc[pd.notnull(df_recycling[cols_recycling_methods]).sum(axis = 1) == 1]
+        df_recycling['METHOD CODE'] = df_recycling[cols_recycling_methods].apply(func, axis = 1)
+        df_recycling.rename(columns = {'ON-SITE - RECYCLED': 'FLOW'}, inplace = True)
+        df_recycling.drop(columns = cols_recycling_methods, inplace = True)
+        del cols_recycling_methods
+        # Treatment
+        cols_treatment_methods = [col for col in dfs['2b'].columns if 'METHOD' in col]
+        dfs['2b'] = dfs['2b'].loc[pd.notnull(dfs['2b'][cols_treatment_methods]).sum(axis = 1) == 1]
+        dfs['2b']['METHOD CODE'] = dfs['2b'][cols_treatment_methods].apply(func, axis = 1)
+        dfs['2b'].drop(columns = cols_treatment_methods, inplace = True)
+        cols_for_merging = ['TRIFID','DOCUMENT CONTROL NUMBER',
+                            'CAS NUMBER', 'ON-SITE - TREATED',
+                            'UNIT OF MEASURE']
+        df_treatment = pd.merge(dfs['1a'][cols_for_merging], dfs['2b'],
+                                how = 'inner',
+                                on = ['TRIFID',
+                                    'DOCUMENT CONTROL NUMBER',
+                                    'CAS NUMBER'])
+        del dfs, cols_treatment_methods, cols_for_merging
+        df_treatment.rename(columns = {'ON-SITE - TREATED': 'FLOW'}, inplace = True)
+        df_treatment.drop(columns = ['DOCUMENT CONTROL NUMBER'], inplace = True)
+        df_PCU_flows = pd.concat([df_treatment, df_recycling, df_energy],
+                                ignore_index = True,
+                                sort = True, axis = 0)
+        del df_treatment, df_recycling, df_energy
+        Chemicals_to_remove = ['MIXTURE', 'TRD SECRT']
+        df_PCU_flows = df_PCU_flows.loc[~df_PCU_flows['CAS NUMBER'].isin(Chemicals_to_remove)]
+        df_PCU_flows['CAS NUMBER'] = df_PCU_flows['CAS NUMBER'].apply(lambda x: str(int(x)) if not 'N' in x else x)
+        df_PCU_flows.loc[df_PCU_flows['UNIT OF MEASURE'] == 'Pounds', 'FLOW'] *= 0.453592
+        df_PCU_flows.loc[df_PCU_flows['UNIT OF MEASURE'] == 'Grams', 'FLOW'] *= 10**-3
+        df_PCU_flows['FLOW'] = df_PCU_flows['FLOW'].round(6)
+        df_PCU_flows = df_PCU_flows.loc[~(df_PCU_flows['FLOW'] == 0)]
+        df_PCU_flows['UNIT OF MEASURE'] = 'kg'
+        # Calling cleaned database
+        columns_for_calling = ['TRIFID', 'CAS NUMBER', 'RANGE INFLUENT CONCENTRATION',
+                            'METHOD CODE - 2004 AND PRIOR', 'EFFICIENCY ESTIMATION']
+        df_PCU_cleaned = pd.read_csv(self._dir_path + '/Datasets/PCUs_DB_filled_{}.csv'.format(self.Year),
+                            usecols = columns_for_calling)
+        df_PCU_cleaned.rename(columns = {'METHOD CODE - 2004 AND PRIOR': 'METHOD CODE'}, inplace = True)
+        # Merging
+        df_PCU_flows = pd.merge(df_PCU_flows, df_PCU_cleaned, how = 'inner',
+                                on = ['TRIFID', 'CAS NUMBER', 'METHOD CODE'])
+        df_PCU_flows[['RANGE INFLUENT CONCENTRATION', 'EFFICIENCY ESTIMATION', 'FLOW']] = \
+                    df_PCU_flows[['RANGE INFLUENT CONCENTRATION', 'EFFICIENCY ESTIMATION', 'FLOW']]\
+                    .applymap(lambda x: abs(x))
+        df_PCU_flows['RANGE INFLUENT CONCENTRATION'] = df_PCU_flows['RANGE INFLUENT CONCENTRATION'].apply(lambda x: str(int(x)))
+        df_PCU_flows[['WASTE FLOW RANGE', 'MIDDLE WASTE FLOW']] = df_PCU_flows.apply(lambda x:
+                            pd.Series(self._Calculating_possible_waste_feed_supply(
+                                                        x['FLOW'],
+                                                        x['RANGE INFLUENT CONCENTRATION'],
+                                                        x['EFFICIENCY ESTIMATION'])),
+                            axis = 1)
+        Max_value = df_PCU_flows['MIDDLE WASTE FLOW'].max()
+        Min_value = df_PCU_flows['MIDDLE WASTE FLOW'].min()
+        Order_max = int(math.log10(Max_value)) - 1
+        Order_min = math.ceil(math.log10(Min_value))
+        Delta = (Order_max - Order_min)/(nbins - 2)
+        Bin_values = [Min_value - 10**(math.log10(Min_value) - 1)]
+        Bin_values = Bin_values + [10**(Order_min + Delta*n) for n in range(nbins - 1)]
+        Bin_values = Bin_values + [Max_value]
+        Bin_values.sort()
+        Bin_labels = [str(val) for val in range(1, len(Bin_values))]
+        df_PCU_flows['MIDDLE WASTE FLOW INTERVAL'] = pd.cut(df_PCU_flows['MIDDLE WASTE FLOW'],
+                                                         bins = Bin_values)
+        df_PCU_flows['MIDDLE WASTE FLOW INTERVAL CODE'] = pd.cut(df_PCU_flows['MIDDLE WASTE FLOW'],
+                                                         bins = Bin_values,
+                                                         labels = Bin_labels,
+                                                         precision = 0)
+        df_PCU_flows.to_csv(self._dir_path + '/Datasets/Waste_flow_to_PCUs_{}_{}.csv'.format(self.Year, nbins), sep = ',', index = False)
+
 
 if __name__ == '__main__':
 
@@ -850,12 +972,19 @@ if __name__ == '__main__':
                         [A]: Recover information from TRI.\
                         [B]: File for statistics. \
                         [C]: File for recycling. \
-                        [D]: Further cleaning of database.', \
+                        [D]: Further cleaning of database. \
+                        [E]: Organizing file with flows (1987-2004).', \
                         type = str)
 
     parser.add_argument('-Y', '--Year', nargs = '+',
                         help = 'Records with up to how many PCUs you want to include?.',
                         type = str)
+
+    parser.add_argument('-N_Bins',
+                        help = 'Number of bins to split the middle waste flow values',
+                        type = int,
+                        default =  10,
+                        required = False)
 
 
     args = parser.parse_args()
@@ -871,5 +1000,7 @@ if __name__ == '__main__':
             Building.Building_database_for_recycling_efficiency()
         elif args.Option == 'D':
             Building.cleaning_database()
+        elif args.Option == 'E':
+            Building.Building_database_for_flows(args.N_Bins)
 
     print('Execution time: %s sec' % (time.time() - start_time))
