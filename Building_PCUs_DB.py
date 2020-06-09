@@ -319,7 +319,7 @@ class PCU_DB:
         # Saving information
         df_PCUs['REPORTING YEAR'] = self.Year
         df_PCUs = df_PCUs[columns_DB_F]
-        df_PCUs.to_csv(self._dir_path + '/Datasets/PCUs_DB_' + str(self.Year) + '.csv',
+        df_PCUs.to_csv(self._dir_path + '/Datasets/Intermediate_PCU_datasets/PCUs_DB_' + str(self.Year) + '.csv',
                      sep = ',', index = False)
 
 
@@ -380,7 +380,7 @@ class PCU_DB:
                                     'RANGE INFLUENT CONCENTRATION': 'CONCENTRATION'},
                             inplace = True)
         df_statistics.loc[df_statistics['INCINERATION'] == 'NO', 'IDEAL'] = None
-        df_statistics.to_csv(self._dir_path + '/Statistics/DB_for_Statistics_' + str(self.Year) + '.csv',
+        df_statistics.to_csv(self._dir_path + '/Statistics/DB_for_general/DB_for_Statistics_' + str(self.Year) + '.csv',
                      sep = ',', index = False)
 
 
@@ -449,7 +449,7 @@ class PCU_DB:
                 'IQR', 'MEAN OF EFFICIENCY', 'CV', 'HIGH VARIANCE?', 'METHOD']]
         df.iloc[:, [5, 7, 8, 9, 10, 11, 12, 14, 15, 16]] = \
                 df.iloc[:, [5, 7, 8, 9, 10, 11, 12, 14, 15, 16]].round(4)
-        df.to_csv(self._dir_path + '/Statistics/DB_for_Solvents_' + str(self.Year) + '.csv',
+        df.to_csv(self._dir_path + '/Statistics/DB_for_solvents/DB_for_Solvents_' + str(self.Year) + '.csv',
                       sep = ',', index = False)
 
 
@@ -696,7 +696,7 @@ class PCU_DB:
         Energy_recovery = Restrictions.loc[Restrictions["U01, U02, U03 (Energy recovery)"] == 'NO', 'ID'].tolist()
         Solvent_recovery = Restrictions.loc[Restrictions['H20 (Solvent recovey)'] == 'NO', 'ID'].tolist()
         # Calling PCU
-        PCU = pd.read_csv(self._dir_path + '/Datasets/PCUs_DB_' + str(self.Year) + '.csv',
+        PCU = pd.read_csv(self._dir_path + '/Datasets/Intermediate_PCU_datasets/PCUs_DB_' + str(self.Year) + '.csv',
                             low_memory = False,
                             converters = {'CAS NUMBER': lambda x: x if re.search(r'^[A-Z]', x) else str(int(x))})
         columns_DB_F = PCU.columns.tolist()
@@ -712,7 +712,7 @@ class PCU_DB:
                             'METHOD CODE - 2005 AND AFTER', 'CAS NUMBER'],
                             inplace = True)
         # Calling database for statistics
-        Statistics = pd.read_csv(self._dir_path + '/Statistics/DB_for_Statistics_' + str(self.Year) + '.csv',
+        Statistics = pd.read_csv(self._dir_path + '/Statistics/DB_for_general/DB_for_Statistics_' + str(self.Year) + '.csv',
                                 low_memory = False,
                                 converters = {'CAS': lambda x: x if re.search(r'^[A-Z]', x) else str(int(x))})
         Statistics['NAICS'] = Statistics['NAICS'].astype('int')
@@ -729,7 +729,7 @@ class PCU_DB:
             PCU_recycling.reset_index(inplace = True, drop = True)
             PCU_recycling['BASED ON OPERATING DATA?'] = 'NO'
             # Calling database for recycling efficiency
-            Recycling_statistics = pd.read_csv(self._dir_path + '/Statistics/DB_for_Solvents_' + str(self.Year) +  '.csv',
+            Recycling_statistics = pd.read_csv(self._dir_path + '/Statistics/DB_for_solvents/DB_for_Solvents_' + str(self.Year) +  '.csv',
                                     low_memory = False,
                                     usecols = ['TRIFID', 'PRIMARY NAICS CODE', 'CAS NUMBER', \
                                                'UPPER EFFICIENCY', 'UPPER EFFICIENCY OUTLIER?',
@@ -826,7 +826,7 @@ class PCU_DB:
         df_N_PCU = df_N_PCU.loc[~df_N_PCU['CAS NUMBER'].isin(Chemicals_to_remove)]
         df_N_PCU['CAS NUMBER'] = df_N_PCU['CAS NUMBER'].apply(lambda x: str(int(x)) if not 'N' in x else x)
         df_N_PCU = df_N_PCU[columns_DB_F]
-        df_N_PCU.to_csv(self._dir_path + '/Datasets/PCUs_DB_filled_' + str(self.Year) + '.csv',
+        df_N_PCU.to_csv(self._dir_path + '/Datasets/Final_PCU_datasets/PCUs_DB_filled_' + str(self.Year) + '.csv',
                      sep = ',', index = False)
         # Chemicals and groups
         Chemicals = df_N_PCU[['CAS NUMBER', 'CHEMICAL NAME']].drop_duplicates(keep = 'first')
@@ -928,7 +928,7 @@ class PCU_DB:
         # Calling cleaned database
         columns_for_calling = ['TRIFID', 'CAS NUMBER', 'RANGE INFLUENT CONCENTRATION',
                             'METHOD CODE - 2004 AND PRIOR', 'EFFICIENCY ESTIMATION']
-        df_PCU_cleaned = pd.read_csv(self._dir_path + '/Datasets/PCUs_DB_filled_{}.csv'.format(self.Year),
+        df_PCU_cleaned = pd.read_csv(self._dir_path + '/Datasets/Final_PCU_datasets/PCUs_DB_filled_{}.csv'.format(self.Year),
                             usecols = columns_for_calling)
         df_PCU_cleaned.rename(columns = {'METHOD CODE - 2004 AND PRIOR': 'METHOD CODE'}, inplace = True)
         # Merging
@@ -960,7 +960,93 @@ class PCU_DB:
                                                          bins = Bin_values,
                                                          labels = Bin_labels,
                                                          precision = 0)
-        df_PCU_flows.to_csv(self._dir_path + '/Datasets/Waste_flow_to_PCUs_{}_{}.csv'.format(self.Year, nbins), sep = ',', index = False)
+        df_PCU_flows.to_csv(self._dir_path + '/Datasets/Waste_flow/Waste_flow_to_PCUs_{}_{}.csv'.format(self.Year, nbins), sep = ',', index = False)
+
+
+    def Organizing_substance_prices(self):
+        # Organizing information about prices
+        df_scifinder = pd.read_csv(self._dir_path + '/SciFinder/Chemical_Price.csv',
+                                dtype = {'CAS NUMBER': 'object'})
+        df_scifinder = df_scifinder.loc[\
+                            (pd.notnull(df_scifinder['PRICE'])) & \
+                            (df_scifinder['PRICE'] != 'Not found')]
+        df_scifinder
+        File_exchange = [file for file in os.listdir(self._dir_path + '/SciFinder') if 'Exchange' in file]
+        df_exchange_rate = pd.read_csv(self._dir_path + '/SciFinder/{}'.format(File_exchange[0]))
+        Exchange_rate = {row['CURRENCY']:row['EXCHANGE RATE TO USD'] for idx, row in df_exchange_rate.iterrows()}
+        del df_exchange_rate
+        df_scifinder['PRICE'] = df_scifinder.apply(lambda x: \
+                                    Exchange_rate[x['CURRENCY']] \
+                                    *float(x['PRICE']),
+                                    axis = 1)
+        df_scifinder['QUANTITY'] = df_scifinder['QUANTITY'].str.lower()
+        df_scifinder['QUANTITY'] = df_scifinder['QUANTITY'].str.replace(' ', '')
+        df_scifinder = df_scifinder[df_scifinder['QUANTITY'].str.contains(r'ton|[umk]{0,1}g')]
+        idx = df_scifinder[~df_scifinder['QUANTITY'].str.contains(r'x')].index.tolist()
+        df_scifinder.loc[idx, 'QUANTITY'] = '1x' + df_scifinder.loc[idx, 'QUANTITY']
+        df_scifinder[['TIMES', 'MASS', 'UNIT']] = \
+                    df_scifinder['QUANTITY'].str.extract('(\d+)x(\d+\.?\d*)(ton|[umk]{0,1}g)',
+                    expand = True)
+        dictionary_mass = {'g':1, 'mg':0.001, 'kg':1000, 'ug':10**-6, 'ton':907185}
+        df_scifinder['QUANTITY'] = df_scifinder[['TIMES', 'MASS']]\
+                                .apply(lambda x: float(x.values[0])*float(x.values[1]),
+                                axis = 1)
+        df_scifinder['QUANTITY'] = df_scifinder[['QUANTITY', 'UNIT']]\
+                            .apply(lambda x: x.values[0]*dictionary_mass[x.values[1]], axis = 1)
+        df_scifinder['UNIT PRICE (USD/g)'] = df_scifinder[['PRICE', 'QUANTITY']]\
+                                        .apply(lambda x: x.values[0]/x.values[1],
+                                            axis = 1)
+        df_scifinder.drop(columns = ['COMPANY_NAME', 'COUNTRY', 'PURITY',
+                                    'CURRENCY', 'TIMES', 'MASS', 'UNIT',
+                                    'QUANTITY', 'PRICE'],
+                        inplace = True)
+        df_scifinder = df_scifinder.groupby('CAS NUMBER', as_index = False).median()
+        # Calling PCU
+        df_PCU = pd.read_csv(self._dir_path + '/Datasets/Final_PCU_datasets/PCUs_DB_filled_{}.csv'.format(self.Year),
+                            usecols = ['TRIFID', 'CAS NUMBER', 'METHOD CODE - 2004 AND PRIOR'])
+        df_PCU = df_PCU[~df_PCU['METHOD CODE - 2004 AND PRIOR'].str.contains('\+')]
+        # Separating categories and chemicals
+        categories = pd.read_csv(self._dir_path + '/Chemicals/Chemicals_in_categories.csv',
+                            usecols = ['CAS NUMBER', 'CATEGORY CODE'])
+        categories['CAS NUMBER'] = categories['CAS NUMBER'].str.replace('-', '')
+        chemicals = pd.read_csv(self._dir_path + '/Chemicals/Chemicals.csv',
+                                usecols = ['CAS NUMBER'])
+        chemicals = chemicals.loc[~chemicals['CAS NUMBER']\
+                        .isin(list(categories['CATEGORY CODE'].unique())),\
+                        'CAS NUMBER'].tolist()
+        df_PCU_chemicals = df_PCU.loc[df_PCU['CAS NUMBER'].isin(chemicals)]
+        df_PCU_categories = df_PCU.loc[~df_PCU['CAS NUMBER'].isin(chemicals)]
+        df_PCU_categories.rename(columns = {'CAS NUMBER': 'CATEGORY CODE'},
+                                inplace = True)
+        del chemicals, df_PCU
+        # Merging prices with chemicals
+        df_PCU_chemicals = pd.merge(df_PCU_chemicals, df_scifinder,
+                                    how = 'inner',
+                                    on = 'CAS NUMBER')
+        # Calling CDR
+        df_CDR = pd.read_csv(self._dir_path +  '/CDR/Substances_by_facilities.csv',
+                            usecols = ['STRIPPED_CHEMICAL_ID_NUMBER',
+                                        'PGM_SYS_ID'],
+                            dtype = {'STRIPPED_CHEMICAL_ID_NUMBER': 'object'}            )
+        df_CDR.rename(columns = {'STRIPPED_CHEMICAL_ID_NUMBER': 'CAS NUMBER',
+                                'PGM_SYS_ID': 'TRIFID'},
+                     inplace = True)
+        df_CDR = pd.merge(df_CDR, categories, on = 'CAS NUMBER',
+                        how = 'inner')
+        df_PCU_categories = pd.merge(df_PCU_categories, df_CDR,
+                        on = ['CATEGORY CODE', 'TRIFID'],
+                        how = 'inner')
+        # Merging prices with categories
+        df_PCU_categories = pd.merge(df_PCU_categories, df_scifinder,
+                                    how = 'inner',
+                                    on = 'CAS NUMBER')
+        df_PCU_categories.drop(columns = ['CATEGORY CODE'],
+                            inplace = True)
+        df_PCU = pd.concat([df_PCU_categories, df_PCU_chemicals],
+                            ignore_index = True,
+                            sort = True, axis = 0)
+        df_PCU.to_csv(self._dir_path + '/Datasets/Chemical_price/Chemical_price_vs_PCU_{}.csv'.format(self.Year),
+                    sep = ',', index = False)
 
 
 if __name__ == '__main__':
@@ -973,7 +1059,8 @@ if __name__ == '__main__':
                         [B]: File for statistics. \
                         [C]: File for recycling. \
                         [D]: Further cleaning of database. \
-                        [E]: Organizing file with flows (1987-2004).', \
+                        [E]: Organizing file with flows (1987-2004). \
+                        [F]: Organizing file with substance prices (1987 - 2004)', \
                         type = str)
 
     parser.add_argument('-Y', '--Year', nargs = '+',
@@ -1002,5 +1089,7 @@ if __name__ == '__main__':
             Building.cleaning_database()
         elif args.Option == 'E':
             Building.Building_database_for_flows(args.N_Bins)
+        elif args.Option == 'F':
+            Building.Organizing_substance_prices()
 
     print('Execution time: %s sec' % (time.time() - start_time))
