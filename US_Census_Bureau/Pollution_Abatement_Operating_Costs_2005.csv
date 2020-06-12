@@ -1,0 +1,633 @@
+NAICS code,Industry,Total,Activity,,,,Media,,,Relative standard error PAOC
+,,,Treatment,Prevention,Recycling,Disposal,Air,Water,Solid waste,
+31–33,        All industries,20677.6,10762.8,3599.4,1748.3,4567,8629.1,6725.2,5323.3,2
+311,Food mfg,1572.8,859.1,172.7,108,433,314.1,933.1,325.6,3
+3111,Animal food mfg,53.6,19.5,4.6,8.1,21.3,14.3,18.9,20.3,14
+31111,Animal food mfg,53.6,19.5,4.6,8.1,21.3,14.3,18.9,20.3,14
+311111,Dog & cat food mfg,38.5,11.2,1.7,7.9,17.6,4.6,16.5,17.3,16
+311119,Other animal food mfg,15.1,8.3,3,0.2,3.7,9.7,2.4,3,23
+3112,Grain & oilseed milling,296.7,175,38.2,17.9,65.6,117.3,138.7,40.7,5
+31121,Flour milling & malt mfg,22.6,9,9.5,1.2,2.9,18.9,2.4,1.4,19
+311211,Flour milling,15.2,7.7,5.6,0.8,1.1,13.8,0.3,1,28
+311212,Rice milling,3.5,0.7,2.4,0.2,0.2,2.9,0.3,0.3,9
+311213,Malt mfg,3.9,0.6,1.5,0.3,1.5,2.1,1.7,0.1,1
+31122,Starch & vegetable fats & oils mfg,250.1,157.6,25.7,14.9,51.9,91.1,126.3,32.7,6
+311221,Wet corn milling,179.8,121.3,12.3,12.4,33.7,63.2,94.1,22.5,6
+311222,Soybean processing,42.2,25.3,5.7,1.3,10,16.6,19.8,5.9,17
+311223,Other oilseed processing,6.7,3.3,1.8,0.5,1,4.2,1.8,0.6,1
+311225,Fats & oils refining & blending,21.4,7.6,6,0.7,7.2,7,10.7,3.7,14
+31123,Breakfast cereal mfg,24,8.4,3,1.8,10.8,7.3,10,6.6,17
+311230,Breakfast cereal mfg,24,8.4,3,1.8,10.8,7.3,10,6.6,17
+3113,Sugar & confectionery product mfg,93.5,47.7,14.8,4.7,26.2,20.4,42.8,30.3,5
+31131,Sugar mfg,61.8,33.7,11.5,2.5,14.1,15.6,29.4,16.8,5
+311311,Sugarcane mills,9.1,6.1,1.2,0.5,1.2,4.9,2.7,1.5,3
+311312,Cane sugar refining,9.9,0.3,0.5,0.2,9,0.2,3.1,6.7,1
+311313,Beet sugar mfg,42.7,27.4,9.8,1.7,3.9,10.6,23.5,8.6,7
+31132,Chocolate & confectionery mfg from cacao beans,5.9,2.7,0.8,0.1,2.2,1.2,2.4,2.4,10
+311320,Chocolate & confectionery mfg from cacao beans,5.9,2.7,0.8,0.1,2.2,1.2,2.4,2.4,10
+31133,Confectionery mfg from purchased chocolate,15.7,8.7,0.8,1.2,4.9,1.3,8.2,6.2,9
+311330,Confectionery mfg from purchased chocolate,15.7,8.7,0.8,1.2,4.9,1.3,8.2,6.2,9
+31134,Nonchocolate confectionery mfg,10.1,2.5,1.6,1,5,2.3,2.9,5,28
+311340,Nonchocolate confectionery mfg,10.1,2.5,1.6,1,5,2.3,2.9,5,28
+3114,Fruit & vegetable preserving & specialty food mfg,252.9,134.7,23.8,18.6,75.8,21.8,173.9,57.2,8
+31141,Frozen food mfg,106.9,60.9,8.7,4.7,32.7,10.3,73,23.6,8
+311411,"Frozen fruit, juice, & vegetable mfg",68.6,42.2,5.5,3.2,17.6,7.1,51,10.5,8
+311412,Frozen specialty food mfg,38.4,18.7,3.2,1.4,15.1,3.3,22,13.1,18
+31142,"Fruit & vegetable canning, pickling, & drying",146,73.7,15.2,13.9,43.1,11.4,100.9,33.6,12
+311421,Fruit & vegetable canning,120.8,61.9,10.5,12.4,36.1,6.9,86.4,27.5,14
+311422,Specialty canning,12.3,3.7,2.9,0.9,4.8,2.6,5.9,3.8,4
+311423,Dried & dehydrated food mfg,12.8,8.2,1.8,0.6,2.2,1.8,8.6,2.3,36
+3115,Dairy product mfg,153.2,77.6,16.4,9.3,49.9,17.4,101,34.8,9
+31151,Dairy product (except frozen) mfg,138.5,72.3,14.1,8.4,43.6,16.6,90.2,31.7,10
+311511,Fluid milk mfg,48.8,18,5.2,1.9,23.6,3.9,31.7,13.3,10
+311512,Creamery butter mfg,3.3,2.2,0.5,0.2,0.5,0.1,3,0.3,1
+311513,Cheese mfg,68.2,40.9,4.9,5.9,16.5,8.6,45.9,13.6,17
+311514,"Dry, condensed, & evaporated dairy product mfg",18.1,11.2,3.6,0.3,3,4,9.6,4.5,25
+31152,Ice cream & frozen dessert mfg,14.7,5.2,2.2,0.9,6.3,0.8,10.8,3.1,15
+311520,Ice cream & frozen dessert mfg,14.7,5.2,2.2,0.9,6.3,0.8,10.8,3.1,15
+3116,Meat product mfg,479.7,294,43.4,35.8,106.5,77.6,316.3,85.7,6
+31161,Animal slaughtering & processing,479.7,294,43.4,35.8,106.5,77.6,316.3,85.7,6
+311611,Animal (except poultry) slaughtering,105.1,72.8,5,3.3,24,15.1,64.4,25.6,12
+311612,Meat processed from carcasses,62.5,31.4,2.9,5.9,22.3,7.7,36.6,18.1,13
+311613,Rendering & meat byproduct processing,83.2,56.5,18,0.4,8.3,31.4,47,4.8,7
+311615,Poultry processing,228.8,133.2,17.4,26.3,51.9,23.4,168.3,37.2,10
+3117,Seafood product preparation & packaging,15.1,6.9,1.1,0.2,6.8,1.3,9.6,4.2,19
+31171,Seafood product preparation & packaging,15.1,6.9,1.1,0.2,6.8,1.3,9.6,4.2,19
+311711,Seafood canning,3.4,1.6,0.1,0,1.7,0.2,2.8,0.4,37
+311712,Fresh & frozen seafood processing,11.7,5.3,1,0.2,5.1,1.1,6.8,3.8,22
+3118,Bakeries & tortilla mfg,67.6,28.4,9.7,5.2,24.3,14,33.5,20.1,11
+31181,Bread & bakery product mfg,49.4,21.2,7.4,3.3,17.5,9.8,26.4,13.2,13
+311812,Commercial bakeries,40.4,16.3,6.8,2.4,14.9,9.2,20.8,10.4,15
+311813,"Frozen cakes, pies, & other pastries mfg",8.7,4.7,0.6,0.8,2.5,0.5,5.4,2.8,10
+31182,"Cookie, cracker, & pasta mfg",13.5,5.1,2,1.7,4.7,3.4,4.6,5.5,26
+31183,Tortilla mfg,4.7,2.1,0.3,0.2,2.2,0.8,2.5,1.4,20
+311830,Tortilla mfg,4.7,2.1,0.3,0.2,2.2,0.8,2.5,1.4,20
+3119,Other food mfg,160.7,75.4,20.6,8.2,56.5,29.9,98.3,32.4,9
+31191,Snack food mfg,41.6,22.9,4.4,3.1,11.2,5.9,24.9,10.8,8
+311911,Roasted nuts & peanut butter mfg,7.4,2.9,1.7,0.6,2.2,1.4,3.5,2.6,26
+311919,Other snack food mfg,34.2,20,2.7,2.5,9,4.5,21.4,8.2,8
+31192,Coffee & tea mfg,20.8,12.5,4.1,1,3.2,13.4,4,3.4,16
+311920,Coffee & tea mfg,20.8,12.5,4.1,1,3.2,13.4,4,3.4,16
+31193,Flavoring syrup & concentrate mfg,9,3.1,3.2,0.3,2.4,2.3,5.6,1.1,39
+311930,Flavoring syrup & concentrate mfg,9,3.1,3.2,0.3,2.4,2.3,5.6,1.1,39
+31194,Seasoning & dressing mfg,42.6,14.4,1.6,1.4,25.1,3.8,33.2,5.6,23
+311941,"Mayonnaise, dressing, & other prepared sauce mfg",18.3,9.6,0.9,1,6.8,1.2,13.1,4,20
+311942,Spice & extract mfg,24.3,4.8,0.7,0.4,18.3,2.5,20.1,1.7,38
+31199,All other food mfg,46.7,22.4,7.4,2.4,14.5,4.6,30.6,11.5,14
+311991,Perishable prepared food mfg,19.4,9.9,2,1.3,6.2,2,10.4,6.9,8
+311999,All other miscellaneous food mfg,27.3,12.5,5.4,1,8.3,2.5,20.2,4.6,24
+312,Beverage & tobacco product mfg,277.6,157,35,26.5,59.1,70.5,152.9,54.1,4
+3121,Beverage mfg,246.2,138.2,32.4,25.3,50.4,55.2,144.5,46.5,5
+31211,Soft drink & ice mfg,57.8,24.7,4.1,7.4,21.6,1.5,40.1,16.2,9
+312111,Soft drink mfg,56.1,24.4,3.8,6.6,21.3,1.4,39.5,15.1,9
+312112,Bottled water mfg,1.7,0.3,0.2,0.7,0.4,0.1,0.6,1.1,14
+31212,Breweries,165.8,97.7,27,16.2,24.9,51.3,88.1,26.4,2
+312120,Breweries,165.8,97.7,27,16.2,24.9,51.3,88.1,26.4,2
+31213,Wineries,8,3.5,0.4,1.2,2.9,0.2,4.9,2.8,20
+312130,Wineries,8,3.5,0.4,1.2,2.9,0.2,4.9,2.8,20
+31214,Distilleries,14.7,12.3,0.9,0.5,1,2.2,11.4,1.1,56
+312140,Distilleries,14.7,12.3,0.9,0.5,1,2.2,11.4,1.1,56
+3122,Tobacco mfg,31.3,18.8,2.7,1.2,8.7,15.3,8.4,7.6,1
+31221,Tobacco stemming & redrying,2,0.8,0.2,0.2,0.7,1.1,0.2,0.7,1
+312210,Tobacco stemming & redrying,2,0.8,0.2,0.2,0.7,1.1,0.2,0.7,1
+31222,Tobacco product mfg,29.3,17.9,2.5,1,8,14.2,8.2,6.9,1
+312221,Cigarette mfg,19.6,11.7,,0.5,,11.3,3.9,4.4,1
+312229,Other tobacco product mfg,9.8,6.3,,0.5,,3,4.3,2.4,1
+313,Textile mills,221.1,139.4,14.5,20.1,47,99.5,77.2,44.4,16
+3131,"Fiber, yarn, & thread mills",89.9,64.4,5.8,9.8,10,60.3,16.6,13,37
+31311,"Fiber, yarn, & thread mills",89.9,64.4,5.8,9.8,10,60.3,16.6,13,37
+313111,Yarn spinning mills,30.2,20.2,2.8,1.4,5.8,19.9,5,5.3,16
+313112,"Yarn texturing, throwing, & twisting mills",58.9,44,2.5,8.3,4.1,40,11.3,7.6,56
+3132,Fabric mills,53.7,34.8,3.1,1.9,13.9,13.5,25.5,14.7,7
+31321,Broadwoven fabric mills,8.4,4.8,0.1,0.2,3.3,2,4.6,1.8,24
+313210,Broadwoven fabric mills,8.4,4.8,0.1,0.2,3.3,2,4.6,1.8,24
+31322,Narrow fabric mills & schiffli machine embroidery,2.4,1.4,0.3,0.2,0.4,0.1,1.7,0.6,12
+313221,Narrow fabric mills,2.4,1.4,0.3,0.2,0.4,0.1,1.7,0.6,12
+31323,Nonwoven fabric mills,29.4,20.3,1.1,1.1,6.8,9.4,10.1,9.9,11
+313230,Nonwoven fabric mills,29.4,20.3,1.1,1.1,6.8,9.4,10.1,9.9,11
+31324,Knit fabric mills,13.5,8.2,1.6,0.4,3.3,2,9.2,2.3,4
+313241,Weft knit fabric mills,10.4,7.2,0.6,0.2,2.4,0.9,7.6,1.9,3
+313249,Other knit fabric & lace mills,3.1,1.1,1,0.2,0.9,1.1,1.6,0.4,14
+3133,Textile & fabric finishing & fabric coating mills,77.5,40.2,5.6,8.5,23.1,25.6,35.1,16.8,7
+31331,Textile & fabric finishing mills,51.7,23.9,5.1,6.3,16.3,10.4,31.2,10.1,10
+313311,Broadwoven fabric finishing mills,37.9,18.3,3.7,5.6,10.3,9.1,21.5,7.3,13
+313312,Textile & fabric finishing mills,13.7,5.6,1.4,0.7,6.1,1.2,9.7,2.8,8
+31332,Fabric coating mills,25.8,16.3,0.6,2.1,6.8,15.3,3.8,6.7,8
+313320,Fabric coating mills,25.8,16.3,0.6,2.1,6.8,15.3,3.8,6.7,8
+314,Textile product mills,34.9,12.3,3.5,4,15,6.6,13.6,14.7,9
+3141,Textile furnishings mills,20.9,5.6,2.5,3.5,9.2,3,9.4,8.5,12
+3149,Other textile product mills,13.9,6.6,1,0.5,5.8,3.6,4.1,6.2,14
+31499,All other textile product mills,13.6,6.6,0.8,0.5,5.7,3.4,4.1,6,15
+314992,Tire cord & tire fabric mills,6.6,3.8,0.6,0.2,2,2.6,1.9,2.1,1
+314999,All other miscellaneous textile product mills,6.5,2.8,0.1,0.3,3.4,0.8,1.8,3.9,30
+316,Leather & allied product mfg,51.2,29.1,5.1,3.5,13.5,3.8,33.9,13.5,12
+3161,Leather & hide tanning & finishing,46.1,28.5,4.6,2.8,10.1,3.2,33.7,9.2,12
+31611,Leather & hide tanning & finishing,46.1,28.5,4.6,2.8,10.1,3.2,33.7,9.2,12
+316110,Leather & hide tanning & finishing,46.1,28.5,4.6,2.8,10.1,3.2,33.7,9.2,12
+3162,Footwear mfg,1.4,0.2,0.2,0.4,0.7,0.3,0.1,1.1,4
+31621,Footwear mfg,1.4,0.2,0.2,0.4,0.7,0.3,0.1,1.1,4
+3169,Other leather & allied product mfg,3.7,0.4,0.3,0.4,2.7,0.3,0.1,3.3,66
+321,Wood product mfg,566.6,310.3,128.3,31.3,96.7,388.2,47.2,131.2,6
+3211,Sawmills & wood preservation,60.5,23.4,18.6,6.5,12.1,28,12.7,19.8,9
+32111,Sawmills & wood preservation,60.5,23.4,18.6,6.5,12.1,28,12.7,19.8,9
+321113,Sawmills,52.6,21.7,15.3,6.4,9.2,27.6,9.9,15.1,10
+321114,Wood preservation,7.9,1.7,3.3,0.1,2.8,0.4,2.8,4.7,13
+3212,"Veneer, plywood, & engineered wood product mfg",388.2,234.9,96.7,14.1,42.4,307.3,27.9,53.1,8
+32121,"Veneer, plywood, & engineered wood product mfg",388.2,234.9,96.7,14.1,42.4,307.3,27.9,53.1,8
+321211,Hardwood veneer & plywood mfg,13.7,6,1.8,2.3,3.5,5.7,2.1,5.8,13
+321212,Softwood veneer & plywood mfg,46.3,31.6,8.4,1.7,4.7,36.8,4.2,5.3,6
+321213,Engineered wood member (except truss) mfg,8.1,4.6,0.7,0.1,2.7,5.2,0.2,2.7,24
+321219,Reconstituted wood product mfg,319.7,192.6,85.9,9.8,31.4,259.6,21.4,38.7,9
+3219,Other wood product mfg,117.9,52,13,10.6,42.3,53,6.6,58.3,11
+32191,Millwork,77.3,38.8,7.6,5.3,25.6,36,4.7,36.5,14
+321911,Wood window & door mfg,51.1,23.9,3.8,4.2,19.2,18,3.9,29.2,18
+321912,"Cut stock, resawing lumber, & planing",11.9,8.2,1,0.3,2.3,9.2,0.4,2.4,33
+321918,Other millwork (including flooring),14.3,6.8,2.7,0.7,4.1,8.8,0.5,4.9,16
+32192,Wood container & pallet mfg,7.6,3.9,1,1.1,1.6,4.3,0.1,3.2,29
+321920,Wood container & pallet mfg,7.6,3.9,1,1.1,1.6,4.3,0.1,3.2,29
+32199,All other wood product mfg,33,9.2,4.4,4.3,15.1,12.7,1.8,18.6,21
+321991,Manufactured home (mobile home) mfg,13.4,0.2,0.1,1,12.1,0.6,0.4,12.5,42
+321992,Prefabricated wood building mfg,2.5,0.1,0.1,0.9,1.4,0.1,0.1,2.3,33
+321999,All other miscellaneous wood product mfg,17.2,8.9,4.3,2.4,1.6,12,1.4,3.8,23
+322,Paper mfg,1796.2,1072,189.4,118.6,416.2,571.7,757.9,466.6,3
+3221,"Pulp, paper, & paperboard mills",1576.1,968.2,169.3,84.6,354,488.5,699.9,387.7,4
+32211,Pulp mills,156.5,108.9,15.3,7.4,24.8,48.1,77.2,31.2,1
+322110,Pulp mills,156.5,108.9,15.3,7.4,24.8,48.1,77.2,31.2,1
+32212,Paper mills,878.7,545.8,79.7,46.2,207,267.4,410.2,201.2,6
+322121,Paper (except newsprint) mills,817.4,500.6,73.8,45.8,197.3,255.1,375.8,186.5,6
+322122,Newsprint mills,61.4,45.2,5.9,0.5,9.8,12.3,34.3,14.7,1
+32213,Paperboard mills,540.8,313.5,74.3,31,122.1,173,212.5,155.3,4
+322130,Paperboard mills,540.8,313.5,74.3,31,122.1,173,212.5,155.3,4
+3222,Converted paper product mfg,220.1,103.8,20.1,34,62.2,83.3,58,78.9,5
+32221,Paperboard container mfg,71.3,28.6,6.7,13.2,22.8,12.9,29.4,29,12
+322211,Corrugated & solid fiber box mfg,53.3,24.3,2.2,9.4,17.3,7.5,26.1,19.7,14
+322212,Folding paperboard box mfg,12.3,2.6,3.4,2.9,3.4,3.7,1.9,6.7,23
+322214,"Fiber can, tube, drum, & similar products mfg",1,0.5,0.1,0.3,0.2,0.6,0.1,0.3,10
+322215,Nonfolding sanitary food container mfg,4.7,1.2,1.1,0.5,1.9,1,1.4,2.3,31
+32222,Paper bag & coated & treated paper mfg,106,60.2,7.7,11.3,26.8,61.8,12.3,31.8,6
+322221,Coated & laminated packaging paper & plastics film mfg,13.9,5.7,0.3,2.1,5.8,6.6,1.6,5.8,20
+322222,Coated & laminated paper mfg,70.3,38.3,6.4,8.7,16.9,40.2,8.8,21.4,8
+322223,"Plastics, foil, & coated paper bag mfg",2.7,1.5,0.1,0.1,1,1.4,0.1,1.2,42
+322224,Uncoated paper & multiwall bag mfg,2,0.9,0.2,0.1,0.7,0.1,1.3,0.6,14
+322225,Laminated aluminum foil mfg for flexible packaging uses,16,13.5,0.6,0.1,1.9,13.5,0.6,1.9,11
+322226,Surface-coated paperboard mfg,1,0.1,0.1,0.3,0.5,0.2,0.1,0.8,7
+32223,Stationery product mfg,5.6,0.9,0.3,1.5,2.9,1,0.7,3.8,34
+322232,Envelope mfg,4.3,0.4,0.3,1.3,2.3,0.5,0.6,3.2,44
+32229,Other converted paper product mfg,37.3,14.2,5.5,8,9.7,7.5,15.7,14.2,11
+322291,Sanitary paper product mfg,27.2,11.5,4.2,6.8,4.8,5.8,10.3,11.1,14
+322299,All other converted paper product mfg,10.1,2.7,1.3,1.2,4.9,1.7,5.3,3.1,9
+323,Printing & related support activities,238.8,111.6,35.9,35.5,55.8,159.2,20.1,59.5,5
+3231,Printing & related support activities,238.8,111.6,35.9,35.5,55.8,159.2,20.1,59.5,5
+32311,Printing,234.8,110.4,35.2,34.9,54.3,158.2,19.1,57.5,5
+323110,Commercial lithographic printing,130.1,64.5,20.5,18.2,26.9,87.2,5.1,37.8,8
+323111,Commercial gravure printing,72.2,35.7,10.1,12.1,14.4,59,7.3,5.9,5
+323112,Commercial flexographic printing,9.8,3.9,1.2,1,3.7,2.7,3.1,3.9,19
+323113,Commercial screen printing,8.8,1.1,1.6,0.9,5.3,2.7,0.9,5.2,24
+323115,Digital printing,1.2,0.1,1,0.1,0.1,,,1,11
+323116,Manifold business form printing,1.7,0.3,0.1,0.5,0.8,0.1,0.8,0.8,21
+323117,Book printing,8.8,4.6,0.6,1.9,1.7,5.1,1.4,2.3,22
+323119,Other commercial printing,1.2,0.2,0.1,0.1,0.8,,,0.6,58
+32312,Support activities for printing,4,1.3,0.7,0.6,1.5,1,1,2,36
+323121,Tradebinding & related work,1.7,0.1,0.6,0.6,0.5,0.7,0.8,0.3,47
+323122,Prepress services,2.3,1.2,0.1,0,1,0.3,0.2,1.8,52
+324,Petroleum & coal products mfg,3746.1,1896.2,1294.1,273.6,282.2,2522.2,754.9,469,4
+3241,Petroleum & coal products mfg,3746.1,1896.2,1294.1,273.6,282.2,2522.2,754.9,469,4
+32411,Petroleum refineries,3596.5,1819,1259.3,266.2,252,2444.9,717.1,434.5,4
+324110,Petroleum refineries,3596.5,1819,1259.3,266.2,252,2444.9,717.1,434.5,4
+32412,"Asphalt paving, roofing, & saturated materials mfg",66,22.1,18.2,5.5,20.2,31.7,10.4,23.9,8
+324121,Asphalt paving mixture & block mfg,7.5,3.8,2.3,0.9,0.5,5.6,1.2,0.7,34
+324122,Asphalt shingle & coating materials mfg,58.5,18.2,15.9,4.6,19.7,26.1,9.2,23.3,7
+32419,Other petroleum & coal products mfg,83.7,55.1,16.6,1.9,10,45.6,27.4,10.6,9
+324191,Petroleum lubricating oil & grease mfg,36.8,23.7,4.4,1.6,7.1,13.7,14.8,8.3,6
+324199,All other petroleum & coal products mfg,46.9,31.4,12.2,0.3,2.9,31.9,12.6,2.4,15
+325,Chemical mfg,5217.2,2757.9,809.6,417.2,1232.5,1697.5,1986.2,1533.4,2
+3251,Basic chemical mfg,2542.2,1355,428.3,176,582.9,858.5,1080.1,603.6,4
+32511,Petrochemical mfg,267.8,114.4,113,7.5,32.8,153.9,64.9,49.1,8
+325110,Petrochemical mfg,267.8,114.4,113,7.5,32.8,153.9,64.9,49.1,8
+32512,Industrial gas mfg,77.1,36.3,21.9,2.1,16.8,28.1,33.2,15.8,2
+325120,Industrial gas mfg,77.1,36.3,21.9,2.1,16.8,28.1,33.2,15.8,2
+32513,Dye & pigment mfg,169.5,81.3,22.9,7.9,57.5,41,64.4,64.2,4
+325131,Inorganic dye & pigment mfg,111.6,56.2,16.3,2.4,36.7,30.9,33.8,46.8,6
+325132,Synthetic organic dye & pigment mfg,58,25.1,6.6,5.5,20.7,10.1,30.5,17.3,3
+32518,Other basic inorganic chemical mfg,578.4,326.2,72.2,46.8,133.3,178.9,274.5,125,10
+325181,Alkalies & chlorine mfg,76.7,56.2,7.2,1.6,11.8,21.4,42.8,12.5,1
+325182,Carbon black mfg,11.4,6,4,0.1,1.4,8.8,0.9,1.7,1
+325188,All other basic inorganic chemical mfg,490.3,264.1,61.1,45,120.1,148.7,230.8,110.8,12
+32519,Other basic organic chemical mfg,1449.3,796.9,198.2,111.7,342.5,456.6,643.1,349.5,4
+325191,Gum & wood chemical mfg,12.6,3.5,4.3,0.5,4.3,4.7,4.2,3.6,8
+325192,Cyclic crude & intermediate mfg,106.9,68.6,16.5,0.4,21.3,24.2,52.6,30,1
+325193,Ethyl alcohol mfg,60.2,39.4,13.9,2.4,4.5,41.2,14.8,4.2,9
+325199,All other basic organic chemical mfg,1269.7,685.4,163.5,108.4,312.4,386.5,571.5,311.7,4
+3252,"Resin, syn rubber, & artificial & syn fibers & filaments mfg",1151.1,609.2,163.2,111.2,267.4,361.9,377,412.2,3
+32521,Resin & synthetic rubber mfg,1038.6,547.8,144.3,104.9,241.6,319.7,324.1,394.8,3
+325211,Plastics material & resin mfg,789.3,449.7,118.9,94.3,126.4,280.1,231.8,277.4,4
+325212,Synthetic rubber mfg,249.3,98.2,25.3,10.6,115.2,39.6,92.3,117.4,5
+32522,Artificial & synthetic fibers & filaments mfg,112.5,61.4,18.9,6.3,25.9,42.2,52.9,17.4,4
+325221,Cellulosic organic fiber mfg,9.3,7.3,0.1,0.1,1.9,1.3,6.2,1.8,1
+325222,Noncellulosic organic fiber mfg,103.1,54.1,18.9,6.2,23.9,40.8,46.7,15.6,5
+3253,"Pesticide, fertilizer, & other agricultural chemical mfg",466.2,265,95.7,24.4,81.2,175.5,158.3,132.4,3
+32531,Fertilizer mfg,306.5,131.2,90.5,20.3,64.4,137.7,71.9,96.8,2
+325311,Nitrogenous fertilizer mfg,58,21,10.8,8.1,18.2,26.2,19.8,12,1
+325312,Phosphatic fertilizer mfg,229.6,98.3,75.3,11.4,44.6,98.8,48.6,82.2,1
+325314,Fertilizer (mixing only) mfg,18.8,11.9,4.4,0.8,1.7,12.7,3.5,2.6,20
+32532,Pesticide & other agricultural chemical mfg,159.8,133.8,5.1,4.1,16.8,37.8,86.4,35.7,7
+325320,Pesticide & other agricultural chemical mfg,159.8,133.8,5.1,4.1,16.8,37.8,86.4,35.7,7
+3254,Pharmaceutical & medicine mfg,430.7,224.6,38.4,54.2,113.5,111.7,144.2,174.9,6
+32541,Pharmaceutical & medicine mfg,430.7,224.6,38.4,54.2,113.5,111.7,144.2,174.9,6
+325411,Medicinal & botanical mfg,128,98.7,4.1,6.5,18.7,36.5,46.5,45,5
+325412,Pharmaceutical preparation mfg,266.8,116.3,30.8,40.1,79.6,73,86.5,107.3,10
+325413,In-vitro diagnostic substance mfg,8,1.4,,,5.4,0.4,1.3,6.2,20
+325414,Biological product (except diagnostic) mfg,27.9,8.2,,,9.7,1.7,9.8,16.4,12
+3255,"Paint, coating, & adhesive mfg",137.6,47.2,21.3,13.7,55.4,48.3,25.6,63.7,8
+32551,Paint & coating mfg,86.4,25.6,12.8,11.3,36.7,30.5,14.4,41.6,8
+325510,Paint & coating mfg,86.4,25.6,12.8,11.3,36.7,30.5,14.4,41.6,8
+32552,Adhesive mfg,51.2,21.5,8.5,2.5,18.7,17.8,11.2,22.1,15
+325520,Adhesive mfg,51.2,21.5,8.5,2.5,18.7,17.8,11.2,22.1,15
+3256,"Soap, cleaning compound, & toilet preparation mfg",209.5,104.3,30.7,16.8,57.7,58.7,94.3,56.5,10
+32561,Soap & cleaning compound mfg,141.1,82.3,19.7,6.3,32.8,52.7,60.4,28,10
+325611,Soap & other detergent mfg,46.2,26.4,4.3,2.2,13.3,14.8,18.3,13.1,22
+325612,Polish & other sanitation good mfg,32.3,15.7,6.7,1.5,8.5,12.8,15.3,4.2,29
+325613,Surface active agent mfg,62.6,40.2,8.7,2.7,11,25.1,26.7,10.8,3
+32562,Toilet preparation mfg,68.4,22,11.1,10.5,24.8,6,33.9,28.5,23
+325620,Toilet preparation mfg,68.4,22,11.1,10.5,24.8,6,33.9,28.5,23
+3259,Other chemical product mfg,279.8,152.5,32,20.8,74.5,82.9,106.8,90,4
+32591,Printing ink mfg,8.2,2.3,0.2,0.2,5.5,2.1,2.5,3.6,27
+325910,Printing ink mfg,8.2,2.3,0.2,0.2,5.5,2.1,2.5,3.6,27
+32592,Explosives mfg,13.8,8.4,1.5,0.8,3,2.1,4.9,6.7,6
+325920,Explosives mfg,13.8,8.4,1.5,0.8,3,2.1,4.9,6.7,6
+32599,All other chemical product & preparation mfg,255.6,139.7,30.2,19.7,66,78.6,97.3,79.7,5
+325991,Custom compounding of purchased resin,49.3,21.9,7.3,2.3,17.8,18,12.5,18.8,12
+325992,"Photographic film, paper, plate, & chemical mfg",65.4,43.1,4.3,7.5,10.4,19.2,24.9,21.3,2
+325998,All other miscellaneous chemical product & preparation mfg,140.9,74.7,18.6,9.9,37.7,41.5,60,39.5,7
+326,Plastics & rubber products mfg,503.2,214,79.4,50.2,159.6,238.6,84.6,180,5
+3261,Plastics product mfg,390.4,176.9,57.7,36.2,119.7,194.8,62.7,132.9,6
+32611,"Unsupported plastics film, sheet, & bag mfg",155.9,74.6,25,16.6,39.6,77.3,29.4,49.1,6
+326111,Unsupported plastics bag mfg,15.1,3.1,5.3,2.3,4.4,6.7,3.4,5,23
+326112,Unsupported plastics packaging film & sheet mfg,57.8,30.4,5.2,7.1,15.1,32.3,4.3,21.1,6
+326113,Unsupported plastics film & sheet (except packaging) mfg,83,41.1,14.6,7.2,20.1,38.3,21.7,23,9
+32612,"Plastics pipe, pipe fitting, & unsupported profile shape mfg",17.8,6.6,4.2,1.5,5.4,10.1,2.2,5.5,17
+326121,Unsupported plastics profile shape mfg,8.3,1.5,2.3,1.1,3.4,3.7,1.2,3.5,25
+326122,Plastics pipe & pipe fitting mfg,9.5,5.2,1.9,0.4,2,6.4,1,2,24
+32613,"Laminated plastics plate, sheet, & shape mfg",16.5,11,1,0.6,3.9,12,1.3,3.3,5
+326130,"Laminated plastics plate, sheet, & shape mfg",16.5,11,1,0.6,3.9,12,1.3,3.3,5
+32614,Polystyrene foam product mfg,17.5,8.8,2.1,1.1,5.4,9.2,2.8,5.5,22
+326140,Polystyrene foam product mfg,17.5,8.8,2.1,1.1,5.4,9.2,2.8,5.5,22
+32615,Urethane & other foam product (except polystyrene) mfg,7,1.5,2.5,0.7,2.3,3.3,0.4,3.3,22
+326150,Urethane & other foam product (except polystyrene) mfg,7,1.5,2.5,0.7,2.3,3.3,0.4,3.3,22
+32616,Plastics bottle mfg,1.8,0.1,0.1,0.2,1.5,0.1,0.8,0.9,32
+326160,Plastics bottle mfg,1.8,0.1,0.1,0.2,1.5,0.1,0.8,0.9,32
+32619,Other plastics product mfg,173.9,74.3,22.7,15.5,61.4,82.7,25.9,65.3,11
+326191,Plastics plumbing fixture mfg,22.7,12.5,3,0.4,6.8,12,5.3,5.4,54
+326192,Resilient floor covering mfg,18,9.8,1.6,1.3,5.4,10.9,2.1,5,5
+326199,All other plastics product mfg,133.2,52,18.1,13.8,49.3,59.8,18.5,54.9,10
+3262,Rubber product mfg,112.8,37.1,21.7,14,40,43.8,21.9,47.1,5
+32621,Tire mfg,56.5,17,12,9.9,17.6,24.9,10.1,21.5,6
+326211,Tire mfg (except retreading),54.6,16.5,11.8,9.4,16.8,24.1,10,20.5,6
+326212,Tire retreading,1.9,0.5,0.2,0.5,0.8,0.8,0.1,1,21
+32622,Rubber & plastics hoses & belting mfg,10.1,1.5,2.8,1,4.8,2.8,2.2,5.1,11
+326220,Rubber & plastics hoses & belting mfg,10.1,1.5,2.8,1,4.8,2.8,2.2,5.1,11
+32629,Other rubber product mfg,46.1,18.6,6.9,3.1,17.5,16.1,9.6,20.5,9
+326291,Rubber product mfg for mechanical use,28.4,11.3,4.2,2.4,10.6,10.8,4.5,13.2,13
+326299,All other rubber product mfg,17.7,7.3,2.7,0.7,7,5.3,5.2,7.3,11
+327,Nonmetallic mineral product mfg,696,398,125.6,50.5,121.9,483,76.4,136.6,4
+3271,Clay product & refractory mfg,64.7,32.6,13.3,2.8,16,36.6,13,15.1,9
+32711,"Pottery, ceramics, & plumbing fixture mfg",22.6,10.2,4.5,1.1,6.8,9.3,7.5,5.7,7
+327111,Vitreous china plumbing fixture & bathroom accessories mfg,3.6,2.2,0.1,0.1,1.3,1.2,1.4,1.1,2
+327112,"Vitreous china, fine earthenware, & other pottery product mfg",8,3.4,0.8,0.4,3.3,3.3,2,2.7,9
+327113,Porcelain electrical supply mfg,11,4.5,3.7,0.6,2.2,4.8,4.2,2,11
+32712,Clay building material & refractories mfg,42.1,22.4,8.8,1.7,9.2,27.3,5.5,9.3,13
+327121,Brick & structural clay tile mfg,22.8,13,6.8,0.7,2.3,18,2.7,2.1,24
+327122,Ceramic wall & floor tile mfg,7,4,0.2,0.8,2,3.2,1.3,2.6,9
+327124,Clay refractory mfg,3,0.9,0.6,0.1,1.5,1.4,0.3,1.2,20
+327125,Nonclay refractory mfg,9,4.4,1.1,0.2,3.3,4.4,1.2,3.4,7
+3272,Glass & glass product mfg,120,39,21.6,15.4,43.9,50.4,21.4,48.1,7
+32721,Glass & glass product mfg,120,39,21.6,15.4,43.9,50.4,21.4,48.1,7
+327211,Flat glass mfg,40.4,10,7.2,5.4,17.8,18.8,2.8,18.8,13
+327212,Other pressed & blown glass & glassware mfg,38.7,16.1,7.2,3.4,12,16,10.1,12.7,8
+327213,Glass container mfg,25.8,8.8,5.7,4.7,6.6,13.1,5.4,7.3,6
+327215,Glass product mfg made of purchased glass,15.1,4.2,1.5,1.8,7.5,2.6,3.2,9.3,39
+3273,Cement & concrete product mfg,313.2,190.6,68.3,20,34.4,244.4,24,44.8,8
+32731,Cement mfg,237.9,170.5,52.8,4.7,9.9,219.4,8.3,10.2,8
+327310,Cement mfg,237.9,170.5,52.8,4.7,9.9,219.4,8.3,10.2,8
+32732,Ready-mix concrete mfg,52,14.1,10.2,12,15.7,18.1,10.8,23.1,27
+327320,Ready-mix concrete mfg,52,14.1,10.2,12,15.7,18.1,10.8,23.1,27
+32733,"Concrete pipe, brick, & block mfg",8.3,2.8,1.6,0.6,3.1,3.2,1.2,3.8,11
+327331,Concrete block & brick mfg,5.1,1.5,1.2,0.3,2.1,2.2,0.4,2.5,11
+327332,Concrete pipe mfg,3.2,1.4,0.5,0.3,1,1,0.9,1.3,20
+32739,Other concrete product mfg,15.1,3.2,3.7,2.6,5.6,3.7,3.8,7.6,13
+327390,Other concrete product mfg,15.1,3.2,3.7,2.6,5.6,3.7,3.8,7.6,13
+3274,Lime & gypsum product mfg,59.8,41.1,8.2,6.2,4.2,48.9,3.4,7.4,8
+32741,Lime mfg,29.8,23.1,4.4,0.7,1.6,24.3,2.9,2.6,15
+327410,Lime mfg,29.8,23.1,4.4,0.7,1.6,24.3,2.9,2.6,15
+32742,Gypsum product mfg,29.9,18,3.8,5.5,2.6,24.6,0.5,4.8,5
+327420,Gypsum product mfg,29.9,18,3.8,5.5,2.6,24.6,0.5,4.8,5
+3279,Other nonmetallic mineral product mfg,138.3,94.7,14.2,6.1,23.3,102.6,14.5,21.2,6
+32791,Abrasive product mfg,14.5,9.5,0.6,0.4,3.9,8.4,1.6,4.5,4
+327910,Abrasive product mfg,14.5,9.5,0.6,0.4,3.9,8.4,1.6,4.5,4
+32799,All other nonmetallic mineral product mfg,123.8,85.1,13.6,5.7,19.3,94.2,12.8,16.7,7
+327991,Cut stone & stone product mfg,3.7,0.9,1.2,0.4,1.2,0.5,1.6,1.7,25
+327992,Ground or treated mineral & earth mfg,19.5,6.9,7.4,1.8,3.4,14.2,4.2,1.2,20
+327993,Mineral wool mfg,58.3,36.8,4.6,3.1,13.8,38.5,6.9,12.9,3
+327999,All other miscellaneous nonmetallic mineral product mfg,42.3,40.5,0.5,0.4,0.9,41.1,0.2,1,17
+331,Primary metal mfg,2291.1,1238.3,273.2,219.3,560.4,989.5,638.4,663.1,4
+3311,Iron & steel mills & ferroalloy mfg,1197.4,653.2,154.6,121.5,268.1,467.2,394.6,335.6,7
+33111,Iron & steel mills & ferroalloy mfg,1197.4,653.2,154.6,121.5,268.1,467.2,394.6,335.6,7
+331111,Iron & steel mills,1167.1,636.6,145,120.6,264.9,449.1,389.4,328.5,7
+331112,Electrometallurgical ferroalloy product mfg,30.3,16.6,9.7,0.9,3.2,18.2,5.2,7,1
+3312,Steel product mfg from purchased steel,82,39.3,12.1,4.4,26.2,18.1,39.7,24.2,5
+33121,Iron & steel pipes & tubes mfg from purchased steel,11.6,3,3,1.4,4.2,2.9,3.9,4.8,16
+331210,Iron & steel pipes & tubes mfg from purchased steel,11.6,3,3,1.4,4.2,2.9,3.9,4.8,16
+33122,Rolling & drawing of purchased steel,70.4,36.3,9.1,3,22,15.1,35.9,19.4,6
+331221,Cold-rolled steel shape mfg,40.3,21.7,6.9,0.8,10.9,11,19.6,9.6,3
+331222,Steel wire drawing,30.1,14.7,2.1,2.2,11.1,4.1,16.3,9.7,12
+3313,Alumina & aluminum production & processing,331.1,181.4,34.8,33.3,81.6,166.8,54.1,110.1,3
+33131,Alumina & aluminum production & processing,331.1,181.4,34.8,33.3,81.6,166.8,54.1,110.1,3
+331311,Alumina refining,18.2,5,5.5,0.7,7,6.7,2.3,9.1,1
+331312,Primary aluminum production,126.3,89.3,5.5,14.1,17.3,89.2,12.5,24.5,1
+331314,Secondary smelting & alloying of aluminum,64.6,29.3,9.4,1.3,24.6,38.6,2.2,23.7,14
+331315,"Aluminum sheet, plate, & foil mfg",76.9,39,7.7,11.7,18.5,26,17.2,33.7,4
+331316,Aluminum extruded product mfg,41.6,18.1,5.8,4.9,12.8,5.4,19.1,17.2,6
+331319,Other aluminum rolling & drawing,3.5,0.7,0.8,0.6,1.4,0.9,0.7,1.9,6
+3314,Nonferrous metal (except aluminum) production & processing,227.4,128,33.2,21.5,44.6,94.4,83.3,49.6,3
+33141,Nonferrous metal (except aluminum) smelting & refining,54.5,21.9,20.5,5.5,6.6,24.9,17.2,12.4,3
+331411,Primary smelting & refining of copper,4.5,2.5,0.1,0.1,1.8,1.7,1.7,1.2,1
+331419,Other nonferrous metal primary smelting & refining,49.9,19.4,20.3,5.4,4.8,23.3,15.5,11.2,4
+33142,"Copper rolling, drawing, extruding, & alloying",48.8,32.8,3.9,4.6,7.6,17.1,23.9,7.8,6
+331421,"Copper rolling, drawing, & extruding",37.6,26.5,2.9,2.9,5.3,10,22.2,5.4,7
+331422,Copper wire (except mechanical) drawing,6,3,0.4,1.4,1.1,3.4,1.2,1.4,15
+331423,"Secondary smelting, refining, & alloying of copper",5.2,3.2,0.6,0.3,1.2,3.6,0.6,1,1
+33149,"Other nonferrous metal rolling, drawing, extruding, & alloying",124,73.4,8.8,11.4,30.5,52.4,42.2,29.4,4
+331491,"Other nonferrous metal rolling, drawing, & extruding",42.4,19.9,3.2,4.3,15,6.3,23.6,12.5,9
+331492,"Other nonferrous metal secondary smelting, refining, & alloying",81.7,53.5,5.6,7.1,15.5,46.1,18.7,16.9,4
+3315,Foundries,453.1,236.2,38.5,38.5,139.9,242.8,66.6,143.7,4
+33151,Ferrous metal foundries,387.7,208,27.9,28.2,123.5,218.7,44.8,124.1,5
+331511,Iron foundries,317.1,181.7,21,20.8,93.5,187.3,39.1,90.6,6
+331512,Steel investment foundries,21.1,9.6,2.9,4.2,4.4,8.9,4.3,8,21
+331513,Steel foundries (except investment),49.4,16.7,3.9,3.2,25.7,22.5,1.5,25.5,6
+33152,Nonferrous metal foundries,65.4,28.1,10.6,10.3,16.3,24.1,21.7,19.6,7
+331521,Aluminum die-casting foundries,31.9,16,5.4,3.7,6.7,13.5,12.3,6,3
+331522,Nonferrous (except aluminum) die-casting foundries,7.4,2.7,0.8,1.5,2.5,2.1,2.6,2.8,7
+331524,Aluminum foundries (except die-casting),15,6.7,2.8,1.6,3.9,5.7,4.2,5.1,5
+331525,Copper foundries (except die-casting),7.5,1.3,0.6,3.2,2.4,1.6,1.6,4.3,57
+331528,Other nonferrous foundries (except die-casting),3.6,1.4,1,0.3,0.9,1.2,1,1.4,1
+332,Fabricated metal product mfg,763.3,353.1,84.1,92.4,233.8,196.9,284.2,282.2,8
+3321,Forging & stamping,52.1,26.8,4,3.5,17.8,18.9,19.4,13.8,8
+33211,Forging & stamping,52.1,26.8,4,3.5,17.8,18.9,19.4,13.8,8
+332111,Iron & steel forging,4,1.2,0.8,0.5,1.4,1.1,1.5,1.4,16
+332112,Nonferrous forging,19.3,13.7,1.1,0.7,3.9,9.2,6.8,3.3,3
+332114,Custom roll forming,2.8,1.1,0.2,0.4,1.1,0.7,1,1.1,9
+332115,Crown & closure mfg,5.3,4.3,0.6,0.1,0.3,4.6,0.5,0.2,2
+332116,Metal stamping,14.8,5,1,1.1,7.6,2.1,8.2,4.4,25
+332117,Powder metallurgy part mfg,5.8,1.4,0.2,0.7,3.5,1.3,1.2,3.2,28
+3322,Cutlery & handtool mfg,22.7,9.9,2.9,2.7,7.3,6,7.5,9.2,12
+33221,Cutlery & handtool mfg,22.7,9.9,2.9,2.7,7.3,6,7.5,9.2,12
+332211,Cutlery & flatware (except precious) mfg,3.9,1.9,0.6,0.6,0.8,1.8,1,1.1,3
+332212,Hand & edge tool mfg,12.8,5.3,2.2,1,4.4,3.1,4.8,4.9,19
+332213,Saw blade & handsaw mfg,3.3,1.3,0.2,0.9,0.9,0.5,0.9,1.9,22
+332214,"Kitchen utensil, pot, & pan mfg",2.7,1.4,0.1,0.1,1.1,0.6,0.9,1.2,23
+3323,Architectural & structural metals mfg,54.3,24.5,6.2,3.3,20.3,17.9,14.1,22.2,5
+33231,Plate work & fabricated structural product mfg,23,8.8,3.4,1.6,9.2,7.7,4.9,10.4,6
+332311,Prefabricated metal building & component mfg,1.9,0.6,0.5,0.1,0.7,0.5,0.7,0.7,38
+332312,Fabricated structural metal mfg,17.9,7.1,2.1,1.2,7.5,5.7,4,8.2,5
+332313,Plate work mfg,3.2,1.2,0.8,0.3,1,1.4,0.3,1.5,28
+33232,Ornamental & architectural metal products mfg,31.2,15.7,2.8,1.7,11,10.3,9.2,11.8,8
+332321,Metal window & door mfg,17.1,7.6,1.9,1,6.6,4.3,5.7,7.1,10
+332322,Sheet metal work mfg,12.2,7.6,0.9,0.5,3.3,5.5,3.2,3.5,12
+332323,Ornamental & architectural metal work mfg,1.9,0.5,0.1,0.1,1.1,0.4,0.3,1.1,23
+3324,"Boiler, tank, & shipping container mfg",94,57.3,11.6,5,20.1,46.7,24.9,22.4,8
+33241,Power boiler & heat exchanger mfg,4,2.6,0.2,0.6,0.6,1.2,1.2,1.6,40
+332410,Power boiler & heat exchanger mfg,4,2.6,0.2,0.6,0.6,1.2,1.2,1.6,40
+33242,Metal tank (heavy gauge) mfg,4.4,2.3,0.5,0.1,1.6,1.5,1.9,1.1,31
+332420,Metal tank (heavy gauge) mfg,4.4,2.3,0.5,0.1,1.6,1.5,1.9,1.1,31
+33243,"Metal can, box, & other metal container (light gauge) mfg",85.5,52.4,11,4.2,17.9,44,21.8,19.7,9
+332431,Metal can mfg,76,49.3,8.7,3.7,14.3,40.1,20,15.9,10
+332439,Other metal container mfg,9.5,3.2,2.3,0.5,3.5,3.9,1.8,3.8,15
+3325,Hardware mfg,23,13.4,2.2,1.9,5.6,5,12.1,6,18
+33251,Hardware mfg,23,13.4,2.2,1.9,5.6,5,12.1,6,18
+332510,Hardware mfg,23,13.4,2.2,1.9,5.6,5,12.1,6,18
+3326,Spring & wire product mfg,13.9,7.1,2.1,1.3,3.4,2.9,7.5,3.5,28
+33261,Spring & wire product mfg,13.9,7.1,2.1,1.3,3.4,2.9,7.5,3.5,28
+332618,Other fabricated wire product mfg,12.2,6.8,1.3,1.2,2.9,1.9,7.3,2.9,32
+3327,"Machine shops, turned product, & screw, nut, & bolt mfg",140.6,36.4,18.3,42.4,43.5,21,40.3,79.3,36
+33271,Machine shops,98.9,20.3,13.2,36.7,28.6,14.6,23.6,60.6,51
+332710,Machine shops,98.9,20.3,13.2,36.7,28.6,14.6,23.6,60.6,51
+33272,"Turned product & screw, nut, & bolt mfg",41.8,16.2,5.1,5.7,14.8,6.4,16.7,18.6,10
+332721,Precision turned product mfg,14.8,3.8,2.4,2.6,6.1,2.2,4.6,8.1,24
+332722,"Bolt, nut, screw, rivet, & washer mfg",26.9,12.4,2.7,3.1,8.7,4.2,12.1,10.6,7
+3328,"Coating, engraving, heat treating, & allied activities",230.3,119.4,26.3,15,69.6,48.6,110.4,71.3,9
+33281,"Coating, engraving, heat treating, & allied activities",230.3,119.4,26.3,15,69.6,48.6,110.4,71.3,9
+332811,Metal heat treating,12.8,7.5,1.3,0.9,3.1,1.8,7.9,3.2,10
+332812,Metal coating/engraving (exc jewelry/silverware)/allied services,74,39.6,8.3,5.8,20.3,23.5,27.8,22.7,15
+332813,"Electroplating, plating, polishing, anodizing, & coloring",143.5,72.3,16.7,8.3,46.3,23.3,74.8,45.4,12
+3329,Other fabricated metal product mfg,132.3,58.3,10.4,17.5,46.2,29.8,47.9,54.7,5
+33291,Metal valve mfg,48.7,22,3.7,8,14.9,12.2,18.3,18.2,9
+332911,Industrial valve mfg,16.3,5.9,0.7,3.4,6.3,6.4,3.9,6,16
+332912,Fluid power valve & hose fitting mfg,14.1,6.2,1.5,1.4,5,2.3,6.1,5.6,18
+332913,Plumbing fixture fitting & trim mfg,6.1,3.2,0.6,1,1.2,0.5,4.1,1.5,19
+332919,Other metal valve & pipe fitting mfg,12.3,6.7,0.9,2.3,2.5,3.1,4.1,5.1,18
+33299,All other fabricated metal product mfg,83.7,36.3,6.7,9.4,31.2,17.5,29.6,36.5,6
+332991,Ball & roller bearing mfg,12.8,4.5,1.7,2.1,4.4,2.5,5.1,5.1,14
+332992,Small arms ammunition mfg,18,9.8,0.3,2.2,5.6,0.5,9.2,8.2,1
+332993,Ammunition (except small arms) mfg,8,4.6,0.7,0.4,2.4,1.3,2,4.7,3
+332994,Small arms mfg,3.2,1.4,0.5,0.2,1.1,0.3,1,1.9,1
+332995,Other ordnance & accessories mfg,3.1,1.3,0.3,0.2,1.3,0.5,1,1.5,1
+332996,Fabricated pipe & pipe fitting mfg,6.3,0.6,0.3,0.8,4.6,0.5,2.1,3.7,33
+332998,Enameled iron & metal sanitary ware mfg,10.6,6.3,0.2,1.8,2.3,3.9,3.1,3.5,6
+332999,All other miscellaneous fabricated metal product mfg,21.3,7.7,2.5,1.8,9.3,7.9,6,7.5,19
+333,Machinery mfg,315.8,108.4,49.8,34.3,123.2,71.7,97.1,147,5
+3331,"Agriculture, construction, & mining machinery mfg",51.8,19.5,5.6,6.7,19.9,14.4,15.4,22.1,8
+33311,Agricultural implement mfg,19.6,10.2,1.9,2.5,4.9,5.5,7.2,6.9,11
+333111,Farm machinery & equipment mfg,12.3,6.3,1.2,2,2.7,4.7,2.7,4.9,16
+333112,Lawn & garden tractor & home lawn & garden equipment mfg,7.3,3.9,0.7,0.5,2.2,0.8,4.5,2,9
+33312,Construction machinery mfg,22.9,6.9,2.2,3.2,10.6,7.2,5.3,10.3,12
+333120,Construction machinery mfg,22.9,6.9,2.2,3.2,10.6,7.2,5.3,10.3,12
+33313,Mining & oil & gas field machinery mfg,9.4,2.4,1.5,1.1,4.4,1.7,2.8,4.8,24
+333131,Mining machinery & equipment mfg,1.4,0.3,0.1,0.1,0.9,0.1,0.6,0.7,22
+333132,Oil & gas field machinery & equipment mfg,7.9,2.1,1.4,0.9,3.5,1.6,2.2,4.1,28
+3332,Industrial machinery mfg,35.1,18.8,4.1,1.5,10.6,11.3,11.5,12.3,26
+3333,Commercial & service industry machinery mfg,32.6,7.4,5.9,5.3,14.1,3.3,6.2,23.1,6
+33331,Commercial & service industry machinery mfg,32.6,7.4,5.9,5.3,14.1,3.3,6.2,23.1,6
+333314,Optical instrument & lens mfg,5.5,1.2,1.7,1.1,1.5,0.5,1.6,3.4,26
+333315,Photographic & photocopying equipment mfg,3.1,0.7,1.1,0.3,1,1.4,0.6,1.1,15
+333319,Other commercial & service industry machinery mfg,22.9,5.3,2.8,3.9,11,1.2,3.7,18.1,5
+3334,"Ventilation, heating, AC, & commercial refrigeration equip mfg",33.1,10,6.5,3.3,13.2,5.6,11.1,16.4,12
+33341,"Ventilation, heating, AC, & commercial refrigeration equip mfg",33.1,10,6.5,3.3,13.2,5.6,11.1,16.4,12
+333411,Air purification equipment mfg,1.9,0.2,0.1,0.1,1.5,0.2,0.2,1.5,63
+333412,Industrial & commercial fan & blower mfg,1.6,0.8,0.1,0.1,0.7,0.5,0.5,0.7,13
+333414,Heating equipment (except warm air furnaces) mfg,3.8,1,0.8,0.2,1.8,0.7,1,2.1,38
+333415,AC & warm air heating & commercial/industrial refrig equip mfg,25.7,8,5.4,3,9.3,4.2,9.4,12.1,14
+3335,Metalworking machinery mfg,28.7,7.9,8.4,2.3,10.1,11.4,8,9.4,30
+3336,"Engine, turbine, & power transmission equipment mfg",59.9,22.6,7.1,6.2,23.9,9.7,24.8,25.4,10
+33361,"Engine, turbine, & power transmission equipment mfg",59.9,22.6,7.1,6.2,23.9,9.7,24.8,25.4,10
+333611,Turbine & turbine generator set unit mfg,12.5,5.4,1,1,5.1,2.1,5.2,5.1,14
+333612,"Speed changer, industrial high-speed drive, & gear mfg",4.1,0.7,0.2,0.1,3,0.1,1.4,2.6,33
+333613,Mechanical power transmission equipment mfg,8.1,1.8,1,0.6,4.7,1.2,2.1,4.8,23
+333618,Other engine equipment mfg,35.2,14.8,4.9,4.5,11.1,6.2,16.1,12.9,15
+3339,Other general-purpose machinery mfg,74.6,22.1,12.3,8.8,31.4,16.1,20.1,38.3,8
+33391,Pump & compressor mfg,12.5,2,1.4,3.3,5.9,0.7,3.1,8.8,27
+33392,Material handling equipment mfg,17.6,8.3,4.6,1.4,3.4,8.5,2.3,6.8,15
+33399,All other general-purpose machinery mfg,44.4,11.8,6.3,4.1,22.2,7,14.7,22.7,9
+333991,Power-driven handtool mfg,3.4,0.9,0.1,0.3,2,0.1,1.6,1.6,25
+333992,Welding & soldering equipment mfg,3.2,,,,2.3,0.4,0.3,2.6,17
+333993,Packaging machinery mfg,2.3,,,,2,0.1,0.3,1.9,55
+333994,Industrial process furnace & oven mfg,1.2,0.5,0.5,0,0.2,1,0.1,0.2,4
+333995,Fluid power cylinder & actuator mfg,10.2,4.6,1.9,0.6,3.1,1.5,4.1,4.6,15
+333996,Fluid power pump & motor mfg,5.7,1.3,1.2,1.6,1.6,0.6,2.8,2.2,20
+333999,All other miscellaneous general-purpose machinery mfg,18.3,4.1,2.1,1.3,10.8,3.3,5.5,9.4,15
+334,Computer & electronic product mfg,623.8,338.4,54.5,63.9,167,164.6,270.9,188.3,10
+3341,Computer & peripheral equipment mfg,43.7,19.1,2.2,16,6.5,7.5,14.1,22.2,32
+3342,Communications equipment mfg,60.7,14.5,8.7,4,33.5,9.6,28.6,22.5,12
+3343,Audio & video equipment mfg,1.1,0.5,0.1,0.2,0.3,0.5,0,0.5,17
+33431,Audio & video equipment mfg,1.1,0.5,0.1,0.2,0.3,0.5,0,0.5,17
+334310,Audio & video equipment mfg,1.1,0.5,0.1,0.2,0.3,0.5,0,0.5,17
+3344,Semiconductor & other electronic component mfg,466.4,293.6,38.3,32.5,102,135.4,215.1,116,13
+33441,Semiconductor & other electronic component mfg,466.4,293.6,38.3,32.5,102,135.4,215.1,116,13
+334411,Electron tube mfg,10.8,5.5,0.4,0.8,4.1,3,4.6,3.2,4
+334412,Bare printed circuit board mfg,87.8,53.6,16.5,7.4,10.2,26.6,45.3,15.9,17
+334413,Semiconductor & related device mfg,292.8,184.1,16.7,20.2,71.8,98.9,120,73.9,16
+334414,Electronic capacitor mfg,8.4,2.5,0.5,0.5,4.8,1.1,1.7,5.6,7
+334415,Electronic resistor mfg,1.8,0.4,0.7,0.2,0.5,0.9,0.3,0.6,49
+334417,Electronic connector mfg,10,6.3,1,0.6,2.1,0.7,7,2.3,35
+334418,Printed circuit assembly (electronic assembly) mfg,47.8,38.3,1.7,2.1,5.7,3.1,32.9,11.8,65
+334419,Other electronic component mfg,6.9,2.9,0.8,0.7,2.5,1,3.3,2.6,15
+3345,"Navigational, measuring, medical, & control instruments mfg",42.8,9.8,4.2,7.4,21.5,8,11.8,23,10
+33451,"Navigational, measuring, medical, & control instruments mfg",42.8,9.8,4.2,7.4,21.5,8,11.8,23,10
+334510,Electromedical & electrotherapeutic apparatus mfg,4.3,1,0.3,0.8,2.1,1.1,0.6,2.6,16
+334511,"Search, detection, navigation, & guidance instrument mfg",21.1,5.1,3,3.3,9.7,5.2,6.6,9.2,16
+334512,Automatic environmental control mfg,2,0.5,0.2,0.5,0.8,0.2,0.4,1.4,7
+334513,Industrial process control instrument mfg,1.4,0.1,0.1,0.5,0.8,0.1,0.2,1.2,30
+334514,Totalizing fluid meter & counting device mfg,5.2,0.8,0.1,1.4,2.9,0.4,1.3,3.4,18
+334515,Electricity measuring & testing instrument mfg,2.2,1.1,0.2,0.3,0.7,0.3,1.2,0.8,9
+334516,Analytical laboratory instrument mfg,4.2,0.4,0.1,0.2,3.5,0.3,0.6,3.3,44
+334517,Irradiation apparatus mfg,1.2,0.5,0.1,0.2,0.4,0.2,0.4,0.5,29
+334519,Other measuring & controlling device mfg,1.2,0.3,0.1,0.1,0.6,0.2,0.4,0.6,14
+3346,Mfg & reproducing magnetic & optical media,9.1,1,1.1,3.8,3.3,3.7,1.5,4,8
+33461,Mfg & reproducing magnetic & optical media,9.1,1,1.1,3.8,3.3,3.7,1.5,4,8
+334612,"Prerecorded CD (except software), tape, & record reproducing",2,0.3,0.1,0.7,0.9,0,0.5,1.5,32
+334613,Magnetic & optical recording media mfg,7,0.7,0.9,3.1,2.3,3.6,1,2.4,3
+335,"Electrical equipment, appliance, & component mfg",190.8,80.8,28.6,20.7,60.7,62.2,59.5,69.1,6
+3351,Electric lighting equipment mfg,27.6,13.5,2.9,2.7,8.6,8.8,7.1,11.7,19
+33511,Electric lamp bulb & part mfg,11.7,4.5,1.3,1.5,4.4,2.1,2.7,6.8,19
+335110,Electric lamp bulb & part mfg,11.7,4.5,1.3,1.5,4.4,2.1,2.7,6.8,19
+33512,Lighting fixture mfg,15.9,9,1.6,1.1,4.2,6.7,4.3,4.9,30
+335122,Commercial/industrial/institutional electric lighting fixture mfg,2.5,0.7,1,0.1,0.8,0.9,0.8,0.8,25
+335129,Other lighting equipment mfg,12.5,8.2,0.5,0.9,2.9,5.7,3.4,3.4,37
+3352,Household appliance mfg,29.9,12.1,4.6,3.7,9.5,4,15.7,10.2,3
+33521,Small electrical appliance mfg,4.2,1.7,0.7,0.7,1.1,0.4,2.4,1.4,2
+335211,Electric housewares & household fan mfg,3.7,1.4,0.7,0.7,0.9,0.4,2.1,1.1,2
+33522,Major appliance mfg,25.7,10.4,3.9,3,8.4,3.6,13.3,8.9,3
+335221,Household cooking appliance mfg,5.4,1.7,0.8,0.6,2.2,0.3,3.2,1.9,13
+335222,Household refrigerator & home freezer mfg,7.4,2.2,1.7,1,2.5,0.4,3.9,3.1,1
+335224,Household laundry equipment mfg,5.9,2.8,0.7,0.7,1.7,0.7,3.5,1.7,1
+335228,Other major household appliance mfg,7,3.7,0.6,0.7,2.1,2.1,2.7,2.2,2
+3353,Electrical equipment mfg,36.4,9.7,7.3,3.4,16.1,9,12,15.3,19
+3359,Other electrical equipment & component mfg,96.9,45.6,13.9,10.9,26.6,40.3,24.8,31.9,7
+33591,Battery mfg,36.6,16.4,4.4,4.6,11.2,10.6,11.8,14.2,10
+335911,Storage battery mfg,30.3,13.5,4.1,4.3,8.4,9.3,9.4,11.6,11
+335912,Primary battery mfg,6.3,3,0.3,0.3,2.8,1.3,2.4,2.6,2
+33592,Communication & energy wire & cable mfg,4.9,1.5,0.5,1.6,1.3,1.4,0.4,3.1,48
+33593,Wiring device mfg,15.5,4.1,3.3,2.3,5.9,4.1,6,5.4,11
+335931,Current-carrying wiring device mfg,6.5,1.9,1.1,1.3,2.2,0.7,3.4,2.4,7
+335932,Noncurrent-carrying wiring device mfg,9,2.2,2.1,1,3.7,3.4,2.5,3,18
+33599,All other electrical equipment & component mfg,39.9,23.6,5.7,2.4,8.2,24.3,6.5,9.2,11
+335991,Carbon & graphite product mfg,30.1,19,4.7,1.6,4.9,22.1,2.4,5.7,5
+335999,All other miscellaneous electrical equipment & component mfg,9.8,4.6,0.9,0.9,3.4,2.2,4.2,3.5,42
+336,Transportation equipment mfg,1319.1,592.8,173,157.3,396.1,484.8,394.6,439.7,3
+3361,Motor vehicle mfg,396.6,229.6,31,51.6,84.4,220.7,76.1,99.7,5
+33611,Automobile & light duty motor vehicle mfg,369.1,217.1,29.3,45.3,77.4,210,68.8,90.3,5
+336111,Automobile mfg,176.3,103.7,13.9,21.1,37.6,101,30.5,44.8,5
+336112,Light truck & utility vehicle mfg,192.8,113.4,15.5,24.2,39.7,109,38.3,45.5,8
+33612,Heavy duty truck mfg,27.5,12.4,1.7,6.3,7,10.7,7.4,9.5,11
+336120,Heavy duty truck mfg,27.5,12.4,1.7,6.3,7,10.7,7.4,9.5,11
+3362,Motor vehicle body & trailer mfg,36.8,12.7,5,1.7,17.4,14.9,3.5,18.4,14
+33621,Motor vehicle body & trailer mfg,36.8,12.7,5,1.7,17.4,14.9,3.5,18.4,14
+336211,Motor vehicle body mfg,12.5,4.9,1.3,0.6,5.7,4.9,1,6.6,33
+336212,Truck trailer mfg,4.5,0.5,0.4,0.2,3.5,0.7,0.4,3.4,12
+336213,Motor home mfg,10.6,4.9,1.5,0.5,3.7,6.2,0.7,3.6,10
+336214,Travel trailer & camper mfg,9.2,2.4,1.8,0.4,4.5,3.2,1.4,4.7,32
+3363,Motor vehicle parts mfg,549.1,219.8,75.8,70.9,182.7,146.8,206.3,196.1,5
+33631,Motor vehicle gasoline engine & engine parts mfg,119.6,44.1,18.2,15.5,41.8,34.8,45.1,39.6,11
+336311,"Carburetor, piston, piston ring, & valve mfg",14.9,3.9,2.1,3.2,5.6,5.4,4.8,4.7,7
+336312,Gasoline engine & engine parts mfg,104.7,40.2,16,12.3,36.2,29.5,40.3,34.9,12
+33632,Motor vehicle electrical & electronic equipment mfg,69.1,28.2,3.5,8.7,28.8,19.9,24,25.3,9
+336321,Vehicular lighting equipment mfg,8.2,6.6,0.3,0.1,1.2,6.7,0.3,1.2,1
+336322,Other motor vehicle electrical & electronic equipment mfg,61,21.6,3.2,8.6,27.6,13.2,23.7,24.1,10
+33633,Motor vehicle steering & suspension component (except spring) mfg,24.4,8.3,4,5.9,6.2,4.5,14.2,5.7,17
+336330,Motor vehicle steering & suspension component (except spring) mfg,24.4,8.3,4,5.9,6.2,4.5,14.2,5.7,17
+33634,Motor vehicle brake system mfg,30.6,14,3.1,0.8,12.7,10.1,8,12.5,26
+336340,Motor vehicle brake system mfg,30.6,14,3.1,0.8,12.7,10.1,8,12.5,26
+33635,Motor vehicle transmission & power train parts mfg,124.5,58.1,21.5,19.1,25.8,32.1,57.8,34.7,8
+336350,Motor vehicle transmission & power train parts mfg,124.5,58.1,21.5,19.1,25.8,32.1,57.8,34.7,8
+33636,Motor vehicle seating & interior trim mfg,10.1,0.7,1,2,6.5,1.2,1.3,7.6,47
+336360,Motor vehicle seating & interior trim mfg,10.1,0.7,1,2,6.5,1.2,1.3,7.6,47
+33637,Motor vehicle metal stamping,63.7,24.6,12.3,9.6,17.2,17.9,24.2,21.5,16
+336370,Motor vehicle metal stamping,63.7,24.6,12.3,9.6,17.2,17.9,24.2,21.5,16
+33639,Other motor vehicle parts mfg,107.1,41.9,12.3,9.2,43.7,26.2,31.8,49.1,11
+336391,Motor vehicle air-conditioning mfg,12.3,9.2,0.2,0.6,2.3,3.5,6.1,2.7,1
+336399,All other motor vehicle parts mfg,94.8,32.7,12.1,8.6,41.4,22.7,25.6,46.4,12
+3364,Aerospace product & parts mfg,214,91.2,40,16.5,66.3,59.2,83.9,70.9,11
+33641,Aerospace product & parts mfg,214,91.2,40,16.5,66.3,59.2,83.9,70.9,11
+336411,Aircraft mfg,41,15,7.6,0.9,17.5,13.9,8.8,18.2,9
+336412,Aircraft engine & engine parts mfg,73.3,27.6,22.7,8.1,14.8,19.6,35.1,18.6,29
+336413,Other aircraft part & auxiliary equipment mfg,60.6,27.4,7,4.7,21.4,19.2,21.4,20,8
+336414,Guided missile & space vehicle mfg,16.7,9.9,1.4,0.9,4.5,3.8,8.3,4.5,1
+336415,Guided missile & space vehicle propulsion unit & parts mfg,19,10.2,1,1.1,6.7,2.4,8,8.6,1
+336419,Other guided missile & space vehicle parts & auxiliary equip mfg,3.6,1.1,0.2,0.8,1.4,0.3,2.2,1,1
+3365,Railroad rolling stock mfg,17,8.7,1.7,0.7,5.9,2.4,6.9,7.6,15
+33651,Railroad rolling stock mfg,17,8.7,1.7,0.7,5.9,2.4,6.9,7.6,15
+336510,Railroad rolling stock mfg,17,8.7,1.7,0.7,5.9,2.4,6.9,7.6,15
+3366,Ship & boat building,61.4,18.1,14.5,7,21.9,34.7,7.5,19.1,10
+33661,Ship & boat building,61.4,18.1,14.5,7,21.9,34.7,7.5,19.1,10
+336611,Ship building & repairing,35.7,11.6,6,5.4,12.7,19.9,6,9.8,4
+336612,Boat building,25.7,6.5,8.5,1.5,9.2,14.9,1.5,9.3,22
+3369,Other transportation equipment mfg,44.1,12.8,5,8.9,17.5,6,10.3,27.9,3
+33699,Other transportation equipment mfg,44.1,12.8,5,8.9,17.5,6,10.3,27.9,3
+336991,"Motorcycle, bicycle, & parts mfg",,4.9,,,,,,,
+336992,"Military armored vehicle, tank, & tank component mfg",,2.6,,,3.2,3.1,,,
+336999,All other transportation equipment mfg,9.4,5.2,,,,,5.1,,5
+337,Furniture & related product mfg,133,50.8,26.4,9.4,46.5,69.1,13,50.9,6
+3371,Household & institutional furniture & kitchen cabinet mfg,86.1,35.2,17.9,6.3,26.6,50.8,5.4,29.9,6
+33711,Wood kitchen cabinet & counter top mfg,39.8,21,4.5,3.3,11,24.4,0.5,14.8,10
+337110,Wood kitchen cabinet & counter top mfg,39.8,21,4.5,3.3,11,24.4,0.5,14.8,10
+33712,Household & institutional furniture mfg,46.2,14.2,13.5,2.9,15.6,26.4,4.8,15,7
+337121,Upholstered household furniture mfg,3.9,1.1,1.2,0.4,1.3,1.3,0.5,2.1,28
+337122,Nonupholstered wood household furniture mfg,34.1,11.6,10.6,1.8,10.1,22.5,2.1,9.5,8
+337124,Metal household furniture mfg,2.5,0.6,0.1,0.1,1.7,0.4,1.7,0.3,11
+337125,Household furniture (except wood & metal) mfg,1.1,0.3,0.1,0.2,0.6,0.1,0.1,0.8,11
+337127,Institutional furniture mfg,3.3,0.7,0.5,0.4,1.8,1,0.3,2.1,30
+337129,"Wood television, radio, & sewing machine cabinet mfg",1.3,0.1,1,0.1,0.1,1,0.1,0.2,1
+3372,Office furniture (including fixtures) mfg,43.6,14.7,7.3,2.9,18.7,17.3,7,19.3,13
+33721,Office furniture (including fixtures) mfg,43.6,14.7,7.3,2.9,18.7,17.3,7,19.3,13
+337211,Wood office furniture mfg,15.5,5.9,3.5,1.2,4.9,8.8,0.8,5.8,21
+337212,Custom architectural woodwork & millwork mfg,5.3,1.4,0.9,0.2,2.8,2.7,0.2,2.5,30
+337214,Office furniture (except wood) mfg,9.8,2.9,1.5,0.9,4.6,2.7,2.4,4.8,24
+337215,"Showcase, partition, shelving, & locker mfg",12.9,4.6,1.4,0.6,6.4,3.1,3.7,6.1,26
+3379,Other furniture related product mfg,3.2,0.8,1,0.2,1.2,0.9,0.6,1.7,22
+339,Miscellaneous mfg,115.5,41.9,15.3,12.1,46.2,33.8,28.1,53.6,5
+3391,Medical equipment & supplies mfg,53.1,14.8,7.6,6,24.7,13.3,9.7,30.1,7
+33911,Medical equipment & supplies mfg,53.1,14.8,7.6,6,24.7,13.3,9.7,30.1,7
+339111,Laboratory apparatus & furniture mfg,4.8,1.1,1,1.1,1.6,1.4,1.2,2.2,11
+339112,Surgical & medical instrument mfg,17.4,5,2.9,1.8,7.7,2.9,3.8,10.6,13
+339113,Surgical appliance & supplies mfg,20.2,6.6,2.7,2,8.9,7.3,3.1,9.8,14
+339114,Dental equipment & supplies mfg,3,0.5,0.4,0.2,1.8,0.3,0.3,2.3,11
+339115,Ophthalmic goods mfg,7.3,1.3,0.5,0.9,4.6,1.3,1.2,4.9,7
+3399,Other miscellaneous mfg,62.4,27.1,7.7,6.1,21.5,20.5,18.4,23.5,6
+33991,Jewelry & silverware mfg,10,5.3,1.1,1.6,2,1.4,5.5,3,21
+339911,Jewelry (except costume) mfg,2.4,1.3,0.6,0.2,0.4,0.1,1.6,0.8,29
+339913,Jewelers’ material & lapidary work mfg,5.2,2.8,0.4,0.9,1.1,1.1,2.5,1.5,37
+339914,Costume jewelry & novelty mfg,1.7,1,0.1,0.4,0.2,0.2,1.1,0.7,8
+33992,Sporting & athletic goods mfg,7.5,2.4,1.6,0.7,2.8,2.4,2.1,3,11
+339920,Sporting & athletic goods mfg,7.5,2.4,1.6,0.7,2.8,2.4,2.1,3,11
+33993,"Doll, toy, & game mfg",3,0.2,0.1,0.1,2.5,0.1,0,2.9,36
+33994,Office supplies (except paper) mfg,4.7,2,0.7,0.8,1.3,2,1,1.7,6
+339941,Pen & mechanical pencil mfg,1.1,0.2,0.2,0.3,0.4,0.2,0.3,0.7,8
+339942,Lead pencil & art good mfg,1.1,0.6,0.1,0.1,0.4,0.1,0.7,0.3,12
+339944,Carbon paper & inked ribbon mfg,2.3,1.2,0.4,0.3,0.3,1.7,0,0.6,10
+33995,Sign mfg,4.8,1.4,1.5,0.2,1.7,2.3,1.1,1.4,30
+339950,Sign mfg,4.8,1.4,1.5,0.2,1.7,2.3,1.1,1.4,30
+33999,All other miscellaneous mfg,32.5,15.7,2.8,2.8,11.3,12.3,8.7,11.5,8
+339991,"Gasket, packing, & sealing device mfg",14.1,6.7,1.1,1.6,4.8,5.4,4.1,4.6,13
+339992,Musical instrument mfg,2.8,1,0.4,0.3,1.2,1.1,0.4,1.4,19
+339993,"Fastener, button, needle, & pin mfg",1.8,0.8,0.5,0.1,0.4,0.7,0.8,0.3,13
+339994,"Broom, brush, & mop mfg",2.4,0.8,0.1,0.4,1.1,0.4,0.4,1.5,25
+339999,All other miscellaneous mfg,10.6,5.9,0.7,0.3,3.6,4.3,2.9,3.4,15

@@ -7,6 +7,7 @@
 
 import warnings
 warnings.simplefilter(action = 'ignore', category = FutureWarning)
+from scipy.stats import norm
 import pandas as pd
 pd.options.mode.chained_assignment = None
 import os
@@ -1049,6 +1050,125 @@ class PCU_DB:
                     sep = ',', index = False)
 
 
+    def pollution_abatement_cost_and_expenditure(self):
+        # U.S. Pollution Abatement Operating Costs - Survey 2005
+        df_PAOC = pd.read_csv(self._dir_path + '/US_Census_Bureau/Pollution_Abatement_Operating_Costs_2005.csv',
+                        low_memory = False, header = None, skiprows = [0,1],
+                        usecols = [0, 2, 3, 4, 5, 6, 7, 8, 9, 10],
+                        names = ['NAICS code', 'Total PAOC', 'Activity - treatment',
+                                'Activity - prevention', 'Activity - recycling',
+                                'Activity - disposal', 'Media - air', 'Media - water',
+                                'Media - solid waste', 'RSE for total PAOC'])
+        df_PAOC = df_PAOC.loc[pd.notnull(df_PAOC).all(axis = 1)]
+        # The media and the activity and supposed to be indepent events
+        # Proportions activities
+        col_activities = [col for col in df_PAOC.columns if 'Activity' in col]
+        df_PAOC[col_activities] = df_PAOC[col_activities].div(df_PAOC[col_activities].sum(axis = 1), axis = 0)
+        col_medias = [col for col in df_PAOC.columns if 'Media' in col]
+        df_PAOC[col_medias] = df_PAOC[col_medias].div(df_PAOC[col_medias].sum(axis = 1), axis = 0)
+        # U.S. Pollution Abatement Capital Expenditures - Survey 2005
+        df_PACE = pd.read_csv(self._dir_path + '/US_Census_Bureau/Pollution_Abatement_Capital_Expenditures_2005.csv',
+                        low_memory = False, header = None, skiprows = [0,1],
+                        usecols = [0, 2, 3, 4, 5, 6, 7, 8, 9, 10],
+                        names = ['NAICS code', 'Total PACE', 'Activity - treatment',
+                                'Activity - prevention', 'Activity - recycling',
+                                'Activity - disposal', 'Media - air', 'Media - water',
+                                'Media - solid waste', 'RSE for total PACE'])
+        df_PACE = df_PACE.loc[pd.notnull(df_PACE).all(axis = 1)]
+        df_PACE[col_activities] = df_PACE[col_activities].div(df_PACE[col_activities].sum(axis = 1), axis = 0)
+        df_PACE[col_medias] = df_PACE[col_medias].div(df_PACE[col_medias].sum(axis = 1), axis = 0)
+        for col_a in col_activities:
+            for col_m in col_medias:
+                df_PAOC['{} for {}'.format(col_a.replace('Activity - ', '').capitalize(),
+                                           col_m.replace('Media - ', ''))] = \
+                            df_PAOC[col_a]* df_PAOC[col_m]
+                df_PACE['{} for {}'.format(col_a.replace('Activity - ', '').capitalize(),
+                                           col_m.replace('Media - ', ''))] = \
+                            df_PACE[col_a]* df_PACE[col_m]
+        df_PAOC.drop(columns = col_medias + col_activities, inplace = True)
+        df_PACE.drop(columns = col_medias + col_activities, inplace = True)
+        # Statistics of U.S. Businesses - Survey 2005
+        # Note: 1. The PAOC and PACE only have information for establishments with greather or equal to 20 employees
+        #       2. The PAOC and PACE are on establishments
+        #       3. The industry sectors surveyed were NAICS codes 31-33
+        # Source: https://www.census.gov/prod/2008pubs/ma200-05.pdf
+        df_SUSB = pd.read_csv(self._dir_path + '/US_Census_Bureau/Statistics_of_US_businesses_2005.csv',
+                        low_memory = False, header = None, skiprows = [0,1],
+                        usecols = [0, 2, 8, 9, 11],
+                        names = ['NAICS code', 'Data type', 'Employment size 20-99',
+                                'Employment size 100-499', 'Employment size >=500'])
+        df_SUSB = df_SUSB[df_SUSB['Data type'] == 'Establishments']
+        df_SUSB = df_SUSB[df_SUSB['NAICS code'].str.contains(r'^3[123]')]
+        col_sum = [col for col in df_SUSB.columns if 'size' in col]
+        df_SUSB = df_SUSB[df_SUSB[col_sum].apply(lambda row: pd.to_numeric(row, errors='coerce').notnull().all(), axis = 1)]
+        df_SUSB[col_sum] = df_SUSB[col_sum].applymap(int)
+        df_SUSB['Total establishments (employees >= 20)'] = df_SUSB[col_sum].sum(axis =  1)
+        df_SUSB.drop(columns = ['Data type', 'Employment size 20-99',
+                                'Employment size 100-499', 'Employment size >=500'],
+                    inplace = True)
+        df_PACE = pd.merge(df_PACE, df_SUSB, on = 'NAICS code', how = 'inner')
+        df_PAOC = pd.merge(df_PAOC, df_SUSB, on = 'NAICS code', how = 'inner')
+        df_PACE['Mean PACE'] = df_PACE['Total PACE']/df_PACE['Total establishments (employees >= 20)']
+        df_PAOC['Mean PAOC'] = df_PAOC['Total PAOC']/df_PAOC['Total establishments (employees >= 20)']
+        df_PACE['Standard deviation PACE'] = df_PACE['Total PACE']*df_PACE['RSE for total PACE']/\
+                                            (100*df_PACE['Total establishments (employees >= 20)']**0.5)
+        df_PAOC['Standard deviation PAOC'] = df_PAOC['Total PAOC']*df_PAOC['RSE for total PAOC']/\
+                                            (100*df_PAOC['Total establishments (employees >= 20)']**0.5)
+        # Assuming a normal distribution and a confidence level of 95%
+        Z = norm.ppf(0.975)
+        df_PAOC['CI at 95% for Mean PAOC'] = df_PAOC[['Mean PAOC', 'Standard deviation PAOC', \
+                                        'Total establishments (employees >= 20)']]\
+                                        .apply(lambda x: [x.values[0] - Z*x.values[1]/x.values[2]**0.5, \
+                                                          x.values[0] + Z*x.values[1]/x.values[2]**0.5],
+                                        axis =  1)
+        df_PACE['CI at 95% for Mean PACE'] = df_PACE[['Mean PACE', 'Standard deviation PACE', \
+                                        'Total establishments (employees >= 20)']]\
+                                        .apply(lambda x: [x.values[0] - Z*x.values[1]/x.values[2]**0.5, \
+                                                          x.values[0] + Z*x.values[1]/x.values[2]**0.5],
+                                        axis =  1)
+        df_PACE = df_PACE.round(6)
+        df_PAOC = df_PAOC.round(6)
+        df_PACE.to_csv(self._dir_path + '/US_Census_Bureau//PACE.csv', sep = ',', index = False)
+        df_PAOC.to_csv(self._dir_path + '/US_Census_Bureau//PAOC.csv', sep = ',', index = False)
+        # Calling PCU
+        df_PCU = pd.read_csv(self._dir_path + '/Datasets/Final_PCU_datasets/PCUs_DB_filled_{}.csv'.format(self.Year),
+                        low_memory = False,
+                        usecols = ['PRIMARY NAICS CODE', 'WASTE STREAM CODE',
+                                'METHOD CODE - 2004 AND PRIOR', 'TYPE OF MANAGEMENT'],
+                        dtype = {'PRIMARY NAICS CODE': 'object'})
+        df_PCU = df_PCU[~df_PCU['METHOD CODE - 2004 AND PRIOR'].str.contains('\+')]
+        df_PCU = df_PCU[df_PCU['PRIMARY NAICS CODE'].str.contains(r'^3[123]')]
+        df_PCU.rename(columns = {'PRIMARY NAICS CODE': 'NAICS code',
+                                'WASTE STREAM CODE': 'Media',
+                                'TYPE OF MANAGEMENT': 'Activity',
+                                'METHOD CODE - 2004 AND PRIOR': 'Method'},
+                    inplace = True)
+        df_PACE_for_merging = pd.DataFrame()
+        df_PAOC_for_merging = pd.DataFrame()
+        Dictionary_relation = {'W': 'water', 'L': 'water', 'A': 'air', 'S': 'solid waste',
+                            'Treatment': 'Treatment', 'Energy recovery': 'Treatment',
+                            'Recycling': 'Recycling'}
+        Medias = ['W', 'L', 'A', 'S']
+        Activities = ['Treatment', 'Energy recovery', 'Recycling']
+        for Activity in Activities:
+            for Media in Medias:
+                Factor_col =  '{} for {}'.format(Dictionary_relation[Activity], Dictionary_relation[Media])
+                df_PACE_aux = df_PACE[['NAICS code', 'Mean PACE', 'Standard deviation PACE', 'CI at 95% for Mean PACE']]
+                df_PACE_aux['Media'] = Media
+                df_PACE_aux['Activity'] = Activity
+                df_PACE_aux['Factor'] = df_PACE[Factor_col]
+                df_PACE_for_merging = pd.concat([df_PACE_for_merging, df_PACE_aux], ignore_index = True,
+                                           sort = True, axis = 0)
+                df_PAOC_aux = df_PAOC[['NAICS code', 'Mean PAOC', 'Standard deviation PAOC', 'CI at 95% for Mean PAOC']]
+                df_PAOC_aux['Media'] = Media
+                df_PAOC_aux['Activity'] = Activity
+                df_PAOC_aux['Factor'] = df_PAOC[Factor_col]
+                df_PAOC_for_merging = pd.concat([df_PAOC_for_merging, df_PAOC_aux], ignore_index = True,
+                                           sort = True, axis = 0)
+
+
+
+
 if __name__ == '__main__':
 
     parser = argparse.ArgumentParser(argument_default = argparse.SUPPRESS)
@@ -1060,12 +1180,14 @@ if __name__ == '__main__':
                         [C]: File for recycling. \
                         [D]: Further cleaning of database. \
                         [E]: Organizing file with flows (1987-2004). \
-                        [F]: Organizing file with substance prices (1987 - 2004)', \
+                        [F]: Organizing file with substance prices (1987 - 2004). \
+                        [G]: Pollution control cost and expenditure (only 2005).', \
                         type = str)
 
     parser.add_argument('-Y', '--Year', nargs = '+',
                         help = 'Records with up to how many PCUs you want to include?.',
-                        type = str)
+                        type = str,
+                        required = False)
 
     parser.add_argument('-N_Bins',
                         help = 'Number of bins to split the middle waste flow values',
@@ -1091,5 +1213,7 @@ if __name__ == '__main__':
             Building.Building_database_for_flows(args.N_Bins)
         elif args.Option == 'F':
             Building.Organizing_substance_prices()
+        elif args.Option == 'G':
+            Building.pollution_abatement_cost_and_expenditure()
 
     print('Execution time: %s sec' % (time.time() - start_time))
