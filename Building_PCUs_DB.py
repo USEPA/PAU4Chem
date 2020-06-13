@@ -1153,20 +1153,79 @@ class PCU_DB:
         for Activity in Activities:
             for Media in Medias:
                 Factor_col =  '{} for {}'.format(Dictionary_relation[Activity], Dictionary_relation[Media])
-                df_PACE_aux = df_PACE[['NAICS code', 'Mean PACE', 'Standard deviation PACE', 'CI at 95% for Mean PACE']]
+                df_PACE_aux = df_PACE[['NAICS code', 'Mean PACE', 'CI at 95% for Mean PACE']]
                 df_PACE_aux['Media'] = Media
                 df_PACE_aux['Activity'] = Activity
                 df_PACE_aux['Factor'] = df_PACE[Factor_col]
                 df_PACE_for_merging = pd.concat([df_PACE_for_merging, df_PACE_aux], ignore_index = True,
                                            sort = True, axis = 0)
-                df_PAOC_aux = df_PAOC[['NAICS code', 'Mean PAOC', 'Standard deviation PAOC', 'CI at 95% for Mean PAOC']]
+                df_PAOC_aux = df_PAOC[['NAICS code', 'Mean PAOC', 'CI at 95% for Mean PAOC']]
                 df_PAOC_aux['Media'] = Media
                 df_PAOC_aux['Activity'] = Activity
                 df_PAOC_aux['Factor'] = df_PAOC[Factor_col]
                 df_PAOC_for_merging = pd.concat([df_PAOC_for_merging, df_PAOC_aux], ignore_index = True,
                                            sort = True, axis = 0)
+        df_PACE = pd.merge(df_PACE_for_merging, df_PCU,
+                            on = ['NAICS code', 'Media', 'Activity'],
+                            how = 'right')
+        df_PAOC = pd.merge(df_PAOC_for_merging, df_PCU,
+                            on = ['NAICS code', 'Media', 'Activity'],
+                            how = 'right')
+        idx = df_PACE.loc[df_PACE['Factor'].isnull()].index.tolist()
+        df_PACE[['CI at 95% for Mean PACE', \
+                'Factor', 'Mean PACE']].iloc[idx] = \
+                df_PACE[['NAICS code', 'Media',
+                        'Activity']].iloc[idx].apply(lambda x: self._searching_census(x.values[0],
+                                                                            x.values[1],
+                                                                            x.values[2],
+                                                                            df_PACE_for_merging),
+                                            axis = 1)
+        idx = df_PAOC.loc[df_PAOC['Factor'].isnull()].index.tolist()
+        df_PAOC[['CI at 95% for Mean PAOC', \
+                'Factor', 'Mean PAOC']].iloc[idx] = \
+                df_PAOC[['NAICS code', 'Media',
+                        'Activity']].iloc[idx].apply(lambda x: self._searching_census(x.values[0],
+                                                                            x.values[1],
+                                                                            x.values[2],
+                                                                            df_PAOC_for_merging),
+                                            axis = 1)
+        df_PAOC = df_PAOC.loc[pd.notnull(df_PAOC).all(axis = 1)]
+        df_PAOC['Mean PAOC'] = df_PAOC[['Mean PAOC', 'Factor']] \
+                        .apply(lambda x: x.values[0]*x.values[1],
+                               axis = 1)
+        df_PAOC['CI at 95% for Mean PAOC'] = df_PAOC[['CI at 95% for Mean PAOC', 'Factor']]\
+                                .apply(lambda x: [x.values[0][0]*x.values[1],
+                                                  x.values[0][1]*x.values[1]],
+                                       axis = 1)
+        df_PAOC = df_PAOC.round(6)
+        df_PACE = df_PACE.loc[pd.notnull(df_PACE).all(axis = 1)]
+        df_PACE['Mean PACE'] = df_PACE[['Mean PACE', 'Factor']] \
+                        .apply(lambda x: x.values[0]*x.values[1],
+                               axis = 1)
+        df_PACE['CI at 95% for Mean PACE'] = df_PACE[['CI at 95% for Mean PACE', 'Factor']]\
+                                .apply(lambda x: [x.values[0][0]*x.values[1],
+                                                  x.values[0][1]*x.values[1]],
+                                        axis = 1)
+        df_PACE = df_PACE.round(6)
+        df_PAOC.to_csv(self._dir_path + '/Datasets/PCU_expenditure_and_cost/PAOC.csv', sep = ',', index = False)
+        df_PACE.to_csv(self._dir_path + '/Datasets/PCU_expenditure_and_cost/PACE.csv', sep = ',', index = False)
 
 
+    def _searching_census(self, naics, media, activity, df):
+        values = {'Sector': 2,
+                 'Subsector': 3,
+                 'Industry Group': 4,
+                 'NAICS Industry': 5}
+        df = df.loc[df['NAICS code'].apply(lambda x: True if len(x) <= 5 else False)]
+        df['NAICS structure'] = df['NAICS code'].apply(lambda x: self._searching_naics(x, naics))
+        df['NAICS structure'] = df['NAICS structure'].map(values)
+        Max =  df['NAICS structure'].max()
+        df = df[df['NAICS structure'] == Max]
+        df =  df.loc[(df['Activity'] == activity) & \
+                     (df['Media'] == media)]
+        dictionary = {col1: col2 for col1 in ['CI', 'Factor', 'Mean'] for col2 in df.columns if col1 in col2}
+        s =  pd.Series([df[col].values for col in dictionary.values()])
+        return s
 
 
 if __name__ == '__main__':
