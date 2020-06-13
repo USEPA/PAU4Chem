@@ -1142,17 +1142,17 @@ class PCU_DB:
                         usecols = ['PRIMARY NAICS CODE', 'WASTE STREAM CODE',
                                 'METHOD CODE - 2004 AND PRIOR', 'TYPE OF MANAGEMENT'],
                         dtype = {'PRIMARY NAICS CODE': 'object'})
-        df_PCU = df_PCU[~df_PCU['METHOD CODE - 2004 AND PRIOR'].str.contains('\+')]
-        df_PCU = df_PCU[df_PCU['PRIMARY NAICS CODE'].str.contains(r'^3[123]')]
         df_PCU.rename(columns = {'PRIMARY NAICS CODE': 'NAICS code',
                                 'WASTE STREAM CODE': 'Media',
                                 'TYPE OF MANAGEMENT': 'Activity',
                                 'METHOD CODE - 2004 AND PRIOR': 'Method'},
                     inplace = True)
+        df_PCU = df_PCU[df_PCU['NAICS code'].str.contains(r'^3[123]')]
+        df_PCU = df_PCU[~df_PCU['Method'].str.contains('\+')]
         df_PACE_for_merging = pd.DataFrame()
         df_PAOC_for_merging = pd.DataFrame()
         Dictionary_relation = {'W': 'water', 'L': 'water', 'A': 'air', 'S': 'solid waste',
-                            'Treatment': 'Treatment', 'Energy recovery': 'Treatment',
+                            'Treatment': 'Treatment', 'Energy recovery': 'Recycling',
                             'Recycling': 'Recycling'}
         Medias = ['W', 'L', 'A', 'S']
         Activities = ['Treatment', 'Energy recovery', 'Recycling']
@@ -1186,6 +1186,7 @@ class PCU_DB:
                                                                             x.values[2],
                                                                             df_PACE_for_merging),
                                             axis = 1)
+        df_PACE = df_PACE.loc[pd.notnull(df_PACE).all(axis = 1)]
         idx = df_PAOC.loc[df_PAOC['Factor'].isnull()].index.tolist()
         df_PAOC[['CI at 95% for Mean PAOC', \
                 'Factor', 'Mean PAOC']].iloc[idx] = \
