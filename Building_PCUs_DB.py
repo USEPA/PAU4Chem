@@ -1092,20 +1092,26 @@ class PCU_DB:
         #       2. The PAOC and PACE are on establishments
         #       3. The industry sectors surveyed were NAICS codes 31-33
         # Source: https://www.census.gov/prod/2008pubs/ma200-05.pdf
-        df_SUSB = pd.read_csv(self._dir_path + '/US_Census_Bureau/Statistics_of_US_businesses_2005.csv',
-                        low_memory = False, header = None, skiprows = [0,1],
-                        usecols = [0, 2, 8, 9, 11],
-                        names = ['NAICS code', 'Data type', 'Employment size 20-99',
-                                'Employment size 100-499', 'Employment size >=500'])
-        df_SUSB = df_SUSB[df_SUSB['Data type'] == 'Establishments']
+        df_SUSB = pd.read_csv(self._dir_path + '/US_Census_Bureau/Statistics_of_US_businesses_2004.csv',
+                        low_memory = False, header = None,
+                        usecols = [1, 4, 11],
+                        names = ['NAICS code', 'Total establishments (employees >= 20)', 'Employment size'])
         df_SUSB = df_SUSB[df_SUSB['NAICS code'].str.contains(r'^3[123]')]
-        col_sum = [col for col in df_SUSB.columns if 'size' in col]
-        df_SUSB = df_SUSB[df_SUSB[col_sum].apply(lambda row: pd.to_numeric(row, errors='coerce').notnull().all(), axis = 1)]
-        df_SUSB[col_sum] = df_SUSB[col_sum].applymap(int)
-        df_SUSB['Total establishments (employees >= 20)'] = df_SUSB[col_sum].sum(axis =  1)
-        df_SUSB.drop(columns = ['Data type', 'Employment size 20-99',
-                                'Employment size 100-499', 'Employment size >=500'],
+        df_SUSB['Total establishments (employees >= 20)'] = pd.to_numeric( \
+                                df_SUSB['Total establishments (employees >= 20)'],
+                                errors='coerce')
+        df_SUSB = df_SUSB[pd.notnull(df_SUSB['Total establishments (employees >= 20)'])]
+        df_SUSB['Total establishments (employees >= 20)'] = \
+                    df_SUSB['Total establishments (employees >= 20)'].astype('int')
+        row_names = ['20-99 employees', '100-499 employees', '500 + employees']
+        df_SUSB = df_SUSB[df_SUSB['Employment size'].isin(row_names)]
+        df_SUSB.drop(columns = ['Employment size'],
                     inplace = True)
+        df_SUSB = df_SUSB.groupby('NAICS code', as_index = False).sum()
+        # a sample of 20,378 establishments was selected for the 2005 PACE survey
+        Max = df_SUSB['Total establishments (employees >= 20)'].max()
+        df_SUSB['Total establishments (employees >= 20)'] =\
+                df_SUSB['Total establishments (employees >= 20)'].apply(lambda x: int(x*20378/Max))
         df_PACE = pd.merge(df_PACE, df_SUSB, on = 'NAICS code', how = 'inner')
         df_PAOC = pd.merge(df_PAOC, df_SUSB, on = 'NAICS code', how = 'inner')
         df_PACE['Mean PACE'] = df_PACE['Total PACE']/df_PACE['Total establishments (employees >= 20)']
