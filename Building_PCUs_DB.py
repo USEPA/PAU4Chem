@@ -1051,6 +1051,32 @@ class PCU_DB:
 
 
     def pollution_abatement_cost_and_expenditure(self):
+        # Calling PCU
+        df_PCU = pd.read_csv(self._dir_path + '/Datasets/Final_PCU_datasets/PCUs_DB_filled_{}.csv'.format(self.Year),
+                        low_memory = False,
+                        usecols = ['PRIMARY NAICS CODE', 'WASTE STREAM CODE',
+                                'METHOD CODE - 2004 AND PRIOR',
+                                'TYPE OF MANAGEMENT',
+                                'TRIFID'],
+                        dtype = {'PRIMARY NAICS CODE': 'object'})
+        df_PCU.rename(columns = {'PRIMARY NAICS CODE': 'NAICS code',
+                                'WASTE STREAM CODE': 'Media',
+                                'TYPE OF MANAGEMENT': 'Activity',
+                                'METHOD CODE - 2004 AND PRIOR': 'Method'},
+                    inplace = True)
+        df_PCU = df_PCU[df_PCU['NAICS code'].str.contains(r'^3[123]')]
+        df_PCU_aux = df_PCU.copy()
+        df_PCU_aux.drop_duplicates(keep = 'first', inplace = True)
+        df_PCU_aux.drop(columns = ['TRIFID', 'Method'], inplace = True)
+        df_PCU_aux['Number of facilities'] = 1
+        df_PCU_aux = df_PCU_aux.groupby(['NAICS code', 'Media', 'Activity']).sum()
+        df_PCU_aux = df_PCU_aux.groupby(level = 0).apply(lambda x:
+                                    x/float(x.sum())).reset_index()
+        dictionary_aux = {tuple(row.iloc[0:3].tolist()): 1#row.iloc[3] \
+                            for idx, row in df_PCU_aux.iterrows()}
+        del df_PCU_aux
+        df_PCU.drop(columns = ['TRIFID'], inplace = True)
+        df_PCU = df_PCU[~df_PCU['Method'].str.contains('\+')]
         # U.S. Pollution Abatement Operating Costs - Survey 2005
         df_PAOC = pd.read_csv(self._dir_path + '/US_Census_Bureau/Pollution_Abatement_Operating_Costs_2005.csv',
                         low_memory = False, header = None, skiprows = [0,1],
@@ -1060,6 +1086,10 @@ class PCU_DB:
                                 'Activity - disposal', 'Media - air', 'Media - water',
                                 'Media - solid waste', 'RSE for total PAOC'])
         df_PAOC = df_PAOC.loc[pd.notnull(df_PAOC).all(axis = 1)]
+        # Substracting  prevention
+        df_PAOC['Total PAOC'] -= df_PAOC['Activity - prevention']
+        df_PAOC.drop(columns = ['Activity - prevention'],
+                    inplace = True)
         # The media and the activity and supposed to be indepent events
         # Proportions activities
         col_activities = [col for col in df_PAOC.columns if 'Activity' in col]
@@ -1075,6 +1105,9 @@ class PCU_DB:
                                 'Activity - disposal', 'Media - air', 'Media - water',
                                 'Media - solid waste', 'RSE for total PACE'])
         df_PACE = df_PACE.loc[pd.notnull(df_PACE).all(axis = 1)]
+        df_PACE['Total PACE'] -= df_PACE['Activity - prevention']
+        df_PACE.drop(columns = ['Activity - prevention'],
+                    inplace = True)
         df_PACE[col_activities] = df_PACE[col_activities].div(df_PACE[col_activities].sum(axis = 1), axis = 0)
         df_PACE[col_medias] = df_PACE[col_medias].div(df_PACE[col_medias].sum(axis = 1), axis = 0)
         for col_a in col_activities:
@@ -1095,60 +1128,26 @@ class PCU_DB:
         df_SUSB = pd.read_csv(self._dir_path + '/US_Census_Bureau/Statistics_of_US_businesses_2004.csv',
                         low_memory = False, header = None,
                         usecols = [1, 4, 11],
-                        names = ['NAICS code', 'Total establishments (employees >= 20)', 'Employment size'])
+                        names = ['NAICS code', 'Establishments (employees >= 20)', 'Employment size'])
         df_SUSB = df_SUSB[df_SUSB['NAICS code'].str.contains(r'^3[123]')]
-        df_SUSB['Total establishments (employees >= 20)'] = pd.to_numeric( \
-                                df_SUSB['Total establishments (employees >= 20)'],
+        df_SUSB['Establishments (employees >= 20)'] = pd.to_numeric( \
+                                df_SUSB['Establishments (employees >= 20)'],
                                 errors='coerce')
-        df_SUSB = df_SUSB[pd.notnull(df_SUSB['Total establishments (employees >= 20)'])]
-        df_SUSB['Total establishments (employees >= 20)'] = \
-                    df_SUSB['Total establishments (employees >= 20)'].astype('int')
+        df_SUSB = df_SUSB[pd.notnull(df_SUSB['Establishments (employees >= 20)'])]
+        df_SUSB['Establishments (employees >= 20)'] = \
+                    df_SUSB['Establishments (employees >= 20)'].astype('int')
         row_names = ['20-99 employees', '100-499 employees', '500 + employees']
         df_SUSB = df_SUSB[df_SUSB['Employment size'].isin(row_names)]
         df_SUSB.drop(columns = ['Employment size'],
                     inplace = True)
         df_SUSB = df_SUSB.groupby('NAICS code', as_index = False).sum()
         # a sample of 20,378 establishments was selected for the 2005 PACE survey
-        Max = df_SUSB['Total establishments (employees >= 20)'].max()
-        df_SUSB['Total establishments (employees >= 20)'] =\
-                df_SUSB['Total establishments (employees >= 20)'].apply(lambda x: int(x*20378/Max))
+        Max = df_SUSB['Establishments (employees >= 20)'].max()
+        df_SUSB['Establishments (employees >= 20)'] =\
+                df_SUSB['Establishments (employees >= 20)'].apply(lambda x: int(x*20378/Max))
         df_PACE = pd.merge(df_PACE, df_SUSB, on = 'NAICS code', how = 'inner')
         df_PAOC = pd.merge(df_PAOC, df_SUSB, on = 'NAICS code', how = 'inner')
-        df_PACE['Mean PACE'] = df_PACE['Total PACE']/df_PACE['Total establishments (employees >= 20)']
-        df_PAOC['Mean PAOC'] = df_PAOC['Total PAOC']/df_PAOC['Total establishments (employees >= 20)']
-        df_PACE['Standard deviation PACE'] = df_PACE['Total PACE']*df_PACE['RSE for total PACE']/\
-                                            (100*df_PACE['Total establishments (employees >= 20)']**0.5)
-        df_PAOC['Standard deviation PAOC'] = df_PAOC['Total PAOC']*df_PAOC['RSE for total PAOC']/\
-                                            (100*df_PAOC['Total establishments (employees >= 20)']**0.5)
-        # Assuming a normal distribution and a confidence level of 95%
-        Z = norm.ppf(0.975)
-        df_PAOC['CI at 95% for Mean PAOC'] = df_PAOC[['Mean PAOC', 'Standard deviation PAOC', \
-                                        'Total establishments (employees >= 20)']]\
-                                        .apply(lambda x: [x.values[0] - Z*x.values[1]/x.values[2]**0.5, \
-                                                          x.values[0] + Z*x.values[1]/x.values[2]**0.5],
-                                        axis =  1)
-        df_PACE['CI at 95% for Mean PACE'] = df_PACE[['Mean PACE', 'Standard deviation PACE', \
-                                        'Total establishments (employees >= 20)']]\
-                                        .apply(lambda x: [x.values[0] - Z*x.values[1]/x.values[2]**0.5, \
-                                                          x.values[0] + Z*x.values[1]/x.values[2]**0.5],
-                                        axis =  1)
-        df_PACE = df_PACE.round(6)
-        df_PAOC = df_PAOC.round(6)
-        df_PACE.to_csv(self._dir_path + '/US_Census_Bureau//PACE.csv', sep = ',', index = False)
-        df_PAOC.to_csv(self._dir_path + '/US_Census_Bureau//PAOC.csv', sep = ',', index = False)
-        # Calling PCU
-        df_PCU = pd.read_csv(self._dir_path + '/Datasets/Final_PCU_datasets/PCUs_DB_filled_{}.csv'.format(self.Year),
-                        low_memory = False,
-                        usecols = ['PRIMARY NAICS CODE', 'WASTE STREAM CODE',
-                                'METHOD CODE - 2004 AND PRIOR', 'TYPE OF MANAGEMENT'],
-                        dtype = {'PRIMARY NAICS CODE': 'object'})
-        df_PCU.rename(columns = {'PRIMARY NAICS CODE': 'NAICS code',
-                                'WASTE STREAM CODE': 'Media',
-                                'TYPE OF MANAGEMENT': 'Activity',
-                                'METHOD CODE - 2004 AND PRIOR': 'Method'},
-                    inplace = True)
-        df_PCU = df_PCU[df_PCU['NAICS code'].str.contains(r'^3[123]')]
-        df_PCU = df_PCU[~df_PCU['Method'].str.contains('\+')]
+        # Joining sources
         df_PACE_for_merging = pd.DataFrame()
         df_PAOC_for_merging = pd.DataFrame()
         Dictionary_relation = {'W': 'water', 'L': 'water', 'A': 'air', 'S': 'solid waste',
@@ -1159,13 +1158,17 @@ class PCU_DB:
         for Activity in Activities:
             for Media in Medias:
                 Factor_col =  '{} for {}'.format(Dictionary_relation[Activity], Dictionary_relation[Media])
-                df_PACE_aux = df_PACE[['NAICS code', 'Mean PACE', 'CI at 95% for Mean PACE']]
+                df_PACE_aux = df_PACE[['NAICS code', 'Total PACE', \
+                                       'RSE for total PACE', \
+                                       'Establishments (employees >= 20)']]
                 df_PACE_aux['Media'] = Media
                 df_PACE_aux['Activity'] = Activity
                 df_PACE_aux['Factor'] = df_PACE[Factor_col]
                 df_PACE_for_merging = pd.concat([df_PACE_for_merging, df_PACE_aux], ignore_index = True,
                                            sort = True, axis = 0)
-                df_PAOC_aux = df_PAOC[['NAICS code', 'Mean PAOC', 'CI at 95% for Mean PAOC']]
+                df_PAOC_aux = df_PAOC[['NAICS code', 'Total PAOC', \
+                                       'RSE for total PAOC', \
+                                       'Establishments (employees >= 20)']]
                 df_PAOC_aux['Media'] = Media
                 df_PAOC_aux['Activity'] = Activity
                 df_PAOC_aux['Factor'] = df_PAOC[Factor_col]
@@ -1178,8 +1181,9 @@ class PCU_DB:
                             on = ['NAICS code', 'Media', 'Activity'],
                             how = 'right')
         idx = df_PACE.loc[df_PACE['Factor'].isnull()].index.tolist()
-        df_PACE[['CI at 95% for Mean PACE', \
-                'Factor', 'Mean PACE']].iloc[idx] = \
+        df_PACE[['RSE for total PACE', \
+                'Establishments (employees >= 20)', \
+                'Factor', 'Total PACE']].iloc[idx] = \
                 df_PACE[['NAICS code', 'Media',
                         'Activity']].iloc[idx].apply(lambda x: self._searching_census(x.values[0],
                                                                             x.values[1],
@@ -1188,8 +1192,9 @@ class PCU_DB:
                                             axis = 1)
         df_PACE = df_PACE.loc[pd.notnull(df_PACE).all(axis = 1)]
         idx = df_PAOC.loc[df_PAOC['Factor'].isnull()].index.tolist()
-        df_PAOC[['CI at 95% for Mean PAOC', \
-                'Factor', 'Mean PAOC']].iloc[idx] = \
+        df_PAOC[['RSE for total PAOC', \
+                'Establishments (employees >= 20)', \
+                'Factor', 'Total PAOC']].iloc[idx] = \
                 df_PAOC[['NAICS code', 'Media',
                         'Activity']].iloc[idx].apply(lambda x: self._searching_census(x.values[0],
                                                                             x.values[1],
@@ -1197,23 +1202,24 @@ class PCU_DB:
                                                                             df_PAOC_for_merging),
                                             axis = 1)
         df_PAOC = df_PAOC.loc[pd.notnull(df_PAOC).all(axis = 1)]
-        df_PAOC['Mean PAOC'] = df_PAOC[['Mean PAOC', 'Factor']] \
-                        .apply(lambda x: x.values[0]*x.values[1],
-                               axis = 1)
-        df_PAOC['CI at 95% for Mean PAOC'] = df_PAOC[['CI at 95% for Mean PAOC', 'Factor']]\
-                                .apply(lambda x: [x.values[0][0]*x.values[1],
-                                                  x.values[0][1]*x.values[1]],
-                                       axis = 1)
+        # Inflation rate in the U.S. between 2005 and 2020 is 35.14%
+        # Assuming a normal distribution and a confidence level of 95%
+        Z = norm.ppf(0.975)
+        df_PAOC[['Mean PAOC', 'SD PAOC', 'CI at 95% for Mean PAOC']] \
+                            = df_PAOC.apply(lambda x: self._mean_standard(\
+                                                x, 1.3514, Z, dictionary_aux),
+                                            axis = 1)
+        df_PAOC = df_PAOC.loc[pd.notnull(df_PAOC).all(axis = 1)]
         df_PAOC = df_PAOC.round(6)
         df_PACE = df_PACE.loc[pd.notnull(df_PACE).all(axis = 1)]
-        df_PACE['Mean PACE'] = df_PACE[['Mean PACE', 'Factor']] \
-                        .apply(lambda x: x.values[0]*x.values[1],
-                               axis = 1)
-        df_PACE['CI at 95% for Mean PACE'] = df_PACE[['CI at 95% for Mean PACE', 'Factor']]\
-                                .apply(lambda x: [x.values[0][0]*x.values[1],
-                                                  x.values[0][1]*x.values[1]],
-                                        axis = 1)
+        df_PACE[['Mean PACE', 'SD PACE', 'CI at 95% for Mean PACE']] \
+                            = df_PACE.apply(lambda x: self._mean_standard(\
+                                                x, 1.3514, Z, dictionary_aux),
+                                            axis = 1)
+        df_PACE = df_PACE.loc[pd.notnull(df_PACE).all(axis = 1)]
         df_PACE = df_PACE.round(6)
+        df_PAOC = df_PAOC.loc[df_PAOC['Mean PAOC'] >= 10**-2]
+        df_PACE = df_PACE.loc[df_PACE['Mean PACE'] >= 10**-2]
         df_PAOC.to_csv(self._dir_path + '/Datasets/PCU_expenditure_and_cost/PAOC.csv', sep = ',', index = False)
         df_PACE.to_csv(self._dir_path + '/Datasets/PCU_expenditure_and_cost/PACE.csv', sep = ',', index = False)
 
@@ -1230,9 +1236,30 @@ class PCU_DB:
         df = df[df['NAICS structure'] == Max]
         df =  df.loc[(df['Activity'] == activity) & \
                      (df['Media'] == media)]
-        dictionary = {col1: col2 for col1 in ['CI', 'Factor', 'Mean'] for col2 in df.columns if col1 in col2}
+        dictionary = {col1: col2 for col1 in ['RSE', 'Establishments', 'Factor', \
+                                            'Total'] for col2 in df.columns if col1 in col2}
         s =  pd.Series([df[col].values for col in dictionary.values()])
         return s
+
+
+    def _mean_standard(self, x, inflation, confidence, dic):
+        try:
+            activity = x.iloc[0]
+            establishments = x.iloc[1]
+            factor = x.iloc[2]
+            media = x.iloc[3]
+            naics = x.iloc[4]
+            rse = x.iloc[5]
+            total = x.iloc[6]
+            method =  x.iloc[7]
+            per = dic[tuple([naics, media, activity])]
+            Mean = total*factor/(establishments*per)
+            SD = rse*total*factor/(100*(establishments*per)**0.5)
+            CI = [Mean - confidence*SD/(establishments*per)**0.5,
+                  Mean + confidence*SD/(establishments*per)**0.5]
+            return pd.Series([Mean, SD, CI])
+        except KeyError:
+            return pd.Series([None]*3)
 
 
 if __name__ == '__main__':
