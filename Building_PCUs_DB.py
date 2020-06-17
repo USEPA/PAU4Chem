@@ -8,6 +8,7 @@
 import warnings
 warnings.simplefilter(action = 'ignore', category = FutureWarning)
 from scipy.stats import norm
+from scipy.stats import lognorm
 import pandas as pd
 pd.options.mode.chained_assignment = None
 import os
@@ -879,12 +880,13 @@ class PCU_DB:
         for file, columns in dictionary_of_columns.items():
             df = pd.read_csv(self._dir_path + '/Ancillary/US_{}_{}.csv'.format(file, self.Year),
                             usecols = columns,
-                            low_memory = False)
+                            low_memory = False,
+                            dtype = {'PRIMARY NAICS CODE': 'object'})
             dfs.update({file: df})
         # Energy recovery:
         cols_energy_methods = [col for col in dfs['1a'].columns if 'METHOD' in col and 'ENERGY' in col]
-        df_energy = dfs['1a'][['TRIFID', 'CAS NUMBER', 'UNIT OF MEASURE', 'ON-SITE - ENERGY RECOVERY'] \
-                + cols_energy_methods]
+        df_energy = dfs['1a'][['TRIFID', 'CAS NUMBER', 'UNIT OF MEASURE',
+                               'ON-SITE - ENERGY RECOVERY'] + cols_energy_methods]
         df_energy = df_energy.loc[pd.notnull(df_energy[cols_energy_methods]).sum(axis = 1) == 1]
         df_energy['METHOD CODE'] = df_energy[cols_energy_methods].apply(func, axis = 1)
         df_energy.rename(columns = {'ON-SITE - ENERGY RECOVERY': 'FLOW'}, inplace = True)
@@ -892,8 +894,8 @@ class PCU_DB:
         del cols_energy_methods
         # Recycling:
         cols_recycling_methods = [col for col in dfs['1a'].columns if 'METHOD' in col and 'RECYCLING' in col]
-        df_recycling = dfs['1a'][['TRIFID', 'CAS NUMBER', 'UNIT OF MEASURE', 'ON-SITE - RECYCLED'] \
-                + cols_recycling_methods]
+        df_recycling = dfs['1a'][['TRIFID', 'CAS NUMBER', 'UNIT OF MEASURE',
+                                 'ON-SITE - RECYCLED'] + cols_recycling_methods]
         df_recycling = df_recycling.loc[pd.notnull(df_recycling[cols_recycling_methods]).sum(axis = 1) == 1]
         df_recycling['METHOD CODE'] = df_recycling[cols_recycling_methods].apply(func, axis = 1)
         df_recycling.rename(columns = {'ON-SITE - RECYCLED': 'FLOW'}, inplace = True)
@@ -929,9 +931,10 @@ class PCU_DB:
         df_PCU_flows['UNIT OF MEASURE'] = 'kg'
         # Calling cleaned database
         columns_for_calling = ['TRIFID', 'CAS NUMBER', 'RANGE INFLUENT CONCENTRATION',
-                            'METHOD CODE - 2004 AND PRIOR', 'EFFICIENCY ESTIMATION']
+                            'METHOD CODE - 2004 AND PRIOR', 'EFFICIENCY ESTIMATION',
+                            'PRIMARY NAICS CODE', 'WASTE STREAM CODE', 'TYPE OF MANAGEMENT']
         df_PCU_cleaned = pd.read_csv(self._dir_path + '/Datasets/Final_PCU_datasets/PCUs_DB_filled_{}.csv'.format(self.Year),
-                            usecols = columns_for_calling)
+                            usecols = columns_for_calling, dtype = {'PRIMARY NAICS CODE': 'object'})
         df_PCU_cleaned.rename(columns = {'METHOD CODE - 2004 AND PRIOR': 'METHOD CODE'}, inplace = True)
         # Merging
         df_PCU_flows = pd.merge(df_PCU_flows, df_PCU_cleaned, how = 'inner',
@@ -1053,17 +1056,32 @@ class PCU_DB:
 
     def pollution_abatement_cost_and_expenditure(self):
         # Calling PCU
-        df_PCU = pd.read_csv(self._dir_path + '/Datasets/Final_PCU_datasets/PCUs_DB_filled_{}.csv'.format(self.Year),
+        df_PCU = pd.DataFrame()
+        for year in range(1987, 2005):
+            df_PCU_aux = pd.read_csv(self._dir_path + '/Datasets/Waste_flow/Waste_flow_to_PCUs_{}_10.csv'.format(year),
                         low_memory = False,
                         usecols = ['PRIMARY NAICS CODE', 'WASTE STREAM CODE',
-                                'TYPE OF MANAGEMENT'],
+                                'TYPE OF MANAGEMENT', 'METHOD CODE', 'TRIFID',
+                                'MIDDLE WASTE FLOW'],
                         dtype = {'PRIMARY NAICS CODE': 'object'})
-        df_PCU.rename(columns = {'PRIMARY NAICS CODE': 'NAICS code',
-                                'WASTE STREAM CODE': 'Media',
-                                'TYPE OF MANAGEMENT': 'Activity'},
-                    inplace = True)
+            df_PCU_aux['FLOW'] = df_PCU_aux.groupby(['TRIFID', 'METHOD CODE'])['MIDDLE WASTE FLOW'].transform('median')
+            df_PCU_aux.drop(columns = ['TRIFID', 'METHOD CODE', 'MIDDLE WASTE FLOW'], inplace = True)
+            df_PCU_aux.drop_duplicates(keep = 'first', inplace = True)
+            df_PCU = pd.concat([df_PCU, df_PCU_aux], ignore_index = True,
+                                       sort = True, axis = 0)
+            del df_PCU_aux
+        df_PCU = df_PCU.groupby(['PRIMARY NAICS CODE', 'TYPE OF MANAGEMENT',
+                                 'WASTE STREAM CODE'], as_index = False)\
+                                 .agg({'FLOW': ['mean', 'std']})
+        df_PCU = pd.DataFrame.from_records(df_PCU.values, columns = ['NAICS code','Activity', 'Media', 'Mean flow','SD flow'])
         df_PCU.drop_duplicates(keep = 'first', inplace = True)
         df_PCU = df_PCU[df_PCU['NAICS code'].str.contains(r'^3[123]')]
+        df_PCU['SD flow'] = df_PCU['SD flow'].fillna(df_PCU['Mean flow']*0.1)
+        # Method of moments
+        df_PCU['mu'] = df_PCU[['Mean flow', 'SD flow']].apply(lambda x: np.log(x.values[0]**2/(x.values[1]**2 + x.values[0]**2)**0.5) ,
+                                                        axis = 1)
+        df_PCU['theta_2'] = df_PCU[['Mean flow', 'SD flow']].apply(lambda x: np.log(x.values[1]**2/x.values[0]**2 + 1) ,
+                                                        axis = 1)
         # U.S. Pollution Abatement Operating Costs - Survey 2005
         df_PAOC = pd.read_csv(self._dir_path + '/US_Census_Bureau/Pollution_Abatement_Operating_Costs_2005.csv',
                         low_memory = False, header = None, skiprows = [0,1],
@@ -1111,15 +1129,31 @@ class PCU_DB:
         df_SUSB = Organizing_sample(20378, self._dir_path) # Sampled establishments in 2005
         df_SUSB['Establishments (employees >= 20)'] = 1
         df_SUSB['Establishments (employees >= 20)'] = \
-                        df_SUSB['Establishments (employees >= 20)']\
-                        .groupby(df_SUSB['NAICS code']).transform('sum')
+                        df_SUSB.groupby('NAICS code')\
+                        ['Establishments (employees >= 20)'].transform('sum')
         df_SUSB_by_NAICS = df_SUSB[['NAICS code', \
                             'Establishments (employees >= 20)']]\
                             .drop_duplicates(keep = 'first')
-        df_PACE = pd.merge(df_PACE, df_SUSB_by_NAICS, on = 'NAICS code', how = 'inner')
-        df_PAOC = pd.merge(df_PAOC, df_SUSB_by_NAICS, on = 'NAICS code', how = 'inner')
+        # Joining sources from census
+        df_PACE = pd.merge(df_PACE, df_SUSB_by_NAICS, on = 'NAICS code', how = 'left')
+        df_PAOC = pd.merge(df_PAOC, df_SUSB_by_NAICS, on = 'NAICS code', how = 'left')
         del df_SUSB_by_NAICS
-        # Joining sources
+        # Searching higher naics levels (no in clusters but containing them)
+        df_PACE = df_PACE.where(pd.notnull(df_PACE), None)
+        df_PACE['Establishments (employees >= 20)'] = \
+                        df_PACE.apply(lambda x: \
+                        int(searchin_establishments_by_hierarchy(x['NAICS code'], df_PACE))
+                        if not x['Establishments (employees >= 20)']
+                        else int(x['Establishments (employees >= 20)']),
+                        axis = 1)
+        df_PAOC = df_PAOC.where(pd.notnull(df_PAOC), None)
+        df_PAOC['Establishments (employees >= 20)'] = \
+                        df_PAOC.apply(lambda x: \
+                        int(searchin_establishments_by_hierarchy(x['NAICS code'], df_PAOC))
+                        if not x['Establishments (employees >= 20)']
+                        else int(x['Establishments (employees >= 20)']),
+                        axis = 1)
+        # Organizing by activity and media
         df_PACE_for_merging = pd.DataFrame()
         df_PAOC_for_merging = pd.DataFrame()
         Dictionary_relation = {'W': 'water', 'L': 'water', 'A': 'air', 'S': 'solid waste',
@@ -1146,6 +1180,8 @@ class PCU_DB:
                 df_PAOC_aux['Factor'] = df_PAOC[Factor_col]
                 df_PAOC_for_merging = pd.concat([df_PAOC_for_merging, df_PAOC_aux], ignore_index = True,
                                            sort = True, axis = 0)
+        # Identifying probable establishment based on the pobability of media and activity
+        df_PAOC_for_merging = df_PAOC_for_merging.loc[pd.notnull(df_PAOC_for_merging['Factor'])]
         df_PAOC_for_merging['Probable establishments by activity & media'] = \
                             df_PAOC_for_merging[['Establishments (employees >= 20)', 'Factor']]\
                             .apply(lambda x: selecting_establishment_by_activity_and_media(\
@@ -1154,6 +1190,7 @@ class PCU_DB:
                             axis =  1)
         df_PAOC_for_merging.drop(columns = ['Establishments (employees >= 20)'],
                                 inplace = True)
+        df_PACE_for_merging = df_PACE_for_merging.loc[pd.notnull(df_PACE_for_merging['Factor'])]
         df_PACE_for_merging['Probable establishments by activity & media'] = \
                             df_PACE_for_merging[['Establishments (employees >= 20)', 'Factor']]\
                             .apply(lambda x: selecting_establishment_by_activity_and_media(\
@@ -1162,7 +1199,7 @@ class PCU_DB:
                             axis =  1)
         df_PACE_for_merging.drop(columns = ['Establishments (employees >= 20)'],
                                 inplace = True)
-        # Inflation rate in the U.S. between 2005 and 2020 is 35.14%
+        # Joining census with TRI
         df_PACE = pd.merge(df_PACE_for_merging, df_PCU,
                             on = ['NAICS code', 'Media', 'Activity'],
                             how = 'right')
@@ -1191,37 +1228,40 @@ class PCU_DB:
                                                                             df_PAOC_for_merging),
                                             axis = 1)
         df_PAOC = df_PAOC.loc[pd.notnull(df_PAOC).all(axis = 1)]
-        # Assuming a normal distribution and a confidence level of 95%
-        Z = norm.ppf(0.975)
+        # Calculating mass to activity and media assuming lognormal distribution
         df_PAOC = df_PAOC[df_PAOC['Factor'] != 0.0]
+        df_PAOC['Probable establishments by activity & media'] = df_PAOC['Probable establishments by activity & media'].apply(lambda x: int(x))
+        df_PAOC['Probable mass by activity & media'] = \
+                            df_PAOC[['mu', 'theta_2','Probable establishments by activity & media']]\
+                            .apply(lambda x: estimating_mass_by_activity_and_media(x.values[0],
+                                                                                   x.values[1],
+                                                                                   x.values[2]), axis =  1)
+        df_PACE = df_PACE[df_PACE['Factor'] != 0.0]
+        df_PACE['Probable establishments by activity & media'] = df_PACE['Probable establishments by activity & media'].apply(lambda x: int(x))
+        df_PACE['Probable mass by activity & media'] = \
+                            df_PACE[['mu', 'theta_2','Probable establishments by activity & media']]\
+                            .apply(lambda x: estimating_mass_by_activity_and_media(x.values[0],
+                                                                                   x.values[1],
+                                                                                   x.values[2]), axis =  1)
+        # Assuming a normal distribution and a confidence level of 95%
+        # Inflation rate in the U.S. between 2005 and 2020 is 35.14%
+        Z = norm.ppf(0.975)
         df_PAOC[['Mean PAOC', 'SD PAOC', 'CI at 95% for Mean PAOC']] \
                             = df_PAOC.apply(lambda x: mean_standard(\
                                                 x, 1.3514, Z),
                                             axis = 1)
+        df_PAOC['Unit'] = 'USD/kg'
         df_PAOC = df_PAOC.loc[pd.notnull(df_PAOC).all(axis = 1)]
         df_PAOC = df_PAOC.round(6)
-        df_PACE = df_PACE.loc[pd.notnull(df_PACE).all(axis = 1)]
-        df_PACE = df_PACE[df_PACE['Factor'] != 0.0]
+        df_PAOC = df_PAOC.loc[df_PAOC['Mean PAOC'] != 0]
         df_PACE[['Mean PACE', 'SD PACE', 'CI at 95% for Mean PACE']] \
-                            = df_PACE.apply(lambda x: mean_standard(\
-                                                x, 1.3514, Z),
-                                            axis = 1)
+                             = df_PACE.apply(lambda x: mean_standard(\
+                                                 x, 1.3514, Z),
+                                             axis = 1)
+        df_PACE['Unit'] = 'USD/kg'
         df_PACE = df_PACE.loc[pd.notnull(df_PACE).all(axis = 1)]
         df_PACE = df_PACE.round(6)
-        idx = df_PAOC.loc[((df_PAOC['Activity'] == 'Treatment') &\
-                       (df_PAOC['Mean PAOC'] >= 10**3))].index.tolist()
-        idx = idx + df_PAOC.loc[((df_PAOC['Activity'] == 'Recycling') &\
-                             (df_PAOC['Mean PAOC'] >= 10**4))].index.tolist()
-        idx = idx + df_PAOC.loc[((df_PAOC['Activity'] == 'Energy recovery') &\
-                             (df_PAOC['Mean PAOC'] >= 10**4))].index.tolist()
-        df_PAOC = df_PAOC.loc[idx]
-        idx = df_PACE.loc[((df_PACE['Activity'] == 'Treatment') &\
-                       (df_PACE['Mean PACE'] >= 10**3))].index.tolist()
-        idx = idx + df_PACE.loc[((df_PACE['Activity'] == 'Recycling') &\
-                             (df_PACE['Mean PACE'] >= 10**4))].index.tolist()
-        idx = idx + df_PACE.loc[((df_PACE['Activity'] == 'Energy recovery') &\
-                             (df_PACE['Mean PACE'] >= 10**4))].index.tolist()
-        df_PACE = df_PACE.loc[idx]
+        df_PACE = df_PACE.loc[df_PACE['Mean PACE'] != 0]
         df_PAOC.to_csv(self._dir_path + '/Datasets/PCU_expenditure_and_cost/PAOC.csv', sep = ',', index = False)
         df_PACE.to_csv(self._dir_path + '/Datasets/PCU_expenditure_and_cost/PACE.csv', sep = ',', index = False)
 
@@ -1244,7 +1284,8 @@ if __name__ == '__main__':
     parser.add_argument('-Y', '--Year', nargs = '+',
                         help = 'Records with up to how many PCUs you want to include?.',
                         type = str,
-                        required = False)
+                        required = False,
+                        default = [2018])
 
     parser.add_argument('-N_Bins',
                         help = 'Number of bins to split the middle waste flow values',

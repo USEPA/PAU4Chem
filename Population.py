@@ -3,6 +3,7 @@ import numpy as np
 from scipy.stats import norm
 import os, bisect
 from Building_PCUs_DB import *
+import re
 
 def Calling_US_census(dir_path):
     # 2008 Annual Survey of Manufactures (ASM):
@@ -227,7 +228,12 @@ def searching_census(naics, media, activity, df):
     df['NAICS structure'] = df['NAICS code'].apply(lambda x: PCU_class._searching_naics(x, naics))
     df['NAICS structure'] = df['NAICS structure'].map(values)
     Max =  df['NAICS structure'].max()
-    df = df[df['NAICS structure'] == Max]
+    if Max == 2:
+        df = df[df['NAICS code'] == '31–33']
+    else:
+        df = df[df['NAICS structure'] == Max]
+        df['Length'] = df['NAICS code'].str.len()
+        df = df.loc[df.groupby(['Activity', 'Media'])['Length'].idxmin()]
     df =  df.loc[(df['Activity'] == activity) & \
                  (df['Media'] == media)]
     dictionary = {col1: col2 for col1 in ['RSE', 'establishments', 'Factor', \
@@ -239,11 +245,12 @@ def searching_census(naics, media, activity, df):
 def mean_standard(x, inflation, confidence):
     try:
         establishments = x.iloc[6]
+        flow = x.iloc[7]
         factor = x.iloc[1]
         rse = x.iloc[4]
-        total = x.iloc[5]*inflation
-        Mean = total*factor/(establishments)*10**6
-        SD = (rse*total*factor/(100*(establishments)**0.5))*10**6
+        total = x.iloc[5]*inflation*10**6/flow
+        Mean = total*factor/(establishments)
+        SD = (rse*total*factor/(100*(establishments)**0.5))
         CI = [Mean - confidence*SD/(establishments)**0.5,
               Mean + confidence*SD/(establishments)**0.5]
         return pd.Series([Mean, SD, CI])
@@ -260,6 +267,30 @@ def selecting_establishment_by_activity_and_media(establishments, probability):
     if probability != 0 and selected_establishments == 0:
         selected_establishments = 1
     return selected_establishments
+
+
+def estimating_mass_by_activity_and_media(mu, theta_2, estab):
+    try:
+        vals = lognorm.rvs(s = theta_2**0.5,
+                       scale = np.exp(mu),
+                       size = int(estab))
+    except ValueError:
+        vals = lognorm.rvs(s = 10**-9,
+                       scale = np.exp(mu),
+                       size = int(estab))
+    return vals.sum()
+
+
+def searchin_establishments_by_hierarchy(naics, df):
+    if naics == '31–33':
+        naics = '3[123]'
+        n = 4
+    else:
+        n = 6 - len(naics)
+    regex =  re.compile(r'%s[0-9]{%s}' % (naics, n))
+    estab = df.loc[df['NAICS code'].apply(lambda x: True if re.match(regex, x) else False), \
+               'Establishments (employees >= 20)'].sum()
+    return estab
 
 
 if __name__ == '__main__':
