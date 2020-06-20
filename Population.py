@@ -324,17 +324,20 @@ def searching_establishments_by_hierarchy(naics, df):
             n = '1,2'
         elif len(naics) == 5:
             n = '1'
-        regex =  re.compile(r'%s[0-9]{%s}' % (naics, n))
+        regex =  re.compile(r'^%s[0-9]{%s}' % (naics, n))
         df_result = df.loc[df['NAICS code'].apply(lambda x: True if re.match(regex, x) else False)]
-        estab = int(df_result['Establishments (employees >= 20)'].sum())
-        shipment = df_result['Total shipment'].sum()
-        Dictionary_establishments =  dict()
-        i =  0
-        for idx, row in df_result.iterrows():
-            for values in row['Info establishments'].values():
-                i = i + 1
-                Dictionary_establishments.update({str(i): values})
-        return pd.Series([estab, shipment, Dictionary_establishments])
+        if not df_result.empty:
+            estab = int(df_result['Establishments (employees >= 20)'].sum())
+            shipment = df_result['Total shipment'].sum()
+            Dictionary_establishments =  dict()
+            i =  0
+            for idx, row in df_result.iterrows():
+                for values in row['Info establishments'].values():
+                    i = i + 1
+                    Dictionary_establishments.update({str(i): values})
+            return pd.Series([estab, shipment, Dictionary_establishments])
+        else:
+            return pd.Series([None]*3)
     except UnboundLocalError:
         return pd.Series([None]*3)
 

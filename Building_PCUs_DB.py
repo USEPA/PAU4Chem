@@ -1207,7 +1207,7 @@ class PCU_DB:
         df_PAOC_for_merging = df_PAOC_for_merging.loc[pd.notnull(df_PAOC_for_merging['P-media_&_activiy'])]
         df_PAOC_for_merging[['Probable establishments by activity & media',\
                             'Info probable establishments']] = \
-                            df_PAOC_for_merging[['Info establishments', 'P-media_&_activiy', 'NAICS code']]\
+                            df_PAOC_for_merging[['Info establishments', 'P-media_&_activiy']]\
                             .apply(lambda x: selecting_establishment_by_activity_and_media(\
                                                                         x.values[0],
                                                                         x.values[1]),
