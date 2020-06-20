@@ -1,6 +1,6 @@
 import pandas as pd
 import numpy as np
-from scipy.stats import norm
+from scipy.stats import lognorm
 import os, bisect
 from Building_PCUs_DB import *
 import re
@@ -60,12 +60,17 @@ def Probability_establishments_within_cluster(naics, establishment, df):
     sd = df_interest['SD value of shipments ($1,000)'].iloc[0]
     # measure-of-size (MOS) (e.g., value of shipments, number of employees, etc.),
     # which was highly correlated with pollution abatement operating costs
-    MOS = norm.rvs(size = establishment, scale = sd, loc = mean)
-    MOS = [M if M > 0 else abs(M - mean) + mean for M in MOS] # Reflection respect of the mean to avoid negative values
+    # Method of moments
+    mu = np.log(mean**2/(sd**2 + mean**2)**0.5)
+    theta_2 = np.log(sd**2/mean**2 + 1)
+    MOS = lognorm.rvs(s = theta_2**0.5,
+                   scale = np.exp(mu),
+                   size = int(establishment))
     Best = max(MOS)
-    Worst = min(MOS)
+    Worst = min(MOS) - 10**(np.log10(min(MOS)) - 2) # For avoiding 0 probability
     MOS.sort()
-    MOS_std = {str(idx + 1):(val - Worst)/(Best - Worst) for idx, val in enumerate(MOS)}
+    # High values of MOS represent a possible high value of PAA. Establishments with high values of PAOC and PACE had a probability of 1 of being selected
+    MOS_std = {str(idx + 1):[(val - Worst)/(Best - Worst), val*10**3] for idx, val in enumerate(MOS)}
     return MOS_std
 
 
@@ -86,11 +91,13 @@ def Probability_cluster_being_sampled(naics, establishment, total_establishments
         P_cluster = df_interest['% establishments without PAA'].iloc[0]
     Pro_establishment = Probability_establishments_within_cluster(naics, establishment, df_census)
     Pro_establishment_accumulated = dict()
+    Shipment_value_establishment = dict()
     sum = 0.0
     for key, val in Pro_establishment.items():
-        sum = sum + val
-        Pro_establishment_accumulated.update({key: [sum, val]})
-    return pd.Series([P_cluster/100, Pro_establishment_accumulated])
+        sum = sum + val[0]
+        Pro_establishment_accumulated.update({key: [sum, val[0]]})
+        Shipment_value_establishment.update({key: val[1]})
+    return pd.Series([P_cluster/100, Pro_establishment_accumulated, Shipment_value_establishment])
 
 
 def calling_TRI_for_prioritization_sectors(dir_path):
@@ -168,7 +175,7 @@ def Organizing_sample(n_sampled_establishments, dir_path):
     df_TRI_1994 = calling_TRI_for_prioritization_sectors(dir_path)
     # Calling information from 2008 census
     df_CENSUS_2008 = Calling_US_census(dir_path)
-    df_SUSB_2005[['P-cluster', 'P-establishment']] = \
+    df_SUSB_2005[['P-cluster', 'P-establishment', 'Shipment-establishment']] = \
             df_SUSB_2005.apply(lambda x: Probability_cluster_being_sampled(
                                             x.values[0], x.values[1],
                                             N_total_establishments,
@@ -176,7 +183,6 @@ def Organizing_sample(n_sampled_establishments, dir_path):
                                             df_CENSUS_2008,
                                             df_TRI_1994),
                                axis = 1)
-    #df_SUSB_2005['P-cluster'] = 1 - df_SUSB_2005['P-cluster']
     df_SUSB_2005.sort_values(by = ['P-cluster'], inplace = True)
     df_SUSB_2005 = df_SUSB_2005.reset_index()
     df_SUSB_2005['P-cluster accumulated'] = df_SUSB_2005['P-cluster'].cumsum()
@@ -186,35 +192,52 @@ def Organizing_sample(n_sampled_establishments, dir_path):
     P_cluster_list = list()
     Establishment_list = list()
     MOS_list = list()
+    P_selected_list = list()
+    Shipment_list = list()
     n_sampled = 0
     while n_sampled < n_sampled_establishments:
-        rnd_cluster = np.random.uniform(0, Accumulated)
-        idx = bisect.bisect_left(List_aux, rnd_cluster)
-        naics = df_SUSB_2005['NAICS code'].iloc[idx]
-        P_cluster =  df_SUSB_2005['P-cluster'].iloc[idx]
-        List_estab_value = [val[0] for val in list(df_SUSB_2005['P-establishment'].iloc[idx].values())]
-        List_estab_MOS = [val[1] for val in list(df_SUSB_2005['P-establishment'].iloc[idx].values())]
-        List_estab_number = list(df_SUSB_2005['P-establishment'].iloc[idx].keys())
-        rnd_establishment = np.random.uniform(0, max(List_estab_value))
-        pos = bisect.bisect_left(List_estab_value, rnd_establishment)
-        key = List_estab_number[pos]
-        MOS = List_estab_MOS[pos]
+        P_selected = 0
+        while P_selected <= 0.05: # The PACE survey demanded a minimum probability of 0.05
+            rnd_cluster = np.random.uniform(0, Accumulated)
+            idx = bisect.bisect_left(List_aux, rnd_cluster)
+            naics = df_SUSB_2005['NAICS code'].iloc[idx]
+            P_cluster =  df_SUSB_2005['P-cluster'].iloc[idx]
+            List_estab_value = [val[0] for val in list(df_SUSB_2005['P-establishment'].iloc[idx].values())]
+            List_estab_MOS = [val[1] for val in list(df_SUSB_2005['P-establishment'].iloc[idx].values())]
+            List_estab_shipment = [val for val in list(df_SUSB_2005['Shipment-establishment'].iloc[idx].values())]
+            List_estab_number = list(df_SUSB_2005['P-establishment'].iloc[idx].keys())
+            rnd_establishment = np.random.uniform(0, max(List_estab_value))
+            pos = bisect.bisect_left(List_estab_value, rnd_establishment)
+            key = List_estab_number[pos]
+            MOS = List_estab_MOS[pos]
+            Shipment = List_estab_shipment[pos]
+            P_selected = MOS*P_cluster # P(selected) = P(select in cluster)*P(cluster be selected) they are independent events
         Pro_establishment_accumulated = dict()
+        Shipment_value_establishment = dict()
         sum = 0.0
         for p, v in enumerate(List_estab_MOS):
             if p != pos:
                 sum = sum + v
                 Pro_establishment_accumulated.update({List_estab_number[p]: [sum, v]})
+                Shipment_value_establishment.update({List_estab_number[p]: List_estab_shipment[p]})
         df_SUSB_2005.iloc[idx]['P-establishment'] = Pro_establishment_accumulated
+        df_SUSB_2005.iloc[idx]['Shipment-establishment'] = Shipment_value_establishment
         NAICS_list.append(naics)
         P_cluster_list.append(P_cluster)
+        P_selected_list.append(P_selected)
         Establishment_list.append(key)
         MOS_list.append(MOS)
+        Shipment_list.append(Shipment)
         n_sampled = n_sampled + 1
     df_result = pd.DataFrame({'NAICS code': NAICS_list,
                             'P-cluster': P_cluster_list,
                             'Establishment': Establishment_list,
-                            'MOS': MOS_list})
+                            'P-in-cluster': MOS_list,
+                            'P-selected': P_selected_list,
+                            'Total shipment establishment': Shipment_list})
+    # Inflation rate from 2008 to 2020 is 19.09%:
+    df_result['Total shipment establishment'] = df_result['Total shipment establishment']*1.1909
+    df_result['Unit'] = 'USD'
     return df_result
 
 
@@ -236,21 +259,22 @@ def searching_census(naics, media, activity, df):
         df = df.loc[df.groupby(['Activity', 'Media'])['Length'].idxmin()]
     df =  df.loc[(df['Activity'] == activity) & \
                  (df['Media'] == media)]
-    dictionary = {col1: col2 for col1 in ['RSE', 'establishments', 'Factor', \
-                                        'Total'] for col2 in df.columns if col1 in col2}
+    dictionary = {col1: col2 for col1 in ['RSE', ' activity & media', 'P-media_&_activiy', \
+                                        'Total PA', 'Total s', 'Info'] \
+                                        for col2 in df.columns if col1 in col2}
     s =  pd.Series([df[col].values for col in dictionary.values()])
     return s
 
 
-def mean_standard(x, inflation, confidence):
+def mean_standard(x, confidence):
     try:
-        establishments = x.iloc[6]
-        flow = x.iloc[7]
-        factor = x.iloc[1]
+        establishments = x.iloc[7]
+        flow = x.iloc[13]
+        P_m_a = x.iloc[3]
         rse = x.iloc[4]
-        total = x.iloc[5]*inflation*10**6/flow
-        Mean = total*factor/(establishments)
-        SD = (rse*total*factor/(100*(establishments)**0.5))
+        total = x.iloc[5]/flow
+        Mean = total*P_m_a/(establishments)
+        SD = (rse*total*P_m_a/(100*(establishments)**0.5))
         CI = [Mean - confidence*SD/(establishments)**0.5,
               Mean + confidence*SD/(establishments)**0.5]
         return pd.Series([Mean, SD, CI])
@@ -258,39 +282,61 @@ def mean_standard(x, inflation, confidence):
         return pd.Series([None]*3)
 
 
-def selecting_establishment_by_activity_and_media(establishments, probability):
+def selecting_establishment_by_activity_and_media(info_establishments, probability_activity_media):
+    # P(activity and media and establishment) =  P(activity and media)*P(establishment). They are independent events
     selected_establishments = 0
-    for i in range(int(establishments)):
-        rnd = np.random.rand()
-        if probability > rnd:
-            selected_establishments = selected_establishments + 1
-    if probability != 0 and selected_establishments == 0:
+    Info_selected_establishments = dict()
+    for estab, info in info_establishments.items():
+        rnd_m_a = np.random.rand()
+        if probability_activity_media > rnd_m_a:
+            probability_establishment = info[1]
+            rnd_establishment = np.random.rand()
+            if probability_establishment > rnd_establishment:
+                selected_establishments = selected_establishments + 1
+                Info_selected_establishments.update({estab: info})
+    if probability_activity_media != 0 and selected_establishments == 0:
         selected_establishments = 1
-    return selected_establishments
+        maximum = max([val[0] for val in info_establishments.values()])
+        Info_selected_establishments.update({key: val for key, val in \
+                                        info_establishments.items() if val[0] == maximum})
+    return pd.Series([selected_establishments, Info_selected_establishments])
 
 
-def estimating_mass_by_activity_and_media(mu, theta_2, estab):
+def estimating_mass_by_activity_and_media(mu, theta_2, info_establishments, P_activity_and_media):
+    prob = [1 - vals[1]*P_activity_and_media for vals in info_establishments.values()] # 1 - cdf
     try:
-        vals = lognorm.rvs(s = theta_2**0.5,
-                       scale = np.exp(mu),
-                       size = int(estab))
+        vals = lognorm.isf(prob,
+                           s = theta_2**0.5,
+                           scale = np.exp(mu))
     except ValueError:
-        vals = lognorm.rvs(s = 10**-9,
-                       scale = np.exp(mu),
-                       size = int(estab))
+        vals = lognorm.isf(prob,
+                           s = 10**-9,
+                           scale = np.exp(mu))
     return vals.sum()
 
 
-def searchin_establishments_by_hierarchy(naics, df):
-    if naics == '31–33':
-        naics = '3[123]'
-        n = 4
-    else:
-        n = 6 - len(naics)
-    regex =  re.compile(r'%s[0-9]{%s}' % (naics, n))
-    estab = df.loc[df['NAICS code'].apply(lambda x: True if re.match(regex, x) else False), \
-               'Establishments (employees >= 20)'].sum()
-    return estab
+def searching_establishments_by_hierarchy(naics, df):
+    try:
+        if (naics == '31–33') | (len(naics) == 3):
+            naics = '3[123]'
+            n = '2,4'
+        elif len(naics) == 4:
+            n = '1,2'
+        elif len(naics) == 5:
+            n = '1'
+        regex =  re.compile(r'%s[0-9]{%s}' % (naics, n))
+        df_result = df.loc[df['NAICS code'].apply(lambda x: True if re.match(regex, x) else False)]
+        estab = int(df_result['Establishments (employees >= 20)'].sum())
+        shipment = df_result['Total shipment'].sum()
+        Dictionary_establishments =  dict()
+        i =  0
+        for idx, row in df_result.iterrows():
+            for values in row['Info establishments'].values():
+                i = i + 1
+                Dictionary_establishments.update({str(i): values})
+        return pd.Series([estab, shipment, Dictionary_establishments])
+    except UnboundLocalError:
+        return pd.Series([None]*3)
 
 
 if __name__ == '__main__':
