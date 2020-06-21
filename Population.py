@@ -270,11 +270,11 @@ def mean_standard(x, confidence):
     try:
         establishments = x.iloc[7]
         flow = x.iloc[13]
-        P_m_a = x.iloc[3]
         rse = x.iloc[4]
-        total = x.iloc[5]/flow
-        Mean = total*P_m_a/(establishments)
-        SD = (rse*total*P_m_a/(100*(establishments)**0.5))
+        shipments = sum([v[0] for v in x.iloc[8].values()])
+        total = x.iloc[5]*shipments/x.iloc[6]
+        Mean = total/establishments
+        SD = (rse*total/(100*(establishments)**0.5))
         CI = [Mean - confidence*SD/(establishments)**0.5,
               Mean + confidence*SD/(establishments)**0.5]
         return pd.Series([Mean, SD, CI])
@@ -341,6 +341,27 @@ def searching_establishments_by_hierarchy(naics, df):
     except UnboundLocalError:
         return pd.Series([None]*3)
 
+
+def normalizing_shipments(df):
+    def function_aux(info_estab, P_m_a, estab, Total):
+        vals = info_estab[estab]
+        info_estab.update({estab: [vals[0]*P_m_a/Total, vals[1]]})
+        return info_estab
+    estabs = set([key for idx, row in df.iterrows()\
+                          for key in row['Info probable establishments'].keys()])
+    for estab in estabs:
+        idx = df.loc[df['Info probable establishments'].apply(lambda x: \
+                        True if estab in x.keys() else False)].index.tolist()
+        Total =  df.loc[idx, 'P-media_&_activiy'].sum()
+        df.loc[idx]['Info probable establishments'] = \
+                df.loc[idx][['Info probable establishments',\
+                             'P-media_&_activiy']]\
+                        .apply(lambda x: function_aux(x.values[0],\
+                                                      x.values[1],
+                                                      estab,
+                                                      Total),
+                                axis = 1)
+    return df
 
 if __name__ == '__main__':
     dir_path = os.path.dirname(os.path.realpath(__file__))

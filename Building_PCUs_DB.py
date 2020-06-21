@@ -1226,6 +1226,13 @@ class PCU_DB:
         df_PACE_for_merging.drop(columns = ['Info establishments', \
                                             'Establishments (employees >= 20)'],\
                                 inplace = True)
+        # Calculating total by media and activity
+        df_PACE_for_merging = df_PACE_for_merging.groupby('NAICS code',
+                                                          as_index = False)\
+                                                .apply(lambda x: normalizing_shipments(x))
+        df_PAOC_for_merging = df_PAOC_for_merging.groupby('NAICS code',
+                                                          as_index = False)\
+                                                .apply(lambda x: normalizing_shipments(x))
         # Joining census with TRI
         df_PACE = pd.merge(df_PACE_for_merging, df_PCU,
                             on = ['NAICS code', 'Media', 'Activity'],
