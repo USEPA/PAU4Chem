@@ -272,7 +272,7 @@ def mean_standard(x, confidence):
         flow = x.iloc[13]
         rse = x.iloc[4]
         shipments = sum([v[0] for v in x.iloc[8].values()])
-        total = x.iloc[5]*shipments/x.iloc[6]
+        total = x.iloc[5]*shipments/(x.iloc[6]*flow)
         Mean = total/establishments
         SD = (rse*total/(100*(establishments)**0.5))
         CI = [Mean - confidence*SD/(establishments)**0.5,
