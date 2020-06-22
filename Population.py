@@ -103,8 +103,6 @@ def Probability_cluster_being_sampled(naics, establishment, total_establishments
 def calling_TRI_for_prioritization_sectors(dir_path):
     # The survey prioritized the clusters based on PACE 1994
     Columns = ['ON-SITE - TOTAL WASTE MANAGEMENT',
-               #'OFF-SITE - TOTAL TRANSFERRED FOR FURTHER WASTE MANAGEMENT',
-               #'OFF-SITE - TOTAL POTW TRANSFER',
                'ON-SITE - TOTAL LAND RELEASES',
                'PRIMARY NAICS CODE',
                'TRIFID', 'UNIT OF MEASURE']
@@ -113,8 +111,6 @@ def calling_TRI_for_prioritization_sectors(dir_path):
                                 dtype = {'PRIMARY NAICS CODE': 'object'})
     df_TRI_1994 = df_TRI_1994[df_TRI_1994['PRIMARY NAICS CODE'].str.contains(r'^3[123]', na = False)]
     Flow_columns = ['ON-SITE - TOTAL WASTE MANAGEMENT',
-               #'OFF-SITE - TOTAL TRANSFERRED FOR FURTHER WASTE MANAGEMENT',
-               #'OFF-SITE - TOTAL POTW TRANSFER',
                'ON-SITE - TOTAL LAND RELEASES']
     df_TRI_1994.loc[df_TRI_1994['UNIT OF MEASURE'] == 'Pounds', Flow_columns] *= 0.453592
     df_TRI_1994.loc[df_TRI_1994['UNIT OF MEASURE'] == 'Grams', Flow_columns] *= 10**-3
@@ -197,7 +193,8 @@ def Organizing_sample(n_sampled_establishments, dir_path):
     n_sampled = 0
     while n_sampled < n_sampled_establishments:
         P_selected = 0
-        while P_selected <= 0.05: # The PACE survey demanded a minimum probability of 0.05
+        # The PACE survey demanded a minimum probability of 0.05
+        while P_selected <= 0.05:
             rnd_cluster = np.random.uniform(0, Accumulated)
             idx = bisect.bisect_left(List_aux, rnd_cluster)
             naics = df_SUSB_2005['NAICS code'].iloc[idx]
@@ -211,7 +208,8 @@ def Organizing_sample(n_sampled_establishments, dir_path):
             key = List_estab_number[pos]
             MOS = List_estab_MOS[pos]
             Shipment = List_estab_shipment[pos]
-            P_selected = MOS*P_cluster # P(selected) = P(select in cluster)*P(cluster be selected) they are independent events
+            # P(selected) = P(select in cluster)*P(cluster be selected) they are independent events
+            P_selected = MOS*P_cluster
         Pro_establishment_accumulated = dict()
         Shipment_value_establishment = dict()
         sum = 0.0
@@ -259,42 +257,42 @@ def searching_census(naics, media, activity, df):
         df = df.loc[df.groupby(['Activity', 'Media'])['Length'].idxmin()]
     df =  df.loc[(df['Activity'] == activity) & \
                  (df['Media'] == media)]
-    dictionary = {col1: col2 for col1 in ['RSE', ' activity & media', 'P-media_&_activiy', \
+    dictionary = {col1: col2 for col1 in ['RSE', ' activity & media', 'P-media', 'P-activity', \
                                         'Total PA', 'Total s', 'Info'] \
                                         for col2 in df.columns if col1 in col2}
     s =  pd.Series([df[col].values for col in dictionary.values()])
     return s
 
 
-def mean_standard(x, confidence):
+def mean_standard(establishments, shipment_flow, rse, total, shipment, confidence):
+    if total >= shipment:
+        print(total, shipment)
     try:
-        establishments = x.iloc[7]
-        flow = x.iloc[13]
-        rse = x.iloc[4]
-        shipments = sum([v[0] for v in x.iloc[8].values()])
-        total = x.iloc[5]*shipments/(x.iloc[6]*flow)
+        total = (total/shipment)*shipment_flow
         Mean = total/establishments
         SD = (rse*total/(100*(establishments)**0.5))
         CI = [Mean - confidence*SD/(establishments)**0.5,
               Mean + confidence*SD/(establishments)**0.5]
-        return pd.Series([Mean, SD, CI])
+        return pd.Series([total, Mean, SD, CI])
     except KeyError:
-        return pd.Series([None]*3)
+        return pd.Series([None]*4)
 
 
-def selecting_establishment_by_activity_and_media(info_establishments, probability_activity_media):
+def selecting_establishment_by_activity_and_media(info_establishments, probability_activity, probability_media):
     # P(activity and media and establishment) =  P(activity and media)*P(establishment). They are independent events
     selected_establishments = 0
     Info_selected_establishments = dict()
     for estab, info in info_establishments.items():
-        rnd_m_a = np.random.rand()
-        if probability_activity_media > rnd_m_a:
-            probability_establishment = info[1]
-            rnd_establishment = np.random.rand()
-            if probability_establishment > rnd_establishment:
-                selected_establishments = selected_establishments + 1
-                Info_selected_establishments.update({estab: info})
-    if probability_activity_media != 0 and selected_establishments == 0:
+        rnd_a = np.random.rand()
+        if probability_activity > rnd_a:
+            rnd_m = np.random.rand()
+            if probability_media > rnd_m:
+                probability_establishment = info[1]
+                rnd_establishment = np.random.rand()
+                if probability_establishment > rnd_establishment:
+                    selected_establishments = selected_establishments + 1
+                    Info_selected_establishments.update({estab: info})
+    if probability_activity*probability_media != 0 and selected_establishments == 0:
         selected_establishments = 1
         maximum = max([val[0] for val in info_establishments.values()])
         Info_selected_establishments.update({key: val for key, val in \
@@ -302,8 +300,9 @@ def selecting_establishment_by_activity_and_media(info_establishments, probabili
     return pd.Series([selected_establishments, Info_selected_establishments])
 
 
-def estimating_mass_by_activity_and_media(mu, theta_2, info_establishments, P_activity_and_media):
-    prob = [1 - vals[1]*P_activity_and_media for vals in info_establishments.values()] # 1 - cdf
+def estimating_mass_by_activity_and_media(mu, theta_2, info_establishments, P_media, P_activity):
+    prob = [1 - vals[1]*P_activity*P_media for vals in info_establishments.values()] # 1 - cdf
+    shipments = [vals[0] for vals in info_establishments.values()]
     try:
         vals = lognorm.isf(prob,
                            s = theta_2**0.5,
@@ -312,7 +311,10 @@ def estimating_mass_by_activity_and_media(mu, theta_2, info_establishments, P_ac
         vals = lognorm.isf(prob,
                            s = 10**-9,
                            scale = np.exp(mu))
-    return vals.sum()
+    shipment_mass = sum([shipments[idx]/val for idx, val in enumerate(vals)])
+    total_mass = sum(vals)
+    total_shipment = sum(shipments)
+    return pd.Series([total_mass, total_shipment, shipment_mass])
 
 
 def searching_establishments_by_hierarchy(naics, df):
@@ -343,25 +345,30 @@ def searching_establishments_by_hierarchy(naics, df):
 
 
 def normalizing_shipments(df):
-    def function_aux(info_estab, P_m_a, estab, Total):
+    def function_aux(info_estab, P_m, P_a, P_on, estab, Total):
         vals = info_estab[estab]
-        info_estab.update({estab: [vals[0]*P_m_a/Total, vals[1]]})
+        info_estab.update({estab: [vals[0]*P_m*P_a*P_on*0.01/Total, vals[1]]})
         return info_estab
     estabs = set([key for idx, row in df.iterrows()\
                           for key in row['Info probable establishments'].keys()])
     for estab in estabs:
         idx = df.loc[df['Info probable establishments'].apply(lambda x: \
                         True if estab in x.keys() else False)].index.tolist()
-        Total =  df.loc[idx, 'P-media_&_activiy'].sum()
+        Total =  (df.loc[idx, 'P-media']*df.loc[idx, 'P-activity']).sum()
         df.loc[idx]['Info probable establishments'] = \
                 df.loc[idx][['Info probable establishments',\
-                             'P-media_&_activiy']]\
+                             'P-media',\
+                             'P-activity',\
+                             '% On-site flow']]\
                         .apply(lambda x: function_aux(x.values[0],\
-                                                      x.values[1],
-                                                      estab,
-                                                      Total),
+                                                      x.values[1],\
+                                                      x.values[2],\
+                                                      x.values[3],\
+                                                      estab,\
+                                                      Total),\
                                 axis = 1)
     return df
+
 
 if __name__ == '__main__':
     dir_path = os.path.dirname(os.path.realpath(__file__))
