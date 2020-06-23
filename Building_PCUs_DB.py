@@ -1005,7 +1005,7 @@ class PCU_DB:
                                     'CURRENCY', 'TIMES', 'MASS', 'UNIT',
                                     'QUANTITY', 'PRICE'],
                         inplace = True)
-        df_scifinder = df_scifinder.groupby('CAS NUMBER', as_index = False).median()
+        df_scifinder = df_scifinder.groupby('CAS NUMBER', as_index = False).min()
         # Calling PCU
         df_PCU = pd.read_csv(self._dir_path + '/Datasets/Final_PCU_datasets/PCUs_DB_filled_{}.csv'.format(self.Year),
                             usecols = ['TRIFID', 'CAS NUMBER', 'METHOD CODE - 2004 AND PRIOR'])
