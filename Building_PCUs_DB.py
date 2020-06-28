@@ -1371,6 +1371,34 @@ class PCU_DB:
         df_PACE.to_csv(self._dir_path + '/Datasets/PCU_expenditure_and_cost/PACE.csv', sep = ',', index = False)
 
 
+    def Pollution_control_unit_position(self):
+        df_tri =  pd.DataFrame()
+        for Year in range(1987, 2005):
+            df_tri_aux = pd.read_csv(self._dir_path + '/Datasets/Intermediate_PCU_datasets/PCUs_DB_{}.csv'.format(Year),
+                                    usecols =['REPORTING YEAR', 'TRIFID', 'METHOD CODE - 2004 AND PRIOR'])
+            df_tri_aux.drop_duplicates(keep = 'first', inplace = True)
+            df_tri_aux.drop(columns = ['REPORTING YEAR'], inplace = True)
+            df_tri = pd.concat([df_tri, df_tri_aux], ignore_index = True,
+                                       sort = True, axis = 0)
+            del df_tri_aux
+        df_tri.drop_duplicates(keep = 'first', inplace = True)
+        df_tri.drop(columns = ['TRIFID'], inplace = True)
+        df_tri = df_tri[df_tri['METHOD CODE - 2004 AND PRIOR'].str.contains('\+')]
+        List_first = list()
+        List_second = list()
+        for idx, row in df_tri.iterrows():
+            List_PCUs = row['METHOD CODE - 2004 AND PRIOR'].split(' + ')
+            n = len(List_PCUs) - 1
+            count = 0
+            while count < n:
+                List_first.append(List_PCUs[count])
+                List_second.append(List_PCUs[count + 1])
+                count = count + 1
+        df_position =  pd.DataFrame({'First': List_first,\
+                                  'Second': List_second})
+        df_position.drop_duplicates(keep = 'first', inplace = True)
+        df_position.to_csv(self._dir_path + '/Datasets/PCU_positions/Positions.csv', sep = ',', index = False)
+
 if __name__ == '__main__':
 
     parser = argparse.ArgumentParser(argument_default = argparse.SUPPRESS)
@@ -1383,7 +1411,8 @@ if __name__ == '__main__':
                         [D]: Further cleaning of database. \
                         [E]: Organizing file with flows (1987-2004). \
                         [F]: Organizing file with substance prices (1987 - 2004). \
-                        [G]: Pollution control cost and expenditure (only 2005).', \
+                        [G]: Pollution abatement cost and expenditure (only 2004). \
+                        [H]: Pollution control unit positions (1987 - 2004)', \
                         type = str)
 
     parser.add_argument('-Y', '--Year', nargs = '+',
@@ -1397,7 +1426,6 @@ if __name__ == '__main__':
                         type = int,
                         default =  10,
                         required = False)
-
 
     args = parser.parse_args()
     start_time =  time.time()
@@ -1418,5 +1446,7 @@ if __name__ == '__main__':
             Building.Organizing_substance_prices()
         elif args.Option == 'G':
             Building.pollution_abatement_cost_and_expenditure()
+        elif args.Option == 'H':
+            Building.Pollution_control_unit_position()
 
     print('Execution time: %s sec' % (time.time() - start_time))
