@@ -1005,7 +1005,7 @@ class PCU_DB:
                                     'CURRENCY', 'TIMES', 'MASS', 'UNIT',
                                     'QUANTITY', 'PRICE'],
                         inplace = True)
-        df_scifinder = df_scifinder.groupby('CAS NUMBER', as_index=False).median()
+        df_scifinder = df_scifinder.groupby('CAS NUMBER', as_index=False).min()
         # Calling PCU
         df_PCU = pd.read_csv(self._dir_path + '/Datasets/Final_PCU_datasets/PCUs_DB_filled_{}.csv'.format(self.Year),
                             usecols=['TRIFID', 'CAS NUMBER', 'METHOD CODE - 2004 AND PRIOR'])
@@ -1399,6 +1399,56 @@ class PCU_DB:
         df_position.drop_duplicates(keep = 'first', inplace = True)
         df_position.to_csv(self._dir_path + '/Datasets/PCU_positions/Positions.csv', sep = ',', index = False)
 
+
+    def Searching_information_for_years_after_2004(self):
+        df_tri_older = pd.DataFrame()
+        for year in range(1987, 2005):
+            df_tri_older_aux = pd.read_csv(f'{self._dir_path }/Datasets/Final_PCU_datasets/PCUs_DB_filled_{year}.csv',
+                                           usecols=['TRIFID',
+                                                    'CAS NUMBER',
+                                                    'WASTE STREAM CODE',
+                                                    'METHOD CODE - 2004 AND PRIOR',
+                                                    'METHOD NAME - 2004 AND PRIOR',
+                                                    'METHOD CODE - 2005 AND AFTER',
+                                                    'RANGE INFLUENT CONCENTRATION',
+                                                    'EFFICIENCY ESTIMATION'],
+                                           low_memory=False)
+            df_tri_older = pd.concat([df_tri_older, df_tri_older_aux], ignore_index=True,
+                                       sort=True, axis=0)
+            del df_tri_older_aux
+        df_tri_older.drop_duplicates(keep='first', inplace=True)
+        df_PCU = pd.read_csv(f'{self._dir_path }/Datasets/Final_PCU_datasets/PCUs_DB_filled_{self.Year}.csv',
+                             low_memory=False)
+        columns = df_PCU.columns.tolist()
+        df_PCU.drop_duplicates(keep='first', inplace=True)
+        df_PCU = pd.merge(df_PCU, df_tri_older, how='left',
+                          on=['TRIFID',
+                              'CAS NUMBER',
+                              'WASTE STREAM CODE',
+                              'METHOD CODE - 2005 AND AFTER'])
+        del df_tri_older
+        df_PCU.drop_duplicates(keep='first', subset=columns, inplace=True)
+        df_PCU['EQUAL RANGE'] = df_PCU[['EFFICIENCY RANGE CODE',
+                                        'EFFICIENCY ESTIMATION']]\
+                                        .apply(lambda x: x.values[0] == self._efficiency_estimation_to_range(x.values[1])
+                                                        if x.values[1]
+                                                        else True,
+                                               axis=1)
+        idx = df_PCU.loc[((df_PCU['EQUAL RANGE'] == False) & (pd.notnull(df_PCU['EFFICIENCY ESTIMATION'])))].index.tolist()
+        df_PCU.drop(columns=['EQUAL RANGE'], inplace=True)
+        df_PCU_aux = df_PCU.loc[idx]
+        df_PCU_aux.drop(columns=['METHOD CODE - 2004 AND PRIOR',
+                                 'METHOD NAME - 2004 AND PRIOR',
+                                 'RANGE INFLUENT CONCENTRATION',
+                                 'EFFICIENCY ESTIMATION'],
+                        inplace=True)
+        df_PCU.drop(idx, inplace=True)
+        df_PCU = pd.concat([df_PCU, df_PCU_aux], ignore_index=True,
+                                   sort=True, axis=0)
+        del df_PCU_aux
+        df_PCU.to_csv(f'{self._dir_path }/Datasets/Final_PCU_datasets/PCUs_DB_filled_{self.Year}.csv',
+                      sep=',', index=False)
+
 if __name__ == '__main__':
 
     parser = argparse.ArgumentParser(argument_default = argparse.SUPPRESS)
@@ -1412,7 +1462,8 @@ if __name__ == '__main__':
                         [E]: Organizing file with flows (1987-2004). \
                         [F]: Organizing file with substance prices (1987 - 2004). \
                         [G]: Pollution abatement cost and expenditure (only 2004). \
-                        [H]: Pollution control unit positions (1987 - 2004)', \
+                        [H]: Pollution control unit positions (1987 - 2004)\
+                        [I]: Searching information for years after 2004', \
                         type = str)
 
     parser.add_argument('-Y', '--Year', nargs='+',
@@ -1448,5 +1499,7 @@ if __name__ == '__main__':
             Building.pollution_abatement_cost_and_expenditure()
         elif args.Option == 'H':
             Building.Pollution_control_unit_position()
+        elif args.Option == 'I':
+            Building.Searching_information_for_years_after_2004()
 
     print('Execution time: %s sec' % (time.time() - start_time))
