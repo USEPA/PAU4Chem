@@ -11,3 +11,4 @@ Ancillary/*
 !Ancillary/Metals_divided_into_4_groups_can_be_reported.csv
 !Ancillary/PCU_Allocation.csv
 !Ancillary/Flow_columns.yaml
+__pycache__/*

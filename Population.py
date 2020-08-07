@@ -237,7 +237,7 @@ def Organizing_sample(n_sampled_establishments, dir_path):
     df_result['Total shipment establishment'] = df_result['Total shipment establishment']*1.1909
     df_result['Unit'] = 'USD'
     print(f'Total value of shipments for NAICS 31-33 in 2008 5,486,265,506,000 USD')
-    print(f'Contibution of the shipments of the selected establishments [%]: ', round(100*df_result['Total shipment establishment'].sum()/(5486265506000*1.1909), 4))
+    print(f'Contibution of the selected establishments to the total value of shipments [%]: ', round(100*df_result['Total shipment establishment'].sum()/(5486265506000*1.1909), 4))
     return df_result
 
 
@@ -268,9 +268,11 @@ def searching_census(naics, media, activity, df):
 
 def mean_standard(establishments, shipment_flow, rse, total, shipment, confidence):
     if total >= shipment:
-        print(total, shipment)
+        ratio = 0.0044
+    else:
+        ratio = total/shipment
     try:
-        total = (total/shipment)*shipment_flow
+        total = ratio*shipment_flow
         Mean = total/establishments
         SD = (rse*total/(100*(establishments)**0.5))
         CI = [Mean - confidence*SD/(establishments)**0.5,
