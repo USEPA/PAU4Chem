@@ -141,8 +141,8 @@ def calling_TRI_for_prioritization_sectors(dir_path):
 
 def Organizing_sample(n_sampled_establishments, dir_path):
     sampled_clusters = pd.read_csv(dir_path + '/US_Census_Bureau/Selected_clusters_2005.txt',
-                                    header = None, index_col = False)
-    sampled_clusters = [str(val) for val in sampled_clusters.ix[:,0]]
+                                   header=None, index_col=False)
+    sampled_clusters = [str(val) for val in sampled_clusters.iloc[:, 0]]
     n_sampled_clusters = len(sampled_clusters)
     # Statistics of U.S. Businesses - Survey 2005
     # Note: 1. The PAOC and PACE only have information for establishments with greather or equal to 20 employees
@@ -150,9 +150,9 @@ def Organizing_sample(n_sampled_establishments, dir_path):
     #       3. The industry sectors surveyed were NAICS codes 31-33
     # Source: https://www.census.gov/prod/2008pubs/ma200-05.pdf
     df_SUSB_2005 = pd.read_csv(dir_path + '/US_Census_Bureau/Statistics_of_US_businesses_2004.csv',
-                    low_memory = False, header = None,
-                    usecols = [1, 4, 11],
-                    names = ['NAICS code', 'Establishments (employees >= 20)', 'Employment size'])
+                               low_memory=False, header=None,
+                               usecols=[1, 4, 11],
+                               names=['NAICS code', 'Establishments (employees >= 20)', 'Employment size'])
     df_SUSB_2005 = df_SUSB_2005[df_SUSB_2005['NAICS code'].str.contains(r'^3[123]')]
     df_SUSB_2005['Establishments (employees >= 20)'] = pd.to_numeric( \
                             df_SUSB_2005['Establishments (employees >= 20)'],
@@ -162,9 +162,9 @@ def Organizing_sample(n_sampled_establishments, dir_path):
                 df_SUSB_2005['Establishments (employees >= 20)'].astype('int')
     row_names = ['20-99 employees', '100-499 employees', '500 + employees']
     df_SUSB_2005 = df_SUSB_2005[df_SUSB_2005['Employment size'].isin(row_names)]
-    df_SUSB_2005.drop(columns = ['Employment size'],
-                inplace = True)
-    df_SUSB_2005 = df_SUSB_2005.groupby('NAICS code', as_index = False).sum()
+    df_SUSB_2005.drop(columns=['Employment size'],
+                      inplace=True)
+    df_SUSB_2005 = df_SUSB_2005.groupby('NAICS code', as_index=False).sum()
     df_SUSB_2005 = df_SUSB_2005.loc[df_SUSB_2005['NAICS code'].isin(sampled_clusters)]
     N_total_establishments = df_SUSB_2005['Establishments (employees >= 20)'].sum()
     # Calling information from 1994 TRI
@@ -178,8 +178,8 @@ def Organizing_sample(n_sampled_establishments, dir_path):
                                             n_sampled_clusters,
                                             df_CENSUS_2008,
                                             df_TRI_1994),
-                               axis = 1)
-    df_SUSB_2005.sort_values(by = ['P-cluster'], inplace = True)
+                               axis=1)
+    df_SUSB_2005.sort_values(by=['P-cluster'], inplace=True)
     df_SUSB_2005 = df_SUSB_2005.reset_index()
     df_SUSB_2005['P-cluster accumulated'] = df_SUSB_2005['P-cluster'].cumsum()
     Accumulated = df_SUSB_2005['P-cluster accumulated'].max()
@@ -236,6 +236,8 @@ def Organizing_sample(n_sampled_establishments, dir_path):
     # Inflation rate from 2008 to 2020 is 19.09%:
     df_result['Total shipment establishment'] = df_result['Total shipment establishment']*1.1909
     df_result['Unit'] = 'USD'
+    print(f'Total value of shipments for NAICS 31-33 in 2008 5,486,265,506,000 USD')
+    print(f'Contibution of the shipments of the selected establishments [%]: ', round(100*df_result['Total shipment establishment'].sum()/(5486265506000*1.1909), 4))
     return df_result
 
 

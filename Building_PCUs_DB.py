@@ -1005,10 +1005,10 @@ class PCU_DB:
                                     'CURRENCY', 'TIMES', 'MASS', 'UNIT',
                                     'QUANTITY', 'PRICE'],
                         inplace = True)
-        df_scifinder = df_scifinder.groupby('CAS NUMBER', as_index = False).min()
+        df_scifinder = df_scifinder.groupby('CAS NUMBER', as_index=False).median()
         # Calling PCU
         df_PCU = pd.read_csv(self._dir_path + '/Datasets/Final_PCU_datasets/PCUs_DB_filled_{}.csv'.format(self.Year),
-                            usecols = ['TRIFID', 'CAS NUMBER', 'METHOD CODE - 2004 AND PRIOR'])
+                            usecols=['TRIFID', 'CAS NUMBER', 'METHOD CODE - 2004 AND PRIOR'])
         df_PCU = df_PCU[~df_PCU['METHOD CODE - 2004 AND PRIOR'].str.contains('\+')]
         # Separating categories and chemicals
         categories = pd.read_csv(self._dir_path + '/Chemicals/Chemicals_in_categories.csv',
@@ -1415,20 +1415,20 @@ if __name__ == '__main__':
                         [H]: Pollution control unit positions (1987 - 2004)', \
                         type = str)
 
-    parser.add_argument('-Y', '--Year', nargs = '+',
-                        help = 'Records with up to how many PCUs you want to include?.',
-                        type = str,
-                        required = False,
-                        default = [2018])
+    parser.add_argument('-Y', '--Year', nargs='+',
+                        help='Records with up to how many PCUs you want to include?.',
+                        type=str,
+                        required=False,
+                        default=[2018])
 
     parser.add_argument('-N_Bins',
-                        help = 'Number of bins to split the middle waste flow values',
-                        type = int,
-                        default =  10,
-                        required = False)
+                        help='Number of bins to split the middle waste flow values',
+                        type=int,
+                        default=10,
+                        required=False)
 
     args = parser.parse_args()
-    start_time =  time.time()
+    start_time = time.time()
 
     for Year in args.Year:
         Building = PCU_DB(int(Year))
