@@ -860,7 +860,7 @@ class PCU_DB:
         if Efficiency != 0.0:
             Chemical_feed_flow = 100*Flow/Efficiency
         else:
-            Chemical_feed_flow = 100*Flow/10**-4
+            Chemical_feed_flow = Flow
         Waste_flows = [100*Chemical_feed_flow/c for c in percentanges_c]
         Interval = tuple([min(Waste_flows), max(Waste_flows)])
         Middle = 0.5*(Waste_flows[0] + Waste_flows[-1])
@@ -873,72 +873,73 @@ class PCU_DB:
                 return None
             else:
                 return x[x.first_valid_index()]
-        with open(self._dir_path + '/Ancillary/Flow_columns.yaml', mode = 'r') as f:
+        with open(self._dir_path + '/Ancillary/Flow_columns.yaml', mode='r') as f:
             dictionary_of_columns = yaml.load(f, Loader=yaml.FullLoader)
         dictionary_of_columns = {key: [el.strip() for el in val['columns'].split(',')] for key, val in dictionary_of_columns['TRI_Files'].items()}
         dfs = dict()
         for file, columns in dictionary_of_columns.items():
             df = pd.read_csv(self._dir_path + '/Ancillary/US_{}_{}.csv'.format(file, self.Year),
-                            usecols = columns,
-                            low_memory = False,
-                            dtype = {'PRIMARY NAICS CODE': 'object'})
+                             usecols=columns,
+                             low_memory=False,
+                             dtype={'PRIMARY NAICS CODE': 'object'})
             dfs.update({file: df})
         # Energy recovery:
         cols_energy_methods = [col for col in dfs['1a'].columns if 'METHOD' in col and 'ENERGY' in col]
         df_energy = dfs['1a'][['TRIFID', 'CAS NUMBER', 'UNIT OF MEASURE',
                                'ON-SITE - ENERGY RECOVERY'] + cols_energy_methods]
-        df_energy = df_energy.loc[pd.notnull(df_energy[cols_energy_methods]).sum(axis = 1) == 1]
-        df_energy['METHOD CODE'] = df_energy[cols_energy_methods].apply(func, axis = 1)
-        df_energy.rename(columns = {'ON-SITE - ENERGY RECOVERY': 'FLOW'}, inplace = True)
-        df_energy.drop(columns = cols_energy_methods, inplace = True)
+        df_energy = df_energy.loc[pd.notnull(df_energy[cols_energy_methods]).sum(axis=1) == 1]
+        df_energy['METHOD CODE'] = df_energy[cols_energy_methods].apply(func, axis=1)
+        df_energy.rename(columns={'ON-SITE - ENERGY RECOVERY': 'FLOW'}, inplace=True)
+        df_energy.drop(columns=cols_energy_methods, inplace=True)
         del cols_energy_methods
         # Recycling:
         cols_recycling_methods = [col for col in dfs['1a'].columns if 'METHOD' in col and 'RECYCLING' in col]
         df_recycling = dfs['1a'][['TRIFID', 'CAS NUMBER', 'UNIT OF MEASURE',
                                  'ON-SITE - RECYCLED'] + cols_recycling_methods]
-        df_recycling = df_recycling.loc[pd.notnull(df_recycling[cols_recycling_methods]).sum(axis = 1) == 1]
-        df_recycling['METHOD CODE'] = df_recycling[cols_recycling_methods].apply(func, axis = 1)
-        df_recycling.rename(columns = {'ON-SITE - RECYCLED': 'FLOW'}, inplace = True)
-        df_recycling.drop(columns = cols_recycling_methods, inplace = True)
+        df_recycling = df_recycling.loc[pd.notnull(df_recycling[cols_recycling_methods]).sum(axis=1) == 1]
+        df_recycling['METHOD CODE'] = df_recycling[cols_recycling_methods].apply(func, axis=1)
+        df_recycling.rename(columns={'ON-SITE - RECYCLED': 'FLOW'}, inplace=True)
+        df_recycling.drop(columns=cols_recycling_methods, inplace=True)
         del cols_recycling_methods
         # Treatment
         cols_treatment_methods = [col for col in dfs['2b'].columns if 'METHOD' in col]
-        dfs['2b'] = dfs['2b'].loc[pd.notnull(dfs['2b'][cols_treatment_methods]).sum(axis = 1) == 1]
-        dfs['2b']['METHOD CODE'] = dfs['2b'][cols_treatment_methods].apply(func, axis = 1)
-        dfs['2b'].drop(columns = cols_treatment_methods, inplace = True)
+        dfs['2b'] = dfs['2b'].loc[pd.notnull(dfs['2b'][cols_treatment_methods]).sum(axis=1) == 1]
+        dfs['2b']['METHOD CODE'] = dfs['2b'][cols_treatment_methods].apply(func, axis=1)
+        dfs['2b'].drop(columns=cols_treatment_methods, inplace=True)
         cols_for_merging = ['TRIFID','DOCUMENT CONTROL NUMBER',
                             'CAS NUMBER', 'ON-SITE - TREATED',
                             'UNIT OF MEASURE']
         df_treatment = pd.merge(dfs['1a'][cols_for_merging], dfs['2b'],
-                                how = 'inner',
-                                on = ['TRIFID',
+                                how='inner',
+                                on=['TRIFID',
                                     'DOCUMENT CONTROL NUMBER',
                                     'CAS NUMBER'])
         del dfs, cols_treatment_methods, cols_for_merging
-        df_treatment.rename(columns = {'ON-SITE - TREATED': 'FLOW'}, inplace = True)
-        df_treatment.drop(columns = ['DOCUMENT CONTROL NUMBER'], inplace = True)
+        df_treatment.rename(columns={'ON-SITE - TREATED': 'FLOW'}, inplace=True)
+        df_treatment.drop(columns=['DOCUMENT CONTROL NUMBER'], inplace=True)
         df_PCU_flows = pd.concat([df_treatment, df_recycling, df_energy],
-                                ignore_index = True,
-                                sort = True, axis = 0)
+                                 ignore_index=True,
+                                 sort=True, axis=0)
         del df_treatment, df_recycling, df_energy
         Chemicals_to_remove = ['MIXTURE', 'TRD SECRT']
         df_PCU_flows = df_PCU_flows.loc[~df_PCU_flows['CAS NUMBER'].isin(Chemicals_to_remove)]
-        df_PCU_flows['CAS NUMBER'] = df_PCU_flows['CAS NUMBER'].apply(lambda x: str(int(x)) if not 'N' in x else x)
+        df_PCU_flows['CAS NUMBER'] = df_PCU_flows['CAS NUMBER'].apply(lambda x: str(int(x)) if 'N' not in x else x)
         df_PCU_flows.loc[df_PCU_flows['UNIT OF MEASURE'] == 'Pounds', 'FLOW'] *= 0.453592
         df_PCU_flows.loc[df_PCU_flows['UNIT OF MEASURE'] == 'Grams', 'FLOW'] *= 10**-3
         df_PCU_flows['FLOW'] = df_PCU_flows['FLOW'].round(6)
-        df_PCU_flows = df_PCU_flows.loc[~(df_PCU_flows['FLOW'] == 0)]
+        df_PCU_flows = df_PCU_flows.loc[df_PCU_flows['FLOW'] != 0.0]
         df_PCU_flows['UNIT OF MEASURE'] = 'kg'
         # Calling cleaned database
         columns_for_calling = ['TRIFID', 'CAS NUMBER', 'RANGE INFLUENT CONCENTRATION',
                             'METHOD CODE - 2004 AND PRIOR', 'EFFICIENCY ESTIMATION',
                             'PRIMARY NAICS CODE', 'WASTE STREAM CODE', 'TYPE OF MANAGEMENT']
         df_PCU_cleaned = pd.read_csv(self._dir_path + '/Datasets/Final_PCU_datasets/PCUs_DB_filled_{}.csv'.format(self.Year),
-                            usecols = columns_for_calling, dtype = {'PRIMARY NAICS CODE': 'object'})
-        df_PCU_cleaned.rename(columns = {'METHOD CODE - 2004 AND PRIOR': 'METHOD CODE'}, inplace = True)
+                                     usecols=columns_for_calling,
+                                     dtype={'PRIMARY NAICS CODE': 'object'})
+        df_PCU_cleaned.rename(columns={'METHOD CODE - 2004 AND PRIOR': 'METHOD CODE'}, inplace=True)
         # Merging
         df_PCU_flows = pd.merge(df_PCU_flows, df_PCU_cleaned, how = 'inner',
-                                on = ['TRIFID', 'CAS NUMBER', 'METHOD CODE'])
+                                on=['TRIFID', 'CAS NUMBER', 'METHOD CODE'])
         df_PCU_flows[['RANGE INFLUENT CONCENTRATION', 'EFFICIENCY ESTIMATION', 'FLOW']] = \
                     df_PCU_flows[['RANGE INFLUENT CONCENTRATION', 'EFFICIENCY ESTIMATION', 'FLOW']]\
                     .applymap(lambda x: abs(x))
