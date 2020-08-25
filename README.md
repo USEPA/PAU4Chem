@@ -1,5 +1,7 @@
 # PAU4Chem
 
+This Python codes build the PAU dataset for tracking and allocating the chemical flows in pollution abatement units (PAU). The folder [datasets](https://github.com/jodhernandezbe/PAU4Chem/tree/master/transform/datasets) contains the outputs of each framework step. 
+
 # Requirements
 
 This code was written using Python 3.x, Anaconda 3, and operating system Ubuntu 18.04. The following Python libraries are required for running the code:
