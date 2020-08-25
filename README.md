@@ -1,6 +1,6 @@
 # PAU4Chem
 
-This Python codes build the PAU dataset for tracking and allocating the chemical flows in pollution abatement units (PAU). The folder [datasets](https://github.com/jodhernandezbe/PAU4Chem/tree/master/transform/datasets) contains the outputs of each framework step. The [Chemicals_in_categories.csv](https://github.com/jodhernandezbe/PAU4Chem/blob/master/transform/chemicals/Chemicals_in_categories.csv) contains the chemicals for the TRI chemical categories.
+These Python codes build the PAU dataset for tracking and allocating the chemical flows in pollution abatement units (PAU). The folder [datasets](https://github.com/jodhernandezbe/PAU4Chem/tree/master/transform/datasets) contains the outputs for each framework step. The [Chemicals_in_categories.csv](https://github.com/jodhernandezbe/PAU4Chem/blob/master/transform/chemicals/Chemicals_in_categories.csv) contains the chemicals for the TRI chemical categories.
 
 # Requirements
 
