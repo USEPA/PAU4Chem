@@ -20,22 +20,22 @@ import unicodedata
 from itertools import combinations
 import yaml
 import math
-from Population import *
+from population import *
 
-class PCU_DB:
+class PAU_DB:
 
     def __init__(self, Year):
         self._dir_path = os.path.dirname(os.path.realpath(__file__)) # Working Directory
         self.Year = Year
         #self._dir_path = os.getcwd() # if you are working on Jupyter Notebook
 
-    def calling_TRI_Files(self):
+    def calling_tri_files(self):
         TRI_Files = dict()
         for file in ['1a', '1b', '2b']:
-            columns = pd.read_csv(self._dir_path + '/Ancillary/TRI_File_' + file + '_needed_columns.txt',
+            columns = pd.read_csv(self._dir_path + '/../ancillary/TRI_File_' + file + '_needed_columns.txt',
                                 header = None)
             columns =  list(columns.iloc[:,0])
-            df = pd.read_csv(self._dir_path + '/Ancillary/US_' + file + '_' + str(self.Year) + '.csv',
+            df = pd.read_csv(self._dir_path + '/../extract/datasets/US_' + file + '_' + str(self.Year) + '.csv',
                             usecols = columns,
                             low_memory = False)
             df = df.where(pd.notnull(df), None)
@@ -98,9 +98,9 @@ class PCU_DB:
 
     def _calling_SRS(self):
         Acronyms = ['TRI', 'CAA', 'RCRA_F', 'RCRA_K', 'RCRA_P', 'RCRA_T', 'RCRA_U']
-        Files = {Acronym: File for File in os.listdir(self._dir_path + '/SRS') for Acronym in Acronyms if Acronym in File}
+        Files = {Acronym: File for File in os.listdir(self._dir_path + '/srs') for Acronym in Acronyms if Acronym in File}
         columns = ['ID', 'Internal Tracking Number']
-        df = pd.read_csv(self._dir_path + '/SRS/' + Files['TRI'], low_memory = False,
+        df = pd.read_csv(self._dir_path + '/srs/' + Files['TRI'], low_memory = False,
                         usecols = ['ID', 'Internal Tracking Number'],
                         converters = {'ID': lambda x: str(int(x)) if re.search('^\d', x) else x},
                         dtype = {'Internal Tracking Number': 'int64'})
@@ -110,7 +110,7 @@ class PCU_DB:
             col = 'HAP'
             if Acronym in Acronyms[2:]:
                 col = 'RCRA'
-            ITN = pd.read_csv(self._dir_path + '/SRS/' + File,
+            ITN = pd.read_csv(self._dir_path + '/srs/' + File,
                             low_memory = False,
                             usecols = ['Internal Tracking Number'],
                             dtype = {'Internal Tracking Number': 'int64'})
@@ -121,7 +121,7 @@ class PCU_DB:
 
 
     def _changin_management_code_for_2004_and_prior(self, x, m_n):
-        Change = pd.read_csv(self._dir_path + '/Ancillary/Methods_TRI.csv',
+        Change = pd.read_csv(self._dir_path + '/../ancillary/Methods_TRI.csv',
                         usecols = ['Code 2004 and prior', 'Code 2005 and after'],
                         low_memory = False)
         if list(x.values).count(None) != m_n:
@@ -136,13 +136,13 @@ class PCU_DB:
 
 
     def organizing(self):
-        dfs = self.calling_TRI_Files()
+        dfs = self.calling_tri_files()
         df = dfs['2b'].where(pd.notnull(dfs['2b']), None)
         if self.Year >= 2005:
             df.drop(columns = df.iloc[:, list(range(18, 71, 13))].columns.tolist(), inplace = True)
         else:
             df.drop(columns = df.iloc[:, list(range(20, 73, 13))].columns.tolist(), inplace = True)
-        df_PCUs = pd.DataFrame()
+        df_PAUs = pd.DataFrame()
         Columns_0 = list(df.iloc[:, 0:8].columns)
         for i in range(5):
             Starting = 8 + 12*i
@@ -152,36 +152,36 @@ class PCU_DB:
             df_aux = df[Columns]
             Columns_to_change = {col: re.sub(r'STREAM [1-5] - ', '', col) for col in Columns_1}
             df_aux.rename(columns = Columns_to_change, inplace =  True)
-            df_PCUs = pd.concat([df_PCUs, df_aux], ignore_index = True,
+            df_PAUs = pd.concat([df_PAUs, df_aux], ignore_index = True,
                                        sort = True, axis = 0)
             del Columns
         del df, df_aux
-        cols =  list(df_PCUs.iloc[:, 9:17].columns)
-        df_PCUs.dropna(subset = cols, how = 'all', axis = 0, inplace = True)
+        cols =  list(df_PAUs.iloc[:, 9:17].columns)
+        df_PAUs.dropna(subset = cols, how = 'all', axis = 0, inplace = True)
         if self.Year <= 2004:
-            df_PCUs.dropna(subset = ['WASTE STREAM CODE', 'RANGE INFLUENT CONCENTRATION', \
+            df_PAUs.dropna(subset = ['WASTE STREAM CODE', 'RANGE INFLUENT CONCENTRATION', \
                         'TREATMENT EFFICIENCY ESTIMATION'], how = 'any', axis = 0, inplace = True)
-            df_PCUs.reset_index(inplace = True, drop = True)
-            df_PCUs['METHOD CODE - 2004 AND PRIOR'] = df_PCUs[cols].apply(lambda x: None if  list(x).count(None) == len(cols) else ' + '.join(xx for xx in x if xx), axis = 1)
-            df_PCUs[cols] = df_PCUs.apply(lambda row: pd.Series(self._changin_management_code_for_2004_and_prior(row[cols], len(cols))),
+            df_PAUs.reset_index(inplace = True, drop = True)
+            df_PAUs['METHOD CODE - 2004 AND PRIOR'] = df_PAUs[cols].apply(lambda x: None if  list(x).count(None) == len(cols) else ' + '.join(xx for xx in x if xx), axis = 1)
+            df_PAUs[cols] = df_PAUs.apply(lambda row: pd.Series(self._changin_management_code_for_2004_and_prior(row[cols], len(cols))),
                                     axis =  1)
-            df_PCUs = df_PCUs.loc[pd.notnull(df_PCUs[cols]).any(axis = 1)]
-            df_PCUs['EFFICIENCY RANGE CODE'] = df_PCUs['TREATMENT EFFICIENCY ESTIMATION']\
+            df_PAUs = df_PAUs.loc[pd.notnull(df_PAUs[cols]).any(axis = 1)]
+            df_PAUs['EFFICIENCY RANGE CODE'] = df_PAUs['TREATMENT EFFICIENCY ESTIMATION']\
                                       .apply(lambda x: self._efficiency_estimation_to_range(float(x)))
-            df_PCUs.rename(columns = {'TREATMENT EFFICIENCY ESTIMATION': 'EFFICIENCY ESTIMATION'}, inplace = True)
-            mask = pd.to_numeric(df_PCUs['RANGE INFLUENT CONCENTRATION'], errors='coerce').notnull()
-            df_PCUs = df_PCUs[mask]
-            df_PCUs['RANGE INFLUENT CONCENTRATION'] = df_PCUs['RANGE INFLUENT CONCENTRATION'].apply(lambda x: abs(int(x)))
+            df_PAUs.rename(columns = {'TREATMENT EFFICIENCY ESTIMATION': 'EFFICIENCY ESTIMATION'}, inplace = True)
+            mask = pd.to_numeric(df_PAUs['RANGE INFLUENT CONCENTRATION'], errors='coerce').notnull()
+            df_PAUs = df_PAUs[mask]
+            df_PAUs['RANGE INFLUENT CONCENTRATION'] = df_PAUs['RANGE INFLUENT CONCENTRATION'].apply(lambda x: abs(int(x)))
         else:
-            df_PCUs.rename(columns = {'TREATMENT EFFICIENCY RANGE CODE': 'EFFICIENCY RANGE CODE'}, inplace = True)
-            df_PCUs.dropna(subset = ['WASTE STREAM CODE', 'EFFICIENCY RANGE CODE'],
+            df_PAUs.rename(columns = {'TREATMENT EFFICIENCY RANGE CODE': 'EFFICIENCY RANGE CODE'}, inplace = True)
+            df_PAUs.dropna(subset = ['WASTE STREAM CODE', 'EFFICIENCY RANGE CODE'],
                             how = 'any', axis = 0, inplace = True)
-        df_PCUs['METHOD CODE - 2005 AND AFTER'] = df_PCUs[cols].apply(lambda x: None if  list(x).count(None) == len(cols) else ' + '.join(xx for xx in x if xx), axis = 1)
-        df_PCUs = df_PCUs.loc[pd.notnull(df_PCUs['METHOD CODE - 2005 AND AFTER'])]
-        df_PCUs['TYPE OF MANAGEMENT'] = 'Treatment'
-        df_PCUs.drop(columns = cols, inplace = True)
-        df_PCUs.reset_index(inplace =  True, drop =  True)
-        df_PCUs.loc[pd.isnull(df_PCUs['BASED ON OPERATING DATA?']), 'BASED ON OPERATING DATA?'] = 'NO'
+        df_PAUs['METHOD CODE - 2005 AND AFTER'] = df_PAUs[cols].apply(lambda x: None if  list(x).count(None) == len(cols) else ' + '.join(xx for xx in x if xx), axis = 1)
+        df_PAUs = df_PAUs.loc[pd.notnull(df_PAUs['METHOD CODE - 2005 AND AFTER'])]
+        df_PAUs['TYPE OF MANAGEMENT'] = 'Treatment'
+        df_PAUs.drop(columns = cols, inplace = True)
+        df_PAUs.reset_index(inplace =  True, drop =  True)
+        df_PAUs.loc[pd.isnull(df_PAUs['BASED ON OPERATING DATA?']), 'BASED ON OPERATING DATA?'] = 'NO'
         try:
             # On-site energy recovery
             df = dfs['1a'].iloc[:, list(range(12))]
@@ -210,7 +210,7 @@ class PCU_DB:
             dfs_energy.rename(columns = {'ON-SITE ENERGY RECOVERY METHOD': 'METHOD CODE - 2005 AND AFTER'},
                             inplace =  True)
             dfs_energy = dfs_energy.loc[pd.notnull(dfs_energy['METHOD CODE - 2005 AND AFTER'])]
-            df_PCUs = pd.concat([df_PCUs, dfs_energy], ignore_index = True,
+            df_PAUs = pd.concat([df_PAUs, dfs_energy], ignore_index = True,
                                    sort = True, axis = 0)
             del dfs_energy
         except ValueError as e:
@@ -243,42 +243,42 @@ class PCU_DB:
             dfs_recycling.rename(columns = {'ON-SITE RECYCLING PROCESSES METHOD': 'METHOD CODE - 2005 AND AFTER'},
                             inplace =  True)
             dfs_recycling = dfs_recycling.loc[pd.notnull(dfs_recycling['METHOD CODE - 2005 AND AFTER'])]
-            df_PCUs = pd.concat([df_PCUs, dfs_recycling], ignore_index = True,
+            df_PAUs = pd.concat([df_PAUs, dfs_recycling], ignore_index = True,
                                    sort = True, axis = 0)
             del dfs_recycling
         except ValueError as e:
             print('{}:\nThere is not information about recycling activities'.format(e))
         # Changing units
-        df_PCUs = df_PCUs.loc[(df_PCUs.iloc[:,0:] != 'INV').all(axis = 1)]
-        df_PCUs.dropna(how = 'all', axis = 0, inplace = True)
+        df_PAUs = df_PAUs.loc[(df_PAUs.iloc[:,0:] != 'INV').all(axis = 1)]
+        df_PAUs.dropna(how = 'all', axis = 0, inplace = True)
         if self.Year >= 2005:
-            Change = pd.read_csv(self._dir_path + '/Ancillary/Methods_TRI.csv',
+            Change = pd.read_csv(self._dir_path + '/../ancillary/Methods_TRI.csv',
                             usecols = ['Code 2004 and prior', 'Code 2005 and after'],
                             low_memory = False)
             Codes_2004 = Change.loc[(pd.notnull(Change['Code 2004 and prior'])) \
                         & (Change['Code 2005 and after'] != Change['Code 2004 and prior']),\
                         'Code 2004 and prior'].unique().tolist()
-            idx = df_PCUs.loc[df_PCUs['METHOD CODE - 2005 AND AFTER'].isin(Codes_2004)].index.tolist()
+            idx = df_PAUs.loc[df_PAUs['METHOD CODE - 2005 AND AFTER'].isin(Codes_2004)].index.tolist()
             del Change, Codes_2004
             if len(idx) != 0:
-                df_PCUs.loc[idx, 'METHOD CODE - 2005 AND AFTER'] = \
-                df_PCUs.loc[idx]\
+                df_PAUs.loc[idx, 'METHOD CODE - 2005 AND AFTER'] = \
+                df_PAUs.loc[idx]\
                             .apply(lambda row: self._changin_management_code_for_2004_and_prior(\
                             pd.Series(row['METHOD CODE - 2005 AND AFTER']),\
                             1),
                             axis = 1)
         # Adding methods name
-        Methods = pd.read_csv(self._dir_path + '/Ancillary/Methods_TRI.csv',
+        Methods = pd.read_csv(self._dir_path + '/../ancillary/Methods_TRI.csv',
                             usecols = ['Code 2004 and prior',
                                     'Method 2004 and prior',
                                     'Code 2005 and after',
                                     'Method 2005 and after'])
         Methods.drop_duplicates(keep =  'first', inplace = True)
         # Adding chemical activities and uses
-        df_PCUs['DOCUMENT CONTROL NUMBER'] = df_PCUs['DOCUMENT CONTROL NUMBER'].apply(lambda x: str(int(float(x))) if self.is_number(x) else x)
+        df_PAUs['DOCUMENT CONTROL NUMBER'] = df_PAUs['DOCUMENT CONTROL NUMBER'].apply(lambda x: str(int(float(x))) if self.is_number(x) else x)
         dfs['1b'].drop_duplicates(keep = 'first', inplace = True)
         dfs['1b']['DOCUMENT CONTROL NUMBER'] = dfs['1b']['DOCUMENT CONTROL NUMBER'].apply(lambda x: str(int(float(x))) if self.is_number(x) else x)
-        df_PCUs = pd.merge(df_PCUs, dfs['1b'], on = ['TRIFID', 'DOCUMENT CONTROL NUMBER', 'CAS NUMBER'],
+        df_PAUs = pd.merge(df_PAUs, dfs['1b'], on = ['TRIFID', 'DOCUMENT CONTROL NUMBER', 'CAS NUMBER'],
                                                how = 'inner')
         columns_DB_F = ['REPORTING YEAR', 'TRIFID', 'PRIMARY NAICS CODE', 'CAS NUMBER',
                          'CHEMICAL NAME', 'METAL INDICATOR', 'CLASSIFICATION',
@@ -299,9 +299,9 @@ class PCU_DB:
                     return ' + '.join(M[xx] for xx in x.split(' + ') if xx and xx and xx in M.keys())
                 else:
                     return None
-            df_PCUs = df_PCUs.loc[df_PCUs['METHOD CODE - 2004 AND PRIOR'].str.contains(r'[A-Z]').where(df_PCUs['METHOD CODE - 2004 AND PRIOR'].str.contains(r'[A-Z]'), False)]
-            df_PCUs['METHOD NAME - 2004 AND PRIOR'] = df_PCUs['METHOD CODE - 2004 AND PRIOR'].apply(lambda x: _checking(x, Method))
-            df_PCUs = df_PCUs.loc[(df_PCUs['METHOD CODE - 2004 AND PRIOR'] != '') | (pd.notnull(df_PCUs['METHOD CODE - 2004 AND PRIOR']))]
+            df_PAUs = df_PAUs.loc[df_PAUs['METHOD CODE - 2004 AND PRIOR'].str.contains(r'[A-Z]').where(df_PAUs['METHOD CODE - 2004 AND PRIOR'].str.contains(r'[A-Z]'), False)]
+            df_PAUs['METHOD NAME - 2004 AND PRIOR'] = df_PAUs['METHOD CODE - 2004 AND PRIOR'].apply(lambda x: _checking(x, Method))
+            df_PAUs = df_PAUs.loc[(df_PAUs['METHOD CODE - 2004 AND PRIOR'] != '') | (pd.notnull(df_PAUs['METHOD CODE - 2004 AND PRIOR']))]
             columns_DB_F = ['REPORTING YEAR', 'TRIFID', 'PRIMARY NAICS CODE', 'CAS NUMBER',
                              'CHEMICAL NAME', 'METAL INDICATOR', 'CLASSIFICATION',
                              'PRODUCE THE CHEMICAL', 'IMPORT THE CHEMICAL', 'ON-SITE USE OF THE CHEMICAL',
@@ -317,20 +317,20 @@ class PCU_DB:
                              'TYPE OF MANAGEMENT', 'EFFICIENCY RANGE CODE', 'EFFICIENCY ESTIMATION',
                              'BASED ON OPERATING DATA?']
         Method = {row.iloc[0]: row.iloc[1] for index, row in Methods[['Code 2005 and after', 'Method 2005 and after']].iterrows()}
-        df_PCUs = df_PCUs.loc[df_PCUs['METHOD CODE - 2005 AND AFTER'].str.contains(r'[A-Z]').where(df_PCUs['METHOD CODE - 2005 AND AFTER'].str.contains(r'[A-Z]'), False)]
-        df_PCUs['METHOD NAME - 2005 AND AFTER'] = df_PCUs['METHOD CODE - 2005 AND AFTER'].apply(lambda x: ' + '.join(Method[xx] for xx in x.split(' + ') if xx and xx in Method.keys()))
+        df_PAUs = df_PAUs.loc[df_PAUs['METHOD CODE - 2005 AND AFTER'].str.contains(r'[A-Z]').where(df_PAUs['METHOD CODE - 2005 AND AFTER'].str.contains(r'[A-Z]'), False)]
+        df_PAUs['METHOD NAME - 2005 AND AFTER'] = df_PAUs['METHOD CODE - 2005 AND AFTER'].apply(lambda x: ' + '.join(Method[xx] for xx in x.split(' + ') if xx and xx in Method.keys()))
         # Saving information
-        df_PCUs['REPORTING YEAR'] = self.Year
-        df_PCUs = df_PCUs[columns_DB_F]
-        df_PCUs.to_csv(self._dir_path + '/Datasets/Intermediate_PCU_datasets/PCUs_DB_' + str(self.Year) + '.csv',
+        df_PAUs['REPORTING YEAR'] = self.Year
+        df_PAUs = df_PAUs[columns_DB_F]
+        df_PAUs.to_csv(self._dir_path + '/datasets/intermediate_pau_datasets/PAUs_DB_' + str(self.Year) + '.csv',
                      sep = ',', index = False)
 
 
     def Building_database_for_statistics(self):
-        columns = pd.read_csv(self._dir_path + '/Ancillary/TRI_File_2b_needed_columns_for_statistics.txt',
+        columns = pd.read_csv(self._dir_path + '/../ancillary/TRI_File_2b_needed_columns_for_statistics.txt',
                              header = None)
         columns =  list(columns.iloc[:,0])
-        df = pd.read_csv(self._dir_path + '/Ancillary/US_2b_' + str(self.Year) + '.csv',
+        df = pd.read_csv(self._dir_path + '/../extract/datasets/US_2b_' + str(self.Year) + '.csv',
                         usecols = columns,
                         low_memory = False)
         df_statistics = pd.DataFrame()
@@ -383,7 +383,7 @@ class PCU_DB:
                                     'RANGE INFLUENT CONCENTRATION': 'CONCENTRATION'},
                             inplace = True)
         df_statistics.loc[df_statistics['INCINERATION'] == 'NO', 'IDEAL'] = None
-        df_statistics.to_csv(self._dir_path + '/Statistics/DB_for_general/DB_for_Statistics_' + str(self.Year) + '.csv',
+        df_statistics.to_csv(self._dir_path + '/statistics/db_for_general/DB_for_Statistics_' + str(self.Year) + '.csv',
                      sep = ',', index = False)
 
 
@@ -414,10 +414,10 @@ class PCU_DB:
                 a = np.empty((8))
                 a[:] = np.nan
                 return a.tolist()
-        columns = pd.read_csv(self._dir_path + '/Ancillary/TRI_File_1a_needed_columns_for_statistics.txt',
+        columns = pd.read_csv(self._dir_path + '/../ancillary/TRI_File_1a_needed_columns_for_statistics.txt',
                              header = None)
         columns =  list(columns.iloc[:,0])
-        df = pd.read_csv(self._dir_path + '/Ancillary/US_1a_' + str(self.Year) + '.csv',
+        df = pd.read_csv(self._dir_path + '/../extract/datasets/US_1a_' + str(self.Year) + '.csv',
                         usecols = columns,
                         low_memory = False)
         elements_total = list(set(df.iloc[:, 5:64].columns.tolist()) - set(['ON-SITE - RECYCLED']))
@@ -452,7 +452,7 @@ class PCU_DB:
                 'IQR', 'MEAN OF EFFICIENCY', 'CV', 'HIGH VARIANCE?', 'METHOD']]
         df.iloc[:, [5, 7, 8, 9, 10, 11, 12, 14, 15, 16]] = \
                 df.iloc[:, [5, 7, 8, 9, 10, 11, 12, 14, 15, 16]].round(4)
-        df.to_csv(self._dir_path + '/Statistics/DB_for_solvents/DB_for_Solvents_' + str(self.Year) + '.csv',
+        df.to_csv(self._dir_path + '/statistics/db_for_solvents/DB_for_Solvents_' + str(self.Year) + '.csv',
                       sep = ',', index = False)
 
 
@@ -691,31 +691,31 @@ class PCU_DB:
 
     def cleaning_database(self):
         # Calling TRI restriction for metals
-        Restrictions = pd.read_csv(self._dir_path + '/Ancillary/Metals_divided_into_4_groups_can_be_reported.csv',
+        Restrictions = pd.read_csv(self._dir_path + '/../ancillary/Metals_divided_into_4_groups_can_be_reported.csv',
                                     low_memory = False,
                                     usecols = ['ID',
                                                "U01, U02, U03 (Energy recovery)",
                                                'H20 (Solvent recovey)'])
         Energy_recovery = Restrictions.loc[Restrictions["U01, U02, U03 (Energy recovery)"] == 'NO', 'ID'].tolist()
         Solvent_recovery = Restrictions.loc[Restrictions['H20 (Solvent recovey)'] == 'NO', 'ID'].tolist()
-        # Calling PCU
-        PCU = pd.read_csv(self._dir_path + '/Datasets/Intermediate_PCU_datasets/PCUs_DB_' + str(self.Year) + '.csv',
+        # Calling PAU
+        PAU = pd.read_csv(self._dir_path + '/datasets/intermediate_pau_datasets/PAUs_DB_' + str(self.Year) + '.csv',
                             low_memory = False,
                             converters = {'CAS NUMBER': lambda x: x if re.search(r'^[A-Z]', x) else str(int(x))})
-        columns_DB_F = PCU.columns.tolist()
-        PCU['PRIMARY NAICS CODE'] = PCU['PRIMARY NAICS CODE'].astype('int')
+        columns_DB_F = PAU.columns.tolist()
+        PAU['PRIMARY NAICS CODE'] = PAU['PRIMARY NAICS CODE'].astype('int')
         if self.Year <= 2004:
             grouping = ['TRIFID', 'METHOD CODE - 2004 AND PRIOR']
-            PCU.sort_values(by = ['PRIMARY NAICS CODE', 'TRIFID',
+            PAU.sort_values(by = ['PRIMARY NAICS CODE', 'TRIFID',
                             'METHOD CODE - 2004 AND PRIOR', 'CAS NUMBER'],
                             inplace = True)
         else:
             grouping = ['TRIFID', 'METHOD CODE - 2005 AND AFTER']
-            PCU.sort_values(by = ['PRIMARY NAICS CODE', 'TRIFID',
+            PAU.sort_values(by = ['PRIMARY NAICS CODE', 'TRIFID',
                             'METHOD CODE - 2005 AND AFTER', 'CAS NUMBER'],
                             inplace = True)
         # Calling database for statistics
-        Statistics = pd.read_csv(self._dir_path + '/Statistics/DB_for_general/DB_for_Statistics_' + str(self.Year) + '.csv',
+        Statistics = pd.read_csv(self._dir_path + '/statistics/db_for_general/DB_for_Statistics_' + str(self.Year) + '.csv',
                                 low_memory = False,
                                 converters = {'CAS': lambda x: x if re.search(r'^[A-Z]', x) else str(int(x))})
         Statistics['NAICS'] = Statistics['NAICS'].astype('int')
@@ -723,16 +723,16 @@ class PCU_DB:
         Statistics.sort_values(by = ['NAICS', 'CAS'], inplace = True)
         # Treatment
         Efficiency_codes = ['E1', 'E2', 'E3', 'E4', 'E5', 'E6']
-        df_N_PCU = PCU.loc[PCU['TYPE OF MANAGEMENT'] == 'Treatment']
-        df_N_PCU = df_N_PCU.loc[df_N_PCU['EFFICIENCY RANGE CODE'].isin(Efficiency_codes)]
+        df_N_PAU = PAU.loc[PAU['TYPE OF MANAGEMENT'] == 'Treatment']
+        df_N_PAU = df_N_PAU.loc[df_N_PAU['EFFICIENCY RANGE CODE'].isin(Efficiency_codes)]
         # Recycling
-        PCU_recycling = PCU.loc[PCU['TYPE OF MANAGEMENT'] == 'Recycling']
-        if not PCU_recycling.empty:
-            PCU_recycling =  PCU_recycling.loc[~ ((PCU_recycling['METHOD CODE - 2005 AND AFTER'] == 'H20') & (PCU_recycling['CAS NUMBER'].isin(Solvent_recovery)))]
-            PCU_recycling.reset_index(inplace = True, drop = True)
-            PCU_recycling['BASED ON OPERATING DATA?'] = 'NO'
+        PAU_recycling = PAU.loc[PAU['TYPE OF MANAGEMENT'] == 'Recycling']
+        if not PAU_recycling.empty:
+            PAU_recycling =  PAU_recycling.loc[~ ((PAU_recycling['METHOD CODE - 2005 AND AFTER'] == 'H20') & (PAU_recycling['CAS NUMBER'].isin(Solvent_recovery)))]
+            PAU_recycling.reset_index(inplace = True, drop = True)
+            PAU_recycling['BASED ON OPERATING DATA?'] = 'NO'
             # Calling database for recycling efficiency
-            Recycling_statistics = pd.read_csv(self._dir_path + '/Statistics/DB_for_solvents/DB_for_Solvents_' + str(self.Year) +  '.csv',
+            Recycling_statistics = pd.read_csv(self._dir_path + '/statistics/db_for_solvents/DB_for_Solvents_' + str(self.Year) +  '.csv',
                                     low_memory = False,
                                     usecols = ['TRIFID', 'PRIMARY NAICS CODE', 'CAS NUMBER', \
                                                'UPPER EFFICIENCY', 'UPPER EFFICIENCY OUTLIER?',
@@ -744,44 +744,44 @@ class PCU_DB:
                                          (Recycling_statistics['HIGH VARIANCE?'] == 'NO')]
             Recycling_statistics.drop(columns = ['UPPER EFFICIENCY OUTLIER?', 'HIGH VARIANCE?'], axis = 1)
             efficiency_estimation = \
-                    PCU_recycling.apply(lambda x: self._recycling_efficiency(x, Recycling_statistics), axis = 1).round(4)
-            PCU_recycling['EFFICIENCY RANGE CODE'] = \
+                    PAU_recycling.apply(lambda x: self._recycling_efficiency(x, Recycling_statistics), axis = 1).round(4)
+            PAU_recycling['EFFICIENCY RANGE CODE'] = \
                             efficiency_estimation.apply(lambda x: self._efficiency_estimation_to_range(x))
-            PCU_recycling = PCU_recycling.loc[pd.notnull(PCU_recycling['EFFICIENCY RANGE CODE'])]
-            PCU_recycling = \
-                     PCU_recycling.apply(lambda x: \
+            PAU_recycling = PAU_recycling.loc[pd.notnull(PAU_recycling['EFFICIENCY RANGE CODE'])]
+            PAU_recycling = \
+                     PAU_recycling.apply(lambda x: \
                      self._phase_estimation_recycling(Statistics, x), axis = 1)
-            PCU_recycling = PCU_recycling.loc[pd.notnull(PCU_recycling['WASTE STREAM CODE'])]
+            PAU_recycling = PAU_recycling.loc[pd.notnull(PAU_recycling['WASTE STREAM CODE'])]
             if self.Year <= 2004:
-                PCU_recycling['EFFICIENCY ESTIMATION'] = efficiency_estimation
-                PCU_recycling['RANGE INFLUENT CONCENTRATION'] = \
-                          PCU_recycling.apply(lambda x: \
+                PAU_recycling['EFFICIENCY ESTIMATION'] = efficiency_estimation
+                PAU_recycling['RANGE INFLUENT CONCENTRATION'] = \
+                          PAU_recycling.apply(lambda x: \
                          self._concentration_estimation_recycling(Statistics, \
                                          x['CAS NUMBER'], \
                                          x['PRIMARY NAICS CODE'],\
                                          x['WASTE STREAM CODE'], \
                                          x['NAICS STRUCTURE']), \
                                          axis = 1)
-            PCU_recycling.drop(columns = ['NAICS STRUCTURE'], inplace = True)
-            df_N_PCU = pd.concat([df_N_PCU, PCU_recycling],
+            PAU_recycling.drop(columns = ['NAICS STRUCTURE'], inplace = True)
+            df_N_PAU = pd.concat([df_N_PAU, PAU_recycling],
                                      ignore_index = True,
                                      sort = True, axis = 0)
         else:
             pass
         # Energy recovery
-        PCU_energy = PCU.loc[PCU['TYPE OF MANAGEMENT'] == 'Energy recovery']
-        if not PCU_energy.empty:
-            PCU_energy =  PCU_energy.loc[~ ((PCU_energy['METHOD CODE - 2005 AND AFTER'].isin(['U01', 'U02', 'U03'])) & (PCU_energy['CAS NUMBER'].isin(Energy_recovery)))]
-            PCU_energy.reset_index(inplace = True, drop = True)
-            PCU_energy['BASED ON OPERATING DATA?'] = 'NO'
-            PCU_energy = \
-                     PCU_energy.apply(lambda x: \
+        PAU_energy = PAU.loc[PAU['TYPE OF MANAGEMENT'] == 'Energy recovery']
+        if not PAU_energy.empty:
+            PAU_energy =  PAU_energy.loc[~ ((PAU_energy['METHOD CODE - 2005 AND AFTER'].isin(['U01', 'U02', 'U03'])) & (PAU_energy['CAS NUMBER'].isin(Energy_recovery)))]
+            PAU_energy.reset_index(inplace = True, drop = True)
+            PAU_energy['BASED ON OPERATING DATA?'] = 'NO'
+            PAU_energy = \
+                     PAU_energy.apply(lambda x: \
                      self._phase_estimation_energy(Statistics, x), axis = 1)
-            PCU_energy = PCU_energy.loc[pd.notnull(PCU_energy['WASTE STREAM CODE'])]
+            PAU_energy = PAU_energy.loc[pd.notnull(PAU_energy['WASTE STREAM CODE'])]
             SRS = self._calling_SRS()
             if self.Year <= 2004:
-                PCU_energy['RANGE INFLUENT CONCENTRATION'] = \
-                         PCU_energy.apply(lambda x: \
+                PAU_energy['RANGE INFLUENT CONCENTRATION'] = \
+                         PAU_energy.apply(lambda x: \
                          self._concentration_estimation_energy(Statistics, \
                                          x['CAS NUMBER'], \
                                          x['PRIMARY NAICS CODE'],\
@@ -789,52 +789,52 @@ class PCU_DB:
                                          x['NAICS STRUCTURE'], \
                                          x['BY MEANS OF INCINERATION']), \
                          axis = 1)
-                PCU_energy.drop(columns = ['BY MEANS OF INCINERATION'], inplace = True)
-                PCU_energy['EFFICIENCY ESTIMATION'] = \
-                        PCU_energy.apply(lambda x: \
+                PAU_energy.drop(columns = ['BY MEANS OF INCINERATION'], inplace = True)
+                PAU_energy['EFFICIENCY ESTIMATION'] = \
+                        PAU_energy.apply(lambda x: \
                         self._energy_efficiency(Statistics, x), axis = 1).round(4)
-                PCU_energy = pd.merge(PCU_energy, SRS, on = 'CAS NUMBER', how = 'left')
-                PCU_energy['EFFICIENCY ESTIMATION'] = PCU_energy.apply(lambda x: \
+                PAU_energy = pd.merge(PAU_energy, SRS, on = 'CAS NUMBER', how = 'left')
+                PAU_energy['EFFICIENCY ESTIMATION'] = PAU_energy.apply(lambda x: \
                                     self._efficiency_estimation_empties_based_on_EPA_regulation(\
                                     x['CLASSIFICATION'], x['HAP'], x['RCRA']) \
                                     if not x['EFFICIENCY ESTIMATION'] else
                                     x['EFFICIENCY ESTIMATION'],
                                     axis =  1)
-                PCU_energy = PCU_energy.loc[pd.notnull(PCU_energy['EFFICIENCY ESTIMATION'])]
-                PCU_energy['EFFICIENCY RANGE CODE'] = PCU_energy['EFFICIENCY ESTIMATION']\
+                PAU_energy = PAU_energy.loc[pd.notnull(PAU_energy['EFFICIENCY ESTIMATION'])]
+                PAU_energy['EFFICIENCY RANGE CODE'] = PAU_energy['EFFICIENCY ESTIMATION']\
                                           .apply(lambda x: self._efficiency_estimation_to_range(float(x)))
             else:
-                PCU_energy.drop(columns = ['BY MEANS OF INCINERATION'], inplace = True)
-                PCU_energy['EFFICIENCY RANGE CODE'] = \
-                        PCU_energy.apply(lambda x: \
+                PAU_energy.drop(columns = ['BY MEANS OF INCINERATION'], inplace = True)
+                PAU_energy['EFFICIENCY RANGE CODE'] = \
+                        PAU_energy.apply(lambda x: \
                         self._energy_efficiency(Statistics, x), axis = 1)
-                PCU_energy = pd.merge(PCU_energy, SRS, on = 'CAS NUMBER', how = 'left')
-                PCU_energy['EFFICIENCY RANGE CODE'] = PCU_energy.apply(lambda x: \
+                PAU_energy = pd.merge(PAU_energy, SRS, on = 'CAS NUMBER', how = 'left')
+                PAU_energy['EFFICIENCY RANGE CODE'] = PAU_energy.apply(lambda x: \
                                     self._efficiency_estimation_empties_based_on_EPA_regulation(\
                                     x['CLASSIFICATION'], x['HAP'], x['RCRA']) \
                                     if not x['EFFICIENCY RANGE CODE'] else
                                     x['EFFICIENCY RANGE CODE'],
                                     axis =  1)
-                PCU_energy = PCU_energy.loc[pd.notnull(PCU_energy['EFFICIENCY RANGE CODE'])]
-            PCU_energy.drop(columns = ['NAICS STRUCTURE', 'HAP', 'RCRA'], inplace = True)
-            PCU_energy.loc[(PCU_energy['WASTE STREAM CODE'] == 'W') & \
-                           (PCU_energy['TYPE OF MANAGEMENT'] == 'Energy recovery'),\
+                PAU_energy = PAU_energy.loc[pd.notnull(PAU_energy['EFFICIENCY RANGE CODE'])]
+            PAU_energy.drop(columns = ['NAICS STRUCTURE', 'HAP', 'RCRA'], inplace = True)
+            PAU_energy.loc[(PAU_energy['WASTE STREAM CODE'] == 'W') & \
+                           (PAU_energy['TYPE OF MANAGEMENT'] == 'Energy recovery'),\
                             'WASTE STREAM CODE'] = 'L'
-            df_N_PCU = pd.concat([df_N_PCU, PCU_energy],
+            df_N_PAU = pd.concat([df_N_PAU, PAU_energy],
                                      ignore_index = True,
                                      sort = True, axis = 0)
         else:
             pass
         Chemicals_to_remove = ['MIXTURE', 'TRD SECRT']
-        df_N_PCU = df_N_PCU.loc[~df_N_PCU['CAS NUMBER'].isin(Chemicals_to_remove)]
-        df_N_PCU['CAS NUMBER'] = df_N_PCU['CAS NUMBER'].apply(lambda x: str(int(x)) if not 'N' in x else x)
-        df_N_PCU = df_N_PCU[columns_DB_F]
-        df_N_PCU.to_csv(self._dir_path + '/Datasets/Final_PCU_datasets/PCUs_DB_filled_' + str(self.Year) + '.csv',
+        df_N_PAU = df_N_PAU.loc[~df_N_PAU['CAS NUMBER'].isin(Chemicals_to_remove)]
+        df_N_PAU['CAS NUMBER'] = df_N_PAU['CAS NUMBER'].apply(lambda x: str(int(x)) if not 'N' in x else x)
+        df_N_PAU = df_N_PAU[columns_DB_F]
+        df_N_PAU.to_csv(self._dir_path + '/datasets/final_pau_datasets/PAUs_DB_filled_' + str(self.Year) + '.csv',
                      sep = ',', index = False)
         # Chemicals and groups
-        Chemicals = df_N_PCU[['CAS NUMBER', 'CHEMICAL NAME']].drop_duplicates(keep = 'first')
+        Chemicals = df_N_PAU[['CAS NUMBER', 'CHEMICAL NAME']].drop_duplicates(keep = 'first')
         Chemicals['TYPE OF CHEMICAL'] = None
-        Path_c = self._dir_path + '/Chemicals/Chemicals.csv'
+        Path_c = self._dir_path + '/chemicals/Chemicals.csv'
         if os.path.exists(Path_c):
             df_c = pd.read_csv(Path_c)
             for index, row in Chemicals.iterrows():
@@ -873,12 +873,12 @@ class PCU_DB:
                 return None
             else:
                 return x[x.first_valid_index()]
-        with open(self._dir_path + '/Ancillary/Flow_columns.yaml', mode='r') as f:
+        with open(self._dir_path + '/../ancillary/Flow_columns.yaml', mode='r') as f:
             dictionary_of_columns = yaml.load(f, Loader=yaml.FullLoader)
         dictionary_of_columns = {key: [el.strip() for el in val['columns'].split(',')] for key, val in dictionary_of_columns['TRI_Files'].items()}
         dfs = dict()
         for file, columns in dictionary_of_columns.items():
-            df = pd.read_csv(self._dir_path + '/Ancillary/US_{}_{}.csv'.format(file, self.Year),
+            df = pd.read_csv(self._dir_path + '/../extract/datasets/US_{}_{}.csv'.format(file, self.Year),
                              usecols=columns,
                              low_memory=False,
                              dtype={'PRIMARY NAICS CODE': 'object'})
@@ -917,41 +917,41 @@ class PCU_DB:
         del dfs, cols_treatment_methods, cols_for_merging
         df_treatment.rename(columns={'ON-SITE - TREATED': 'FLOW'}, inplace=True)
         df_treatment.drop(columns=['DOCUMENT CONTROL NUMBER'], inplace=True)
-        df_PCU_flows = pd.concat([df_treatment, df_recycling, df_energy],
+        df_PAU_flows = pd.concat([df_treatment, df_recycling, df_energy],
                                  ignore_index=True,
                                  sort=True, axis=0)
         del df_treatment, df_recycling, df_energy
         Chemicals_to_remove = ['MIXTURE', 'TRD SECRT']
-        df_PCU_flows = df_PCU_flows.loc[~df_PCU_flows['CAS NUMBER'].isin(Chemicals_to_remove)]
-        df_PCU_flows['CAS NUMBER'] = df_PCU_flows['CAS NUMBER'].apply(lambda x: str(int(x)) if 'N' not in x else x)
-        df_PCU_flows.loc[df_PCU_flows['UNIT OF MEASURE'] == 'Pounds', 'FLOW'] *= 0.453592
-        df_PCU_flows.loc[df_PCU_flows['UNIT OF MEASURE'] == 'Grams', 'FLOW'] *= 10**-3
-        df_PCU_flows['FLOW'] = df_PCU_flows['FLOW'].round(6)
-        df_PCU_flows = df_PCU_flows.loc[df_PCU_flows['FLOW'] != 0.0]
-        df_PCU_flows['UNIT OF MEASURE'] = 'kg'
+        df_PAU_flows = df_PAU_flows.loc[~df_PAU_flows['CAS NUMBER'].isin(Chemicals_to_remove)]
+        df_PAU_flows['CAS NUMBER'] = df_PAU_flows['CAS NUMBER'].apply(lambda x: str(int(x)) if 'N' not in x else x)
+        df_PAU_flows.loc[df_PAU_flows['UNIT OF MEASURE'] == 'Pounds', 'FLOW'] *= 0.453592
+        df_PAU_flows.loc[df_PAU_flows['UNIT OF MEASURE'] == 'Grams', 'FLOW'] *= 10**-3
+        df_PAU_flows['FLOW'] = df_PAU_flows['FLOW'].round(6)
+        df_PAU_flows = df_PAU_flows.loc[df_PAU_flows['FLOW'] != 0.0]
+        df_PAU_flows['UNIT OF MEASURE'] = 'kg'
         # Calling cleaned database
         columns_for_calling = ['TRIFID', 'CAS NUMBER', 'RANGE INFLUENT CONCENTRATION',
                             'METHOD CODE - 2004 AND PRIOR', 'EFFICIENCY ESTIMATION',
                             'PRIMARY NAICS CODE', 'WASTE STREAM CODE', 'TYPE OF MANAGEMENT']
-        df_PCU_cleaned = pd.read_csv(self._dir_path + '/Datasets/Final_PCU_datasets/PCUs_DB_filled_{}.csv'.format(self.Year),
+        df_PAU_cleaned = pd.read_csv(self._dir_path + '/datasets/final_pau_datasets/PAUs_DB_filled_{}.csv'.format(self.Year),
                                      usecols=columns_for_calling,
                                      dtype={'PRIMARY NAICS CODE': 'object'})
-        df_PCU_cleaned.rename(columns={'METHOD CODE - 2004 AND PRIOR': 'METHOD CODE'}, inplace=True)
+        df_PAU_cleaned.rename(columns={'METHOD CODE - 2004 AND PRIOR': 'METHOD CODE'}, inplace=True)
         # Merging
-        df_PCU_flows = pd.merge(df_PCU_flows, df_PCU_cleaned, how = 'inner',
+        df_PAU_flows = pd.merge(df_PAU_flows, df_PAU_cleaned, how = 'inner',
                                 on=['TRIFID', 'CAS NUMBER', 'METHOD CODE'])
-        df_PCU_flows[['RANGE INFLUENT CONCENTRATION', 'EFFICIENCY ESTIMATION', 'FLOW']] = \
-                    df_PCU_flows[['RANGE INFLUENT CONCENTRATION', 'EFFICIENCY ESTIMATION', 'FLOW']]\
+        df_PAU_flows[['RANGE INFLUENT CONCENTRATION', 'EFFICIENCY ESTIMATION', 'FLOW']] = \
+                    df_PAU_flows[['RANGE INFLUENT CONCENTRATION', 'EFFICIENCY ESTIMATION', 'FLOW']]\
                     .applymap(lambda x: abs(x))
-        df_PCU_flows['RANGE INFLUENT CONCENTRATION'] = df_PCU_flows['RANGE INFLUENT CONCENTRATION'].apply(lambda x: str(int(x)))
-        df_PCU_flows[['WASTE FLOW RANGE', 'MIDDLE WASTE FLOW']] = df_PCU_flows.apply(lambda x:
+        df_PAU_flows['RANGE INFLUENT CONCENTRATION'] = df_PAU_flows['RANGE INFLUENT CONCENTRATION'].apply(lambda x: str(int(x)))
+        df_PAU_flows[['WASTE FLOW RANGE', 'MIDDLE WASTE FLOW']] = df_PAU_flows.apply(lambda x:
                             pd.Series(self._Calculating_possible_waste_feed_supply(
                                                         x['FLOW'],
                                                         x['RANGE INFLUENT CONCENTRATION'],
                                                         x['EFFICIENCY ESTIMATION'])),
                             axis = 1)
-        Max_value = df_PCU_flows['MIDDLE WASTE FLOW'].max()
-        Min_value = df_PCU_flows['MIDDLE WASTE FLOW'].min()
+        Max_value = df_PAU_flows['MIDDLE WASTE FLOW'].max()
+        Min_value = df_PAU_flows['MIDDLE WASTE FLOW'].min()
         Order_max = int(math.log10(Max_value)) - 1
         Order_min = math.ceil(math.log10(Min_value))
         Delta = (Order_max - Order_min)/(nbins - 2)
@@ -960,25 +960,25 @@ class PCU_DB:
         Bin_values = Bin_values + [Max_value]
         Bin_values.sort()
         Bin_labels = [str(val) for val in range(1, len(Bin_values))]
-        df_PCU_flows['MIDDLE WASTE FLOW INTERVAL'] = pd.cut(df_PCU_flows['MIDDLE WASTE FLOW'],
+        df_PAU_flows['MIDDLE WASTE FLOW INTERVAL'] = pd.cut(df_PAU_flows['MIDDLE WASTE FLOW'],
                                                          bins = Bin_values)
-        df_PCU_flows['MIDDLE WASTE FLOW INTERVAL CODE'] = pd.cut(df_PCU_flows['MIDDLE WASTE FLOW'],
+        df_PAU_flows['MIDDLE WASTE FLOW INTERVAL CODE'] = pd.cut(df_PAU_flows['MIDDLE WASTE FLOW'],
                                                          bins = Bin_values,
                                                          labels = Bin_labels,
                                                          precision = 0)
-        df_PCU_flows.to_csv(self._dir_path + '/Datasets/Waste_flow/Waste_flow_to_PCUs_{}_{}.csv'.format(self.Year, nbins), sep = ',', index = False)
+        df_PAU_flows.to_csv(self._dir_path + '/datasets/waste_flow/Waste_flow_to_PAUs_{}_{}.csv'.format(self.Year, nbins), sep = ',', index = False)
 
 
     def Organizing_substance_prices(self):
         # Organizing information about prices
-        df_scifinder = pd.read_csv(self._dir_path + '/SciFinder/Chemical_Price.csv',
+        df_scifinder = pd.read_csv(self._dir_path + '/scifinder/Chemical_Price.csv',
                                 dtype = {'CAS NUMBER': 'object'})
         df_scifinder = df_scifinder.loc[\
                             (pd.notnull(df_scifinder['PRICE'])) & \
                             (df_scifinder['PRICE'] != 'Not found')]
         df_scifinder
-        File_exchange = [file for file in os.listdir(self._dir_path + '/SciFinder') if 'Exchange' in file]
-        df_exchange_rate = pd.read_csv(self._dir_path + '/SciFinder/{}'.format(File_exchange[0]))
+        File_exchange = [file for file in os.listdir(self._dir_path + '/scifinder') if 'Exchange' in file]
+        df_exchange_rate = pd.read_csv(self._dir_path + '/scifinder/{}'.format(File_exchange[0]))
         Exchange_rate = {row['CURRENCY']:row['EXCHANGE RATE TO USD'] for idx, row in df_exchange_rate.iterrows()}
         del df_exchange_rate
         df_scifinder['PRICE'] = df_scifinder.apply(lambda x: \
@@ -1007,30 +1007,30 @@ class PCU_DB:
                                     'QUANTITY', 'PRICE'],
                         inplace = True)
         df_scifinder = df_scifinder.groupby('CAS NUMBER', as_index=False).min()
-        # Calling PCU
-        df_PCU = pd.read_csv(self._dir_path + '/Datasets/Final_PCU_datasets/PCUs_DB_filled_{}.csv'.format(self.Year),
+        # Calling PAU
+        df_PAU = pd.read_csv(self._dir_path + '/datasets/final_pau_datasets/PAUs_DB_filled_{}.csv'.format(self.Year),
                             usecols=['TRIFID', 'CAS NUMBER', 'METHOD CODE - 2004 AND PRIOR'])
-        df_PCU = df_PCU[~df_PCU['METHOD CODE - 2004 AND PRIOR'].str.contains('\+')]
+        df_PAU = df_PAU[~df_PAU['METHOD CODE - 2004 AND PRIOR'].str.contains('\+')]
         # Separating categories and chemicals
-        categories = pd.read_csv(self._dir_path + '/Chemicals/Chemicals_in_categories.csv',
+        categories = pd.read_csv(self._dir_path + '/chemicals/Chemicals_in_categories.csv',
                             usecols = ['CAS NUMBER', 'CATEGORY CODE'])
         categories['CAS NUMBER'] = categories['CAS NUMBER'].str.replace('-', '')
-        chemicals = pd.read_csv(self._dir_path + '/Chemicals/Chemicals.csv',
+        chemicals = pd.read_csv(self._dir_path + '/chemicals/Chemicals.csv',
                                 usecols = ['CAS NUMBER'])
         chemicals = chemicals.loc[~chemicals['CAS NUMBER']\
                         .isin(list(categories['CATEGORY CODE'].unique())),\
                         'CAS NUMBER'].tolist()
-        df_PCU_chemicals = df_PCU.loc[df_PCU['CAS NUMBER'].isin(chemicals)]
-        df_PCU_categories = df_PCU.loc[~df_PCU['CAS NUMBER'].isin(chemicals)]
-        df_PCU_categories.rename(columns = {'CAS NUMBER': 'CATEGORY CODE'},
+        df_PAU_chemicals = df_PAU.loc[df_PAU['CAS NUMBER'].isin(chemicals)]
+        df_PAU_categories = df_PAU.loc[~df_PAU['CAS NUMBER'].isin(chemicals)]
+        df_PAU_categories.rename(columns = {'CAS NUMBER': 'CATEGORY CODE'},
                                 inplace = True)
-        del chemicals, df_PCU
+        del chemicals, df_PAU
         # Merging prices with chemicals
-        df_PCU_chemicals = pd.merge(df_PCU_chemicals, df_scifinder,
+        df_PAU_chemicals = pd.merge(df_PAU_chemicals, df_scifinder,
                                     how = 'inner',
                                     on = 'CAS NUMBER')
         # Calling CDR
-        df_CDR = pd.read_csv(self._dir_path +  '/CDR/Substances_by_facilities.csv',
+        df_CDR = pd.read_csv(self._dir_path +  '/cdr/Substances_by_facilities.csv',
                             usecols = ['STRIPPED_CHEMICAL_ID_NUMBER',
                                         'PGM_SYS_ID'],
                             dtype = {'STRIPPED_CHEMICAL_ID_NUMBER': 'object'}            )
@@ -1039,46 +1039,46 @@ class PCU_DB:
                      inplace = True)
         df_CDR = pd.merge(df_CDR, categories, on = 'CAS NUMBER',
                         how = 'inner')
-        df_PCU_categories = pd.merge(df_PCU_categories, df_CDR,
+        df_PAU_categories = pd.merge(df_PAU_categories, df_CDR,
                         on = ['CATEGORY CODE', 'TRIFID'],
                         how = 'inner')
         # Merging prices with categories
-        df_PCU_categories = pd.merge(df_PCU_categories, df_scifinder,
+        df_PAU_categories = pd.merge(df_PAU_categories, df_scifinder,
                                     how = 'inner',
                                     on = 'CAS NUMBER')
-        df_PCU_categories.drop(columns = ['CATEGORY CODE'],
+        df_PAU_categories.drop(columns = ['CATEGORY CODE'],
                             inplace = True)
-        df_PCU = pd.concat([df_PCU_categories, df_PCU_chemicals],
+        df_PAU = pd.concat([df_PAU_categories, df_PAU_chemicals],
                             ignore_index = True,
                             sort = True, axis = 0)
-        df_PCU.to_csv(self._dir_path + '/Datasets/Chemical_price/Chemical_price_vs_PCU_{}.csv'.format(self.Year),
+        df_PAU.to_csv(self._dir_path + '/datasets/chemical_price/Chemical_price_vs_PAU_{}.csv'.format(self.Year),
                     sep = ',', index = False)
 
 
     def pollution_abatement_cost_and_expenditure(self):
-        # Calling PCU
-        df_PCU = pd.read_csv(self._dir_path + '/Datasets/Waste_flow/Waste_flow_to_PCUs_2004_10.csv',
+        # Calling PAU
+        df_PAU = pd.read_csv(self._dir_path + '/datasets/waste_flow/Waste_flow_to_PAUs_2004_10.csv',
                          low_memory = False,
                          usecols = ['PRIMARY NAICS CODE', 'WASTE STREAM CODE',
                                 'TYPE OF MANAGEMENT', 'METHOD CODE', 'TRIFID',
                                 'MIDDLE WASTE FLOW'],
                          dtype = {'PRIMARY NAICS CODE': 'object'})
-        df_PCU['FLOW'] = df_PCU.groupby(['TRIFID', 'METHOD CODE'])['MIDDLE WASTE FLOW'].transform('median')
-        df_PCU.drop(columns = ['TRIFID', 'METHOD CODE', 'MIDDLE WASTE FLOW'], inplace = True)
-        df_PCU.drop_duplicates(keep = 'first', inplace = True)
-        df_PCU = df_PCU.groupby(['PRIMARY NAICS CODE', 'TYPE OF MANAGEMENT',
+        df_PAU['FLOW'] = df_PAU.groupby(['TRIFID', 'METHOD CODE'])['MIDDLE WASTE FLOW'].transform('median')
+        df_PAU.drop(columns = ['TRIFID', 'METHOD CODE', 'MIDDLE WASTE FLOW'], inplace = True)
+        df_PAU.drop_duplicates(keep = 'first', inplace = True)
+        df_PAU = df_PAU.groupby(['PRIMARY NAICS CODE', 'TYPE OF MANAGEMENT',
                                'WASTE STREAM CODE'], as_index = False)\
                                  .agg({'FLOW': ['mean', 'std']})
-        df_PCU = pd.DataFrame.from_records(df_PCU.values, columns = ['NAICS code','Activity', 'Media', 'Mean flow','SD flow'])
-        df_PCU.drop_duplicates(keep = 'first', inplace = True)
-        df_PCU = df_PCU[df_PCU['NAICS code'].str.contains(r'^3[123]')]
-        df_PCU['SD flow'] = df_PCU['SD flow'].fillna(df_PCU['Mean flow']*0.001) # Imputing coefficient of variation (<= 1)
+        df_PAU = pd.DataFrame.from_records(df_PAU.values, columns = ['NAICS code','Activity', 'Media', 'Mean flow','SD flow'])
+        df_PAU.drop_duplicates(keep = 'first', inplace = True)
+        df_PAU = df_PAU[df_PAU['NAICS code'].str.contains(r'^3[123]')]
+        df_PAU['SD flow'] = df_PAU['SD flow'].fillna(df_PAU['Mean flow']*0.001) # Imputing coefficient of variation (<= 1)
         # Method of moments
-        df_PCU['mu'] = df_PCU[['Mean flow', 'SD flow']].apply(lambda x: np.log(x.values[0]**2/(x.values[1]**2 + x.values[0]**2)**0.5) ,
+        df_PAU['mu'] = df_PAU[['Mean flow', 'SD flow']].apply(lambda x: np.log(x.values[0]**2/(x.values[1]**2 + x.values[0]**2)**0.5) ,
                                                       axis = 1)
-        df_PCU['theta_2'] = df_PCU[['Mean flow', 'SD flow']].apply(lambda x: np.log(x.values[1]**2/x.values[0]**2 + 1) ,
+        df_PAU['theta_2'] = df_PAU[['Mean flow', 'SD flow']].apply(lambda x: np.log(x.values[1]**2/x.values[0]**2 + 1) ,
                                                          axis = 1)
-        df_PCU_correlation = pd.read_csv(self._dir_path + '/Ancillary/US_1a_2004.csv',
+        df_PAU_correlation = pd.read_csv(self._dir_path + '/../extract/datasets/US_1a_2004.csv',
                             low_memory = False,
                             usecols = ['TRIFID', 'PRIMARY NAICS CODE', 'UNIT OF MEASURE',\
                                        'OFF-SITE - TOTAL TRANSFERRED FOR RECYCLING',\
@@ -1091,39 +1091,39 @@ class PCU_DB:
                         'OFF-SITE - TOTAL TRANSFERRED FOR TREATMENT',
                         'ON-SITE - RECYCLED', 'ON-SITE - ENERGY RECOVERY',\
                         'ON-SITE - TREATED']
-        df_PCU_correlation.loc[df_PCU_correlation['UNIT OF MEASURE'] == 'Pounds', Flow_columns] *= 0.453592
-        df_PCU_correlation.loc[df_PCU_correlation['UNIT OF MEASURE'] == 'Grams', Flow_columns] *= 10**-3
-        df_PCU_correlation['TREATMENT'] = df_PCU_correlation[['OFF-SITE - TOTAL TRANSFERRED FOR TREATMENT',
+        df_PAU_correlation.loc[df_PAU_correlation['UNIT OF MEASURE'] == 'Pounds', Flow_columns] *= 0.453592
+        df_PAU_correlation.loc[df_PAU_correlation['UNIT OF MEASURE'] == 'Grams', Flow_columns] *= 10**-3
+        df_PAU_correlation['TREATMENT'] = df_PAU_correlation[['OFF-SITE - TOTAL TRANSFERRED FOR TREATMENT',
                                       'ON-SITE - TREATED']].sum(axis = 1)
-        df_PCU_correlation['RECYCLING'] = df_PCU_correlation[['OFF-SITE - TOTAL TRANSFERRED FOR RECYCLING',
+        df_PAU_correlation['RECYCLING'] = df_PAU_correlation[['OFF-SITE - TOTAL TRANSFERRED FOR RECYCLING',
                                       'ON-SITE - RECYCLED']].sum(axis = 1)
-        df_PCU_correlation['ENERGY RECOVERY'] = df_PCU_correlation[['OFF-SITE - TOTAL TRANSFERRED FOR ENERGY RECOVERY',
+        df_PAU_correlation['ENERGY RECOVERY'] = df_PAU_correlation[['OFF-SITE - TOTAL TRANSFERRED FOR ENERGY RECOVERY',
                                       'ON-SITE - ENERGY RECOVERY']].sum(axis = 1)
-        df_PCU_correlation.drop(columns = ['UNIT OF MEASURE',\
+        df_PAU_correlation.drop(columns = ['UNIT OF MEASURE',\
                    'OFF-SITE - TOTAL TRANSFERRED FOR RECYCLING',\
                    'OFF-SITE - TOTAL TRANSFERRED FOR ENERGY RECOVERY',\
                    'OFF-SITE - TOTAL TRANSFERRED FOR TREATMENT'], inplace = True)
-        df_PCU_correlation = df_PCU_correlation.groupby(['TRIFID', 'PRIMARY NAICS CODE'], as_index = False).sum()
-        df_PCU_correlation.drop(columns = ['TRIFID'], inplace = True)
-        df_PCU_correlation = df_PCU_correlation.groupby(['PRIMARY NAICS CODE'], as_index = False).sum()
+        df_PAU_correlation = df_PAU_correlation.groupby(['TRIFID', 'PRIMARY NAICS CODE'], as_index = False).sum()
+        df_PAU_correlation.drop(columns = ['TRIFID'], inplace = True)
+        df_PAU_correlation = df_PAU_correlation.groupby(['PRIMARY NAICS CODE'], as_index = False).sum()
         managements = {'TREATMENT':'TREATED',
                        'RECYCLING':'RECYCLED',
                        'ENERGY RECOVERY':'ENERGY RECOVERY'}
-        df_PCU_to_merge = pd.DataFrame()
+        df_PAU_to_merge = pd.DataFrame()
         for management, on_site in managements.items():
-            df_PCU_aux = pd.DataFrame()
-            df_PCU_aux['NAICS code'] = df_PCU_correlation['PRIMARY NAICS CODE'].apply(lambda x: str(int(float(x))))
-            df_PCU_aux['% On-site flow'] = df_PCU_correlation['ON-SITE - ' + on_site]*100/\
-                                            df_PCU_correlation[management]
-            df_PCU_aux['Activity'] = management.capitalize()
-            df_PCU_to_merge = pd.concat([df_PCU_to_merge, df_PCU_aux], ignore_index = True,
+            df_PAU_aux = pd.DataFrame()
+            df_PAU_aux['NAICS code'] = df_PAU_correlation['PRIMARY NAICS CODE'].apply(lambda x: str(int(float(x))))
+            df_PAU_aux['% On-site flow'] = df_PAU_correlation['ON-SITE - ' + on_site]*100/\
+                                            df_PAU_correlation[management]
+            df_PAU_aux['Activity'] = management.capitalize()
+            df_PAU_to_merge = pd.concat([df_PAU_to_merge, df_PAU_aux], ignore_index = True,
                                        sort = True, axis = 0 )
-        df_PCU_correlation = df_PCU_to_merge.copy()
-        df_PCU = pd.merge(df_PCU, df_PCU_correlation, how = 'left', on = ['Activity', 'NAICS code'])
-        df_PCU.loc[df_PCU['% On-site flow'].isnull(), '% On-site flow'] = 0.0
-        del df_PCU_aux, df_PCU_to_merge, df_PCU_correlation
+        df_PAU_correlation = df_PAU_to_merge.copy()
+        df_PAU = pd.merge(df_PAU, df_PAU_correlation, how = 'left', on = ['Activity', 'NAICS code'])
+        df_PAU.loc[df_PAU['% On-site flow'].isnull(), '% On-site flow'] = 0.0
+        del df_PAU_aux, df_PAU_to_merge, df_PAU_correlation
         # U.S. Pollution Abatement Operating Costs - Survey 2005
-        df_PAOC = pd.read_csv(self._dir_path + '/US_Census_Bureau/Pollution_Abatement_Operating_Costs_2005.csv',
+        df_PAOC = pd.read_csv(self._dir_path + '/us_census_bureau/Pollution_Abatement_Operating_Costs_2005.csv',
                         low_memory = False, header = None, skiprows = [0,1],
                         usecols = [0, 2, 3, 4, 5, 6, 7, 8, 9, 10],
                         names = ['NAICS code', 'Total PAOC', 'Activity - treatment',
@@ -1142,7 +1142,7 @@ class PCU_DB:
         col_medias = [col for col in df_PAOC.columns if 'Media' in col]
         df_PAOC[col_medias] = df_PAOC[col_medias].div(df_PAOC[col_medias].sum(axis = 1), axis = 0)
         # U.S. Pollution Abatement Capital Expenditures - Survey 2005
-        df_PACE = pd.read_csv(self._dir_path + '/US_Census_Bureau/Pollution_Abatement_Capital_Expenditures_2005.csv',
+        df_PACE = pd.read_csv(self._dir_path + '/us_census_bureau/Pollution_Abatement_Capital_Expenditures_2005.csv',
                         low_memory = False, header = None, skiprows = [0,1],
                         usecols = [0, 2, 3, 4, 5, 6, 7, 8, 9, 10],
                         names = ['NAICS code', 'Total PACE', 'Activity - treatment',
@@ -1265,10 +1265,10 @@ class PCU_DB:
                                             'Establishments (employees >= 20)'],\
                                 inplace = True)
         # Joining census with TRI
-        df_PACE = pd.merge(df_PACE_for_merging, df_PCU,
+        df_PACE = pd.merge(df_PACE_for_merging, df_PAU,
                             on = ['NAICS code', 'Media', 'Activity'],
                             how = 'inner')
-        df_PAOC = pd.merge(df_PAOC_for_merging, df_PCU,
+        df_PAOC = pd.merge(df_PAOC_for_merging, df_PAU,
                             on = ['NAICS code', 'Media', 'Activity'],
                             how = 'inner')
         idx = df_PACE.loc[(df_PACE[['P-media', 'P-activity']].isnull()).all(axis = 1)].index.tolist()
@@ -1360,7 +1360,7 @@ class PCU_DB:
                 'Shipment/mass', 'Mean PAOC', \
                 'SD PAOC', 'CI at 95% for Mean PAOC','Unit']
         df_PAOC = df_PAOC[cols]
-        df_PAOC.to_csv(self._dir_path + '/Datasets/PCU_expenditure_and_cost/PAOC.csv', sep = ',', index = False)
+        df_PAOC.to_csv(self._dir_path + '/datasets/pau_expenditure_and_cost/PAOC.csv', sep = ',', index = False)
         cols = ['NAICS code', 'Activity', 'Media', \
                 'Probable establishments by activity & media', \
                 'Probable mass by activity & media',\
@@ -1369,13 +1369,13 @@ class PCU_DB:
                 'Shipment/mass', 'Mean PACE', \
                 'SD PACE', 'CI at 95% for Mean PACE','Unit']
         df_PACE = df_PACE[cols]
-        df_PACE.to_csv(self._dir_path + '/Datasets/PCU_expenditure_and_cost/PACE.csv', sep = ',', index = False)
+        df_PACE.to_csv(self._dir_path + '/datasets/pau_expenditure_and_cost/PACE.csv', sep = ',', index = False)
 
 
     def Pollution_control_unit_position(self):
         df_tri =  pd.DataFrame()
         for Year in range(1987, 2005):
-            df_tri_aux = pd.read_csv(self._dir_path + '/Datasets/Intermediate_PCU_datasets/PCUs_DB_{}.csv'.format(Year),
+            df_tri_aux = pd.read_csv(self._dir_path + '/datasets/intermediate_pau_datasets/PAUs_DB_{}.csv'.format(Year),
                                     usecols =['REPORTING YEAR', 'TRIFID', 'METHOD CODE - 2004 AND PRIOR'])
             df_tri_aux.drop_duplicates(keep = 'first', inplace = True)
             df_tri_aux.drop(columns = ['REPORTING YEAR'], inplace = True)
@@ -1388,23 +1388,23 @@ class PCU_DB:
         List_first = list()
         List_second = list()
         for idx, row in df_tri.iterrows():
-            List_PCUs = row['METHOD CODE - 2004 AND PRIOR'].split(' + ')
-            n = len(List_PCUs) - 1
+            List_PAUs = row['METHOD CODE - 2004 AND PRIOR'].split(' + ')
+            n = len(List_PAUs) - 1
             count = 0
             while count < n:
-                List_first.append(List_PCUs[count])
-                List_second.append(List_PCUs[count + 1])
+                List_first.append(List_PAUs[count])
+                List_second.append(List_PAUs[count + 1])
                 count = count + 1
         df_position =  pd.DataFrame({'First': List_first,\
                                   'Second': List_second})
         df_position.drop_duplicates(keep = 'first', inplace = True)
-        df_position.to_csv(self._dir_path + '/Datasets/PCU_positions/Positions.csv', sep = ',', index = False)
+        df_position.to_csv(self._dir_path + '/datasets/pau_positions/Positions.csv', sep = ',', index = False)
 
 
     def Searching_information_for_years_after_2004(self):
         df_tri_older = pd.DataFrame()
         for year in range(1987, 2005):
-            df_tri_older_aux = pd.read_csv(f'{self._dir_path }/Datasets/Final_PCU_datasets/PCUs_DB_filled_{year}.csv',
+            df_tri_older_aux = pd.read_csv(f'{self._dir_path }/datasets/final_pau_datasets/PAUs_DB_filled_{year}.csv',
                                            usecols=['TRIFID',
                                                     'CAS NUMBER',
                                                     'WASTE STREAM CODE',
@@ -1418,36 +1418,37 @@ class PCU_DB:
                                        sort=True, axis=0)
             del df_tri_older_aux
         df_tri_older.drop_duplicates(keep='first', inplace=True)
-        df_PCU = pd.read_csv(f'{self._dir_path }/Datasets/Final_PCU_datasets/PCUs_DB_filled_{self.Year}.csv',
+        df_PAU = pd.read_csv(f'{self._dir_path }/datasets/final_pau_datasets/PAUs_DB_filled_{self.Year}.csv',
                              low_memory=False)
-        columns = df_PCU.columns.tolist()
-        df_PCU.drop_duplicates(keep='first', inplace=True)
-        df_PCU = pd.merge(df_PCU, df_tri_older, how='left',
+        columns = df_PAU.columns.tolist()
+        df_PAU.drop_duplicates(keep='first', inplace=True)
+        df_PAU = pd.merge(df_PAU, df_tri_older, how='left',
                           on=['TRIFID',
                               'CAS NUMBER',
                               'WASTE STREAM CODE',
                               'METHOD CODE - 2005 AND AFTER'])
         del df_tri_older
-        df_PCU.drop_duplicates(keep='first', subset=columns, inplace=True)
-        df_PCU['EQUAL RANGE'] = df_PCU[['EFFICIENCY RANGE CODE',
+        print(df_PAU.info())
+        df_PAU.drop_duplicates(keep='first', subset=columns, inplace=True)
+        df_PAU['EQUAL RANGE'] = df_PAU[['EFFICIENCY RANGE CODE',
                                         'EFFICIENCY ESTIMATION']]\
                                         .apply(lambda x: x.values[0] == self._efficiency_estimation_to_range(x.values[1])
                                                         if x.values[1]
                                                         else True,
                                                axis=1)
-        idx = df_PCU.loc[((df_PCU['EQUAL RANGE'] == False) & (pd.notnull(df_PCU['EFFICIENCY ESTIMATION'])))].index.tolist()
-        df_PCU.drop(columns=['EQUAL RANGE'], inplace=True)
-        df_PCU_aux = df_PCU.loc[idx]
-        df_PCU_aux.drop(columns=['METHOD CODE - 2004 AND PRIOR',
+        idx = df_PAU.loc[((df_PAU['EQUAL RANGE'] == False) & (pd.notnull(df_PAU['EFFICIENCY ESTIMATION'])))].index.tolist()
+        df_PAU.drop(columns=['EQUAL RANGE'], inplace=True)
+        df_PAU_aux = df_PAU.loc[idx]
+        df_PAU_aux.drop(columns=['METHOD CODE - 2004 AND PRIOR',
                                  'METHOD NAME - 2004 AND PRIOR',
                                  'RANGE INFLUENT CONCENTRATION',
                                  'EFFICIENCY ESTIMATION'],
                         inplace=True)
-        df_PCU.drop(idx, inplace=True)
-        df_PCU = pd.concat([df_PCU, df_PCU_aux], ignore_index=True,
+        df_PAU.drop(idx, inplace=True)
+        df_PAU = pd.concat([df_PAU, df_PAU_aux], ignore_index=True,
                                    sort=True, axis=0)
-        del df_PCU_aux
-        df_PCU.to_csv(f'{self._dir_path }/Datasets/Final_PCU_datasets/PCUs_DB_filled_{self.Year}.csv',
+        del df_PAU_aux
+        df_PAU.to_csv(f'{self._dir_path }/datasets/final_pau_datasets/PAUs_DB_filled_{self.Year}.csv',
                       sep=',', index=False)
 
 if __name__ == '__main__':
@@ -1468,7 +1469,7 @@ if __name__ == '__main__':
                         type = str)
 
     parser.add_argument('-Y', '--Year', nargs='+',
-                        help='Records with up to how many PCUs you want to include?.',
+                        help='Records with up to how many PAUs you want to include?.',
                         type=str,
                         required=False,
                         default=[2018])
@@ -1483,7 +1484,7 @@ if __name__ == '__main__':
     start_time = time.time()
 
     for Year in args.Year:
-        Building = PCU_DB(int(Year))
+        Building = PAU_DB(int(Year))
         if args.Option == 'A':
             Building.organizing()
         elif args.Option == 'B':

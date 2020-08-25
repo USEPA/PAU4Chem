@@ -2,13 +2,13 @@ import pandas as pd
 import numpy as np
 from scipy.stats import lognorm
 import os, bisect
-from Building_PCUs_DB import *
+from building_pau_db import *
 import re
 
 def Calling_US_census(dir_path):
     # 2008 Annual Survey of Manufactures (ASM):
     # Link: https://www.census.gov/data/tables/2008/econ/asm/2008-asm.html
-    path_ASM_2008 = dir_path + '/US_Census_Bureau/ASM_2008.xlsx'
+    path_ASM_2008 = dir_path + '/us_census_bureau/ASM_2008.xlsx'
     df_ASM_2008 = pd.read_excel(path_ASM_2008, sheet_name = 'ASM_2008',
                         usecols = ['NAICS code',
                                 'Year', 'Total value of shipments ($1,000)',
@@ -19,7 +19,7 @@ def Calling_US_census(dir_path):
     df_ASM_2008['NAICS code'] = df_ASM_2008['NAICS code'].apply(lambda x: str(x).strip())
     # 2008 SUSB Annual Datasets by Establishment Industry
     # Link: https://www.census.gov/data/datasets/2008/econ/susb/2008-susb.html
-    path_SUSB_2008 =  dir_path + '/US_Census_Bureau/SUSB_2008.csv'
+    path_SUSB_2008 =  dir_path + '/us_census_bureau/SUSB_2008.csv'
     df_SUSB_2008 = pd.read_csv(path_SUSB_2008, usecols = ['NAICS code', 'ESTB', 'ENTRSIZEDSCR'],
                        dtype = {'NAICS code': 'object'})
     df_SUSB_2008['NAICS code'] = df_SUSB_2008['NAICS code'].apply(lambda x: str(x).strip())
@@ -51,8 +51,8 @@ def Probability_establishments_within_cluster(naics, establishment, df):
                 'NAICS Industry': 5}
     df_interest = df.loc[df['NAICS code'] == naics]
     if df_interest.empty:
-        PCU_class = PCU_DB(2008)
-        df['NAICS structure'] = df['NAICS code'].apply(lambda x: PCU_class._searching_naics(x, naics))
+        PAU_class = PAU_DB(2008)
+        df['NAICS structure'] = df['NAICS code'].apply(lambda x: PAU_class._searching_naics(x, naics))
         df['NAICS structure'] = df['NAICS structure'].map(values)
         Max =  df['NAICS structure'].max()
         df_interest = df[df['NAICS structure'] == Max]
@@ -81,8 +81,8 @@ def Probability_cluster_being_sampled(naics, establishment, total_establishments
                 'NAICS Industry': 5}
     df_interest = df_tri.loc[df_tri['NAICS code'] == naics]
     if df_interest.empty:
-        PCU_class = PCU_DB(2008)
-        df_tri['NAICS structure'] = df_tri['NAICS code'].apply(lambda x: PCU_class._searching_naics(x, naics))
+        PAU_class = PAU_DB(2008)
+        df_tri['NAICS structure'] = df_tri['NAICS code'].apply(lambda x: PAU_class._searching_naics(x, naics))
         df_tri['NAICS structure'] = df_tri['NAICS structure'].map(values)
         Max =  df_tri['NAICS structure'].max()
         df_interest = df_tri[df_tri['NAICS structure'] == Max]
@@ -106,7 +106,7 @@ def calling_TRI_for_prioritization_sectors(dir_path):
                'ON-SITE - TOTAL LAND RELEASES',
                'PRIMARY NAICS CODE',
                'TRIFID', 'UNIT OF MEASURE']
-    df_TRI_1994 = pd.read_csv(dir_path + '/Ancillary/US_1a_1994.csv',
+    df_TRI_1994 = pd.read_csv(dir_path + '/../extract/datasets/US_1a_1994.csv',
                                 low_memory = False, usecols =  Columns,
                                 dtype = {'PRIMARY NAICS CODE': 'object'})
     df_TRI_1994 = df_TRI_1994[df_TRI_1994['PRIMARY NAICS CODE'].str.contains(r'^3[123]', na = False)]
@@ -140,7 +140,7 @@ def calling_TRI_for_prioritization_sectors(dir_path):
 
 
 def Organizing_sample(n_sampled_establishments, dir_path):
-    sampled_clusters = pd.read_csv(dir_path + '/US_Census_Bureau/Selected_clusters_2005.txt',
+    sampled_clusters = pd.read_csv(dir_path + '/us_census_bureau/Selected_clusters_2005.txt',
                                    header=None, index_col=False)
     sampled_clusters = [str(val) for val in sampled_clusters.iloc[:, 0]]
     n_sampled_clusters = len(sampled_clusters)
@@ -149,7 +149,7 @@ def Organizing_sample(n_sampled_establishments, dir_path):
     #       2. The PAOC and PACE are on establishments
     #       3. The industry sectors surveyed were NAICS codes 31-33
     # Source: https://www.census.gov/prod/2008pubs/ma200-05.pdf
-    df_SUSB_2005 = pd.read_csv(dir_path + '/US_Census_Bureau/Statistics_of_US_businesses_2004.csv',
+    df_SUSB_2005 = pd.read_csv(dir_path + '/us_census_bureau/Statistics_of_US_businesses_2004.csv',
                                low_memory=False, header=None,
                                usecols=[1, 4, 11],
                                names=['NAICS code', 'Establishments (employees >= 20)', 'Employment size'])
@@ -247,8 +247,8 @@ def searching_census(naics, media, activity, df):
              'Industry Group': 4,
              'NAICS Industry': 5}
     df = df.loc[df['NAICS code'].apply(lambda x: True if len(x) <= 5 else False)]
-    PCU_class = PCU_DB(2008)
-    df['NAICS structure'] = df['NAICS code'].apply(lambda x: PCU_class._searching_naics(x, naics))
+    PAU_class = PAU_DB(2008)
+    df['NAICS structure'] = df['NAICS code'].apply(lambda x: PAU_class._searching_naics(x, naics))
     df['NAICS structure'] = df['NAICS structure'].map(values)
     Max =  df['NAICS structure'].max()
     if Max == 2:
@@ -377,4 +377,4 @@ def normalizing_shipments(df):
 if __name__ == '__main__':
     dir_path = os.path.dirname(os.path.realpath(__file__))
     df_result = Organizing_sample(20378, dir_path)
-    df_result.to_csv(dir_path + '/US_Census_Bureau/Sampled_establishments.csv', index = False)
+    df_result.to_csv(dir_path + '/us_census_bureau/Sampled_establishments.csv', index = False)
