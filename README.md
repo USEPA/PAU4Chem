@@ -46,3 +46,15 @@ optional arguments:
                         Records with up to how many PAUs you want to include?.
   -N_Bins N_BINS        Number of bins to split the middle waste flow values
 ```
+
+The argument N_Bins is only used for running the option E that is for obtaining the waste input flows. Please, consider the information for the years provided for each option. For example, option E only works for year from 1987 to 2004. Execute each step starting with A and finishing with G. Additionally, start using the year 1987 and finish with 2018 (the most recent report). As example:
+
+```
+python building_pau_db.py B -Y 2004
+```
+
+However, you can run each option for many years at the same time:
+
+```
+python building_pau_db.py A -Y 1987 1988 1989
+```
