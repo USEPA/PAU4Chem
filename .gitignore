@@ -1,14 +1,2 @@
-Ancillary/*
-!Ancillary/TRI_File_1a_needed_columns_for_statistics.txt
-!Ancillary/TRI_File_2b_needed_columns_for_statistics.txt
-!Ancillary/TRI_File_2b_needed_columns.txt
-!Ancillary/TRI_File_2b_columns.txt
-!Ancillary/TRI_File_1a_needed_columns.txt
-!Ancillary/TRI_File_1a_columns.txt
-!Ancillary/TRI_File_1b_needed_columns.txt
-!Ancillary/TRI_File_1b_columns.txt
-!Ancillary/Methods_TRI.csv
-!Ancillary/Metals_divided_into_4_groups_can_be_reported.csv
-!Ancillary/PCU_Allocation.csv
-!Ancillary/Flow_columns.yaml
-__pycache__/*
+**/__pycache__/
+/extract/datasets/*.csv

@@ -39,7 +39,7 @@ class TRI_Scraper:
 
 
     def _Calling_TRI_columns(self):
-        Path_Columns = self._dir_path + '/Ancillary'
+        Path_Columns = self._dir_path + '/../ancillary'
         for key in self._TRI_File_Columns_Dictionary.keys():
             inf_chardet = chardet.detect(open(Path_Columns + '/TRI_File_' + key + '_columns.txt', 'rb').read())
             inf_encoding = inf_chardet['encoding']
@@ -57,9 +57,9 @@ class TRI_Scraper:
         for key in self._TRI_File_Columns_Dictionary.keys():
             ## Unzipping
             with zipfile.ZipFile(io.BytesIO(r_file.content)) as z:
-                z.extract('US_' + key + '_' + self.year + '.txt' , self._dir_path + '/Ancillary')
+                z.extract('US_' + key + '_' + self.year + '.txt' , self._dir_path + '/datasets')
             ## Converting .txt to .csv
-            df = pd.read_csv(self._dir_path + '/Ancillary/US_' + key + '_' + self.year + '.txt',
+            df = pd.read_csv(self._dir_path + '/datasets/US_' + key + '_' + self.year + '.txt',
                             header = None, encoding = 'ISO-8859-1',
                             error_bad_lines = False,
                             sep = '\t',
@@ -68,10 +68,10 @@ class TRI_Scraper:
                             lineterminator = '\n',
                             usecols = range(len(self._TRI_File_Columns_Dictionary[key]))) # avoiding \r\n created in Windows OS
             df.columns = self._TRI_File_Columns_Dictionary[key]
-            df.to_csv(self._dir_path + '/Ancillary/US_' + key + '_' + self.year + '.csv',
+            df.to_csv(self._dir_path + '/datasets/US_' + key + '_' + self.year + '.csv',
                         sep = ',', index = False)
             time.sleep(30)
-            os.remove(self._dir_path + '/Ancillary/US_' + key + '_' + self.year + '.txt')
+            os.remove(self._dir_path + '/datasets/US_' + key + '_' + self.year + '.txt')
 
 
 if __name__ == '__main__':
