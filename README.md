@@ -11,6 +11,8 @@ This code was written using Python 3.x, Anaconda 3, and operating system Ubuntu 
 3. [pandas](https://anaconda.org/anaconda/pandas)
 4. [pyyaml](https://anaconda.org/anaconda/pyyaml/)
 5. [scipy](https://anaconda.org/conda-forge/scipy)
+5. [numpy](https://anaconda.org/conda-forge/numpy)
+6. [xlrs](https://anaconda.org/anaconda/xlrd)
 
 # How to use
 
