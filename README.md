@@ -21,6 +21,6 @@ python tri_web_scraper.py -Y TRI_Year -F TRI_File
 ```
 
 The flag -Y represents the TRI reporting year the you want to get, while -F is the file from the TRI for retrieving the information (e.g., File 1a). Check [TRI Basic Plus Data Files Guides
-](https://www.epa.gov/toxics-release-inventory-tri-program/tri-basic-plus-data-files-guides). PAU4Chem requires the files 1a, 2a, and 2b to run the data engineering.
+](https://www.epa.gov/toxics-release-inventory-tri-program/tri-basic-plus-data-files-guides). PAU4Chem requires the files 1a, 1b, and 2b to run the data engineering.
 
 ## Data engineering module
