@@ -14,7 +14,7 @@ This code was written using Python 3.x, Anaconda 3, and operating system Ubuntu 
 ## Web scraping module
 
 PAU4Chem is a modular framework that uses web scraping for extracing the TRI information from the web and organizes it before the data engineering.
-In order to run the web scraping module, navigate to the folder [extract]. Then, you execute the following command either on Windows CMD or Unix terminal:
+In order to run the web scraping module, navigate to the folder [extract](https://github.com/jodhernandezbe/PAU4Chem/tree/master/extract). Then, you execute the following command either on Windows CMD or Unix terminal:
 
 ```
 python tri_web_scraper.py -Y TRI_Year -F TRI_File
