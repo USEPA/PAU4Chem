@@ -26,4 +26,23 @@ The flag -Y represents the TRI reporting year the you want to get, while -F is t
 
 ## Data engineering module
 
-In order to run the steps in the data engineering, navigate to the folder [transform](https://github.com/jodhernandezbe/PAU4Chem/tree/master/transform).
+In order to run the steps in the data engineering, navigate to the folder [transform](https://github.com/jodhernandezbe/PAU4Chem/tree/master/transform). If you execute the following command either on Windows CMD or Unix terminal:
+
+```
+python building_pau_db.py --help
+```
+You could see the following menu:
+
+```
+positional arguments:
+  Option                What do you want to do: [A]: Recover information from TRI. [B]: File for statistics. [C]: File for recycling. [D]: Further
+                        cleaning of database. [E]: Organizing file with flows (1987-2004). [F]: Organizing file with substance prices (1987 - 2004).
+                        [G]: Pollution abatement cost and expenditure (only 2004). [H]: Pollution control unit positions (1987 - 2004) [I]:
+                        Searching information for years after 2004
+
+optional arguments:
+  -h, --help            show this help message and exit
+  -Y YEAR [YEAR ...], --Year YEAR [YEAR ...]
+                        Records with up to how many PAUs you want to include?.
+  -N_Bins N_BINS        Number of bins to split the middle waste flow values
+```
