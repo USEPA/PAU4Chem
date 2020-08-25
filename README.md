@@ -28,7 +28,7 @@ The flag -Y represents the TRI reporting year the you want to get, while -F is t
 
 ## Data engineering module
 
-In order to run the steps in the data engineering, navigate to the folder [transform](https://github.com/jodhernandezbe/PAU4Chem/tree/master/transform). If you execute the following command either on Windows CMD or Unix terminal:
+In order to run the steps in the data engineering, navigate to the folder [transform](https://github.com/jodhernandezbe/PAU4Chem/tree/master/transform). Execute the following command either on Windows CMD or Unix terminal:
 
 ```
 python building_pau_db.py --help
