@@ -8,6 +8,7 @@ This code was written using Python 3.x, Anaconda 3, and operating system Ubuntu 
 2. [requests](https://anaconda.org/anaconda/requests)
 3. [pandas](https://anaconda.org/anaconda/pandas)
 4. [pyyaml](https://anaconda.org/anaconda/pyyaml/)
+5. [scipy](https://anaconda.org/conda-forge/scipy)
 
 # How to use
 
@@ -24,3 +25,5 @@ The flag -Y represents the TRI reporting year the you want to get, while -F is t
 ](https://www.epa.gov/toxics-release-inventory-tri-program/tri-basic-plus-data-files-guides). PAU4Chem requires the files 1a, 1b, and 2b to run the data engineering.
 
 ## Data engineering module
+
+In order to run the steps in the data engineering, navigate to the folder [transform](https://github.com/jodhernandezbe/PAU4Chem/tree/master/transform).
