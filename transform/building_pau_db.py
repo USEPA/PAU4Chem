@@ -971,42 +971,42 @@ class PAU_DB:
 
     def Organizing_substance_prices(self):
         # Organizing information about prices
-        df_scifinder = pd.read_csv(self._dir_path + '/scifinder/Chemical_Price.csv',
+        df_prices = pd.read_csv(self._dir_path + '/prices/Chemical_Price.csv',
                                 dtype = {'CAS NUMBER': 'object'})
-        df_scifinder = df_scifinder.loc[\
-                            (pd.notnull(df_scifinder['PRICE'])) & \
-                            (df_scifinder['PRICE'] != 'Not found')]
-        df_scifinder
-        File_exchange = [file for file in os.listdir(self._dir_path + '/scifinder') if 'Exchange' in file]
-        df_exchange_rate = pd.read_csv(self._dir_path + '/scifinder/{}'.format(File_exchange[0]))
+        df_prices = df_prices.loc[\
+                            (pd.notnull(df_prices['PRICE'])) & \
+                            (df_prices['PRICE'] != 'Not found')]
+        df_prices
+        File_exchange = [file for file in os.listdir(self._dir_path + '/prices') if 'Exchange' in file]
+        df_exchange_rate = pd.read_csv(self._dir_path + '/prices/{}'.format(File_exchange[0]))
         Exchange_rate = {row['CURRENCY']:row['EXCHANGE RATE TO USD'] for idx, row in df_exchange_rate.iterrows()}
         del df_exchange_rate
-        df_scifinder['PRICE'] = df_scifinder.apply(lambda x: \
+        df_prices['PRICE'] = df_prices.apply(lambda x: \
                                     Exchange_rate[x['CURRENCY']] \
                                     *float(x['PRICE']),
                                     axis = 1)
-        df_scifinder['QUANTITY'] = df_scifinder['QUANTITY'].str.lower()
-        df_scifinder['QUANTITY'] = df_scifinder['QUANTITY'].str.replace(' ', '')
-        df_scifinder = df_scifinder[df_scifinder['QUANTITY'].str.contains(r'ton|[umk]{0,1}g')]
-        idx = df_scifinder[~df_scifinder['QUANTITY'].str.contains(r'x')].index.tolist()
-        df_scifinder.loc[idx, 'QUANTITY'] = '1x' + df_scifinder.loc[idx, 'QUANTITY']
-        df_scifinder[['TIMES', 'MASS', 'UNIT']] = \
-                    df_scifinder['QUANTITY'].str.extract('(\d+)x(\d+\.?\d*)(ton|[umk]{0,1}g)',
+        df_prices['QUANTITY'] = df_prices['QUANTITY'].str.lower()
+        df_prices['QUANTITY'] = df_prices['QUANTITY'].str.replace(' ', '')
+        df_prices = df_prices[df_prices['QUANTITY'].str.contains(r'ton|[umk]{0,1}g')]
+        idx = df_prices[~df_prices['QUANTITY'].str.contains(r'x')].index.tolist()
+        df_prices.loc[idx, 'QUANTITY'] = '1x' + df_prices.loc[idx, 'QUANTITY']
+        df_prices[['TIMES', 'MASS', 'UNIT']] = \
+                    df_prices['QUANTITY'].str.extract('(\d+)x(\d+\.?\d*)(ton|[umk]{0,1}g)',
                     expand = True)
         dictionary_mass = {'g':1, 'mg':0.001, 'kg':1000, 'ug':10**-6, 'ton':907185}
-        df_scifinder['QUANTITY'] = df_scifinder[['TIMES', 'MASS']]\
+        df_prices['QUANTITY'] = df_prices[['TIMES', 'MASS']]\
                                 .apply(lambda x: float(x.values[0])*float(x.values[1]),
                                 axis = 1)
-        df_scifinder['QUANTITY'] = df_scifinder[['QUANTITY', 'UNIT']]\
+        df_prices['QUANTITY'] = df_prices[['QUANTITY', 'UNIT']]\
                             .apply(lambda x: x.values[0]*dictionary_mass[x.values[1]], axis = 1)
-        df_scifinder['UNIT PRICE (USD/g)'] = df_scifinder[['PRICE', 'QUANTITY']]\
+        df_prices['UNIT PRICE (USD/g)'] = df_prices[['PRICE', 'QUANTITY']]\
                                         .apply(lambda x: x.values[0]/x.values[1],
                                             axis = 1)
-        df_scifinder.drop(columns = ['COMPANY_NAME', 'COUNTRY', 'PURITY',
+        df_prices.drop(columns = ['COMPANY_NAME', 'COUNTRY', 'PURITY',
                                     'CURRENCY', 'TIMES', 'MASS', 'UNIT',
                                     'QUANTITY', 'PRICE'],
                         inplace = True)
-        df_scifinder = df_scifinder.groupby('CAS NUMBER', as_index=False).min()
+        df_prices = df_prices.groupby('CAS NUMBER', as_index=False).min()
         # Calling PAU
         df_PAU = pd.read_csv(self._dir_path + '/datasets/final_pau_datasets/PAUs_DB_filled_{}.csv'.format(self.Year),
                             usecols=['TRIFID', 'CAS NUMBER', 'METHOD CODE - 2004 AND PRIOR'])
@@ -1026,7 +1026,7 @@ class PAU_DB:
                                 inplace = True)
         del chemicals, df_PAU
         # Merging prices with chemicals
-        df_PAU_chemicals = pd.merge(df_PAU_chemicals, df_scifinder,
+        df_PAU_chemicals = pd.merge(df_PAU_chemicals, df_prices,
                                     how = 'inner',
                                     on = 'CAS NUMBER')
         # Calling CDR
@@ -1043,7 +1043,7 @@ class PAU_DB:
                         on = ['CATEGORY CODE', 'TRIFID'],
                         how = 'inner')
         # Merging prices with categories
-        df_PAU_categories = pd.merge(df_PAU_categories, df_scifinder,
+        df_PAU_categories = pd.merge(df_PAU_categories, df_prices,
                                     how = 'inner',
                                     on = 'CAS NUMBER')
         df_PAU_categories.drop(columns = ['CATEGORY CODE'],
