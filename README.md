@@ -49,10 +49,16 @@ You could see the following menu:
 
 ```
 positional arguments:
-  Option                What do you want to do: [A]: Recover information from TRI. [B]: File for statistics. [C]: File for recycling. [D]: Further
-                        cleaning of database. [E]: Organizing file with flows (1987-2004). [F]: Organizing file with substance prices (1987 - 2004).
-                        [G]: Pollution abatement cost and expenditure (only 2004). [H]: Pollution control unit positions (1987 - 2004) [I]:
-                        Searching information for years after 2004
+  Option                What do you want to do: 
+                          [A]: Recover information from TRI.
+                          [B]: File for statistics.
+                          [C]: File for recycling.
+                          [D]: Further cleaning of database. 
+                          [E]: Organizing file with flows (1987-2004). 
+                          [F]: Organizing file with substance prices (1987 - 2004).
+                          [G]: Pollution abatement cost and expenditure (only 2004).
+                          [H]: Pollution control unit positions (1987 - 2004).
+                          [I]: Searching information for years after 2004
 
 optional arguments:
   -h, --help            show this help message and exit
