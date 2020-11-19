@@ -11,6 +11,8 @@ This code was written using Python 3.x, Anaconda 3, and operating system Ubuntu 
 3. [pandas](https://anaconda.org/anaconda/pandas)
 4. [pyyaml](https://anaconda.org/anaconda/pyyaml/)
 5. [scipy](https://anaconda.org/conda-forge/scipy)
+5. [numpy](https://anaconda.org/conda-forge/numpy)
+6. [xlrs](https://anaconda.org/anaconda/xlrd)
 
 # How to use
 
@@ -23,8 +25,14 @@ In order to run the web scraping module, navigate to the folder [extract](https:
 python tri_web_scraper.py -Y TRI_Year -F TRI_File
 ```
 
-The flag -Y represents the TRI reporting year the you want to get, while -F is the file from the TRI for retrieving the information (e.g., File 1a). Check [TRI Basic Plus Data Files Guides
-](https://www.epa.gov/toxics-release-inventory-tri-program/tri-basic-plus-data-files-guides). PAU4Chem requires the files 1a, 1b, and 2b to run the data engineering.
+The flag -Y represents the TRI reporting year that you would like to get, while -F is the file from the TRI for retrieving the information (e.g., File 1a). Check [TRI Basic Plus Data Files Guides
+](https://www.epa.gov/toxics-release-inventory-tri-program/tri-basic-plus-data-files-guides) for knowing more about the TRI files. PAU4Chem requires the files 1a, 1b, and 2b to run the data engineering.
+
+The above command can work for retrieving many years and files at the same time, for example:
+
+```
+python tri_web_scraper.py -Y 2001 2002 2003 -F 1a 1b 2b
+```
 
 ## Data engineering module
 
