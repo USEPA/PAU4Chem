@@ -1,6 +1,10 @@
 # PAU4Chem
 
-These Python codes build the PAU dataset for tracking and allocating the chemical flows in pollution abatement units (PAU). The folder [datasets](https://github.com/jodhernandezbe/PAU4Chem/tree/master/transform/datasets) contains the outputs for each framework step. The [Chemicals_in_categories.csv](https://github.com/jodhernandezbe/PAU4Chem/blob/master/transform/chemicals/Chemicals_in_categories.csv) contains the chemicals for the TRI chemical categories.
+These Python codes build the PAU dataset for tracking and allocating the chemical flows in pollution abatement units (PAUs). The folder [datasets](https://github.com/jodhernandezbe/PAU4Chem/tree/master/transform/datasets) contains the outputs for each framework step. The [Chemicals_in_categories.csv](https://github.com/jodhernandezbe/PAU4Chem/blob/master/transform/chemicals/Chemicals_in_categories.csv) contains the chemicals for the TRI chemical categories.
+
+<p align="center">
+  <img src=https://github.com/jodhernandezbe/PAU4Chem/blob/master/PAU_dataset.svg width="80%">
+</p>
 
 # Requirements
 
@@ -45,10 +49,16 @@ You could see the following menu:
 
 ```
 positional arguments:
-  Option                What do you want to do: [A]: Recover information from TRI. [B]: File for statistics. [C]: File for recycling. [D]: Further
-                        cleaning of database. [E]: Organizing file with flows (1987-2004). [F]: Organizing file with substance prices (1987 - 2004).
-                        [G]: Pollution abatement cost and expenditure (only 2004). [H]: Pollution control unit positions (1987 - 2004) [I]:
-                        Searching information for years after 2004
+  Option                What do you want to do: 
+                          [A]: Recover information from TRI.
+                          [B]: File for statistics.
+                          [C]: File for recycling.
+                          [D]: Further cleaning of database. 
+                          [E]: Organizing file with flows (1987-2004). 
+                          [F]: Organizing file with substance prices (1987 - 2004).
+                          [G]: Pollution abatement cost and expenditure (only 2004).
+                          [H]: Pollution control unit positions (1987 - 2004).
+                          [I]: Searching information for years after 2004
 
 optional arguments:
   -h, --help            show this help message and exit
@@ -68,3 +78,15 @@ However, you can run each option for many years at the same time:
 ```
 python building_pau_db.py A -Y 1987 1988 1989
 ```
+# Disclaimer
+
+The views expressed in this article are those of the authors and do not necessarily represent the views or policies of
+the U.S. Environmental Protection Agency. Any mention of trade names, products, or services does not imply an endorsement by the U.S.
+Government or the U.S. Environmental Protection Agency. The U.S. Environmental Protection Agency does not endorse any commercial products, service, or enterprises.
+
+# Acknowledgement
+
+This research was supported in by an appointment for Jose D. Hernandez-Betancur to the Research Participation
+Program at the Center for Environmental Solutions and Emergency Response, Office of Research and Development,
+U.S. Environmental Protection Agency, administered by the Oak Ridge Institute for Science and Education through an Interagency Agreement No. DW-89-92433001 between the U.S. Department of Energy and the U.S. Environmental Protection Agency.
+
