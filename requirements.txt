@@ -1,0 +1,10 @@
+# This code was written using Python 3.x, Anaconda 3, and operating system Ubuntu 18.04.
+# The following Python libraries are required for running the code:
+
+bs4>=0.0.1                       # Dummy package for Beautiful Soup.
+requests>=2.25.1                 # Python HTTP for Humans.
+pandas>=1.2.3                    # Powerful data structures for data analysis, time series, and statistics.
+pyyaml>=5.4.1                    # YAML parser and emitter for Python.
+scipy>=1.6.1                     # SciPy: Scientific Library for Python.
+numpy>=1.20.1                    # NumPy is the fundamental package for array computing with Python.
+xlrd>=2.0.1                      # Library for developers to extract data from Microsoft Excel (tm) .xls spreadsheet files.
