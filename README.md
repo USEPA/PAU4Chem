@@ -8,7 +8,9 @@ These Python codes build the PAU dataset for tracking and allocating the chemica
 
 # Requirements
 
-This code was written using Python 3.x, Anaconda 3, and operating system Ubuntu 18.04. The following Python libraries are required for running the code:
+This code was written using Python 3.x, Anaconda 3, and operating system Ubuntu 18.04.
+This code was tested in Windows 10 using IDE VS Code Insiders.
+The following Python libraries are required for running the code:
 
 1. [bs4](https://anaconda.org/conda-forge/bs4)
 2. [requests](https://anaconda.org/anaconda/requests)
