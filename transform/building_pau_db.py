@@ -64,13 +64,13 @@ class PAU_DB:
         return TRI_Files
 
     def is_number(self, s):
-        """TODO describe this method.
+        """Determine if the given value is a number.
 
         Args:
-            s ([type]): [description]
+            s (variable): a possibly numeric variable.
 
         Returns:
-            [type]: [description]
+            bool: True if the value is a number, False otherwise.
         """
         try:
             float(s)
